@@ -1,0 +1,7 @@
+In {{X[begin]}}, {{y1name}} is {%if magnification1>1 -%} {{magnification1}} times{%-else-%}  {{magnification1*100}}% {%-endif%} that of {{y2name}}.
+{% if magnification1 < magnification2 -%}
+With the increase of {{Xcol}}, the gap between the two is gradually increasing, in {{X[loopnum]}}, the number of {{y1name}} is {%if magnification1>1 -%} {{magnification2}} times{%-else-%}  {{magnification2*100}}% {%-endif%} that of {{y2name}}.
+{%else-%}
+With the increase of {{Xcol}}, the gap between the two is gradually decreasing, in {{X[loopnum]}}, the number of {{y1name}} is {%if magnification1>1 -%} {{magnification2}} times{%-else-%}  {{magnification2*100}}% {%-endif%} that of {{y2name}}.
+{%- endif -%}
+

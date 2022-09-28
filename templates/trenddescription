@@ -1,0 +1,12 @@
+In {{Xcol}} {{X[begin]}}, {{ycol}} is {{y[begin]}},
+{%-if y[end]>y[begin]-%}
+in {{Xcol}} {{X[end]}}, {{ycol}} increased to {{y[end]}}.
+{%else-%}
+in {{Xcol}} {{X[end]}}, {{ycol}} decreased to {{y[end]}}.
+{%- endif -%}
+{%-if Xmaxp!="" and y[end]<maxy-%}
+also, {{ycol}} is less than the peak in {{Xcol}} {{Xmaxp}} which is {{maxy}}.
+{%elif Xminp!="" and y[end]>miny-%}
+also, {{ycol}} is larger than the minimum in {{Xcol}} {{Xmaxp}} which is {{miny}}.
+{%- endif -%}
+

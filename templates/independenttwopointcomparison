@@ -1,0 +1,19 @@
+{%-if mode =="quantity"-%}
+{%-if y2>y1 -%}
+The {{Xcol}} in {{X[point]}}, {{y2name}} (which is {{y2}}) higher than {{y1name}} (which is {{y1}}).
+{%-elif y1>y2 -%}
+{{Xcol}} in {{X[point]}}, {{y2name}} (which is {{y2}}) less than {{y1name}} (which is {{y1}}).
+{%-else -%}
+{{Xcol}} in {{X[point]}}, {{y2name}} equal to {{y1name}} (which is {{y1}}).
+{%-endif -%}
+{%-else-%}
+{%-if mag>1 -%}
+In {{Xcol}} {{X[point]}}, {{y2name}} is {{mag}} times of {{y1name}}.
+{%-elif mag<1 -%}
+In {{Xcol}} {{X[point]}}, {{y2name}} accounted for {{mag*100}}% of {{y1name}}.
+{%-else -%}
+In {{Xcol}} {{X[point]}}, {{y2name}} equal to {{y1name}} (which is {{y1}}).
+{%-endif -%}
+{%-endif-%}
+
+

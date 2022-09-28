@@ -1,0 +1,30 @@
+In the {{Xcol}} {{Xend}}, there were an estimated {{yend}} {{ycol}} - {%-if diff1>0%} a increase of {{diff1}} ({{diff2*100}}%) from {{Xlast}}.{%-elif diff1<0%} a decrease of {{(-diff1)}} ({{(-diff2*100)}}%) from {{Xlast}}.{%-else%} it did not change from {{Xlast}}. {%-endif-%}
+{%- if yend < ymax %} it is also less than the peak of {{ymax}} in {{Xmax}}.{%-endif-%}
+{%- if iP != " " %} Overall, the numbers have increased {{iP}}
+{%- endif -%}
+{%- if iP != " " and dP != " " %} and have decreased {{dP}}. {%- elif iP == " " and dP != " " %} The numbers have decreased {{dP}}.
+{%- endif -%}
+{%- if nP != " " %} have not change {{nP}}.
+{%- endif -%}
+Over {{X1}} to {{X2}},
+{%- if y1 < y2 %}
+children have begun episodes of care at a younger age (under 5 years old).
+{%- elif y1 > y2 %}
+the percentage of children who have begun episodes at a younger age (under 5 years old) becomes less.
+{%- else %}
+the percentage of children who have begun episodes at a younger age (under 5 years old) does not change much.{%- endif -%}
+In the {{Xcol}} {{X2}}, there were an estimated {{y2}} {{ycol}}
+{%- if y1 < y2 %}
+- a increase of {{y2-y1}}% from {{X1}},
+{%- elif y1 > y2 %}
+- a decrease of {{y1-y2}}% from {{X1}},
+{%- else %}
+- no change from {{X1}},
+{%- endif -%}
+{%- if y2 < ypeak %}
+although it is less than the peak of {{ypeak}} in {{Xpeak}}.
+{%- elif y2 > ypeak %}
+it is even higher than the last peak of {{ypeak}} in {{Xpeak}}.
+{%- else %}
+it is equal to the peak of {{ypeak}} in {{Xpeak}}.
+{%- endif -%}

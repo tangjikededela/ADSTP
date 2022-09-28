@@ -38,5 +38,31 @@ import UI
 # # CT.enquiries_question6(enquiries_data, AC_enquiries, AS_enquiries, MT_enquiries, period_col)
 
 # UI.child_protection_UI()
+# drug-related death
+col_names = ['years', 'drug related deaths', 'males', 'females', 'Deaths under age 14',
+             'Deaths between the ages of 15 and 24', 'Deaths between the ages of 25 and 34',
+             'Deaths between the ages of 35 and 44', 'Deaths between the ages of 45 and 54',
+             'Deaths between the ages of 55 and 64', 'Deaths ages over 65', 'average age of death',
+             'dead by Heroin/morphine 2', 'dead by Methadone', 'dead by Heroin/morphine, Methadone or Bupren-orphine',
+             'dead by Codeine or a codeine-containing compound',
+             'dead by Dihydro-codeine or a d.h.c-containing compound', 'dead by any opiate or opioid', ]
+data = read_csv("drugdeathsexagetype.csv", header=None, names=col_names)
 
+X = data.years  # Features
+Xcolname = "years"
+ycolnames = ['drug related deaths', 'males', 'females', 'Deaths under age 14',
+             'Deaths between the ages of 15 and 24', 'Deaths between the ages of 25 and 34',
+             'Deaths between the ages of 35 and 44', 'Deaths between the ages of 45 and 54',
+             'Deaths between the ages of 55 and 64', 'Deaths ages over 65', 'average age of death',
+             'dead by Heroin/morphine 2', 'dead by Methadone', 'dead by Heroin/morphine, Methadone or Bupren-orphine',
+             'dead by Codeine or a codeine-containing compound',
+             'dead by Dihydro-codeine or a d.h.c-containing compound', 'dead by any opiate or opioid', ]
+y1name="males"
+y2name="females"
+y1=data[y1name]
+y2=data[y2name]
+begin=4
+end=24
+model="magnificationcompare"
+CT.dependentcompare(model, X, y1, y2, Xcolname, y1name, y2name, begin, end)
 

@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 from pandas import DataFrame
 import heapq
 from sklearn import preprocessing
+from iteration_utilities import duplicates
+from iteration_utilities import unique_everseen
+from scipy.signal import argrelextrema
 from sklearn import ensemble
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
@@ -15,6 +18,7 @@ from sklearn.metrics import mean_squared_error, accuracy_score
 from pygam import LinearGAM, s, f, te
 import statsmodels.api as sm
 import scipy.signal as signal
+import math
 
 
 def NormalizeData(data):
@@ -102,8 +106,6 @@ def LogisticrDefaultModel(X, y, Xcol):
     return (columns1, logisticData1, columns2, logisticData2, r2)
 
 
-
-
 def GradientBoostingDefaultModel(X, y, Xcol, gbr_params):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
     model = ensemble.GradientBoostingRegressor(**gbr_params)
@@ -153,15 +155,16 @@ def DecisionTreeDefaultModel(X, y, Xcol, max_depth):
     DTData = DataFrame(data=columns, index=Xcol)
     return (model, r2, mse, rmse, DTData)
 
-def GAMModel(data, Xcol, ycol, X,y,expect=1,epochs=100,splines=''):
+
+def GAMModel(data, Xcol, ycol, X, y, expect=1, epochs=100, splines=''):
     titles = Xcol
     n = np.size(titles)
     # Fitting the model
     lams = np.random.rand(epochs, np.size(titles))  # Epochs
     lams = lams * np.size(titles) - 3
     lams = np.exp(lams)
-    if splines=='':
-        splines=n+5
+    if splines == '':
+        splines = n + 5
     gam = LinearGAM(n_splines=splines).gridsearch(X, y, lam=lams)
     r2 = gam.statistics_.get('pseudo_r2')
     p = gam.statistics_.get('p_values')
@@ -170,7 +173,7 @@ def GAMModel(data, Xcol, ycol, X,y,expect=1,epochs=100,splines=''):
     factor = ""
     mincondition = ""
     condition = ""
-    choose=expect
+    choose = expect
     conflict = [0] * np.size(Xcol)
     # Analysis and Story Generate
     for i, ax in enumerate(axs):
@@ -313,12 +316,12 @@ def GAMModel(data, Xcol, ycol, X,y,expect=1,epochs=100,splines=''):
             nss = nss + Xcol[i] + ", "
         else:
             ss = ss + Xcol[i] + ", "
-    return (gam,data,Xcol,ycol,r2,p,conflict,nss,ss,mincondition,condition)
+    return (gam, data, Xcol, ycol, r2, p, conflict, nss, ss, mincondition, condition)
 
 
-def loop_mean_compare(dataset, Xcol,ycol):
+def loop_mean_compare(dataset, Xcol, ycol):
     diff = [0] * np.size(Xcol)
-    i=0
+    i = 0
     for ind in Xcol:
         diff[i] = (statistics.mean(dataset[ind]) - statistics.mean(dataset[ycol]))
         i = i + 1
@@ -326,27 +329,29 @@ def loop_mean_compare(dataset, Xcol,ycol):
 
 
 def find_row_n_max(dataset, Xcol, r=0, max_num=5):
-
-    row_data = dataset[Xcol].values[0:r+1][r]
+    row_data = dataset[Xcol].values[0:r + 1][r]
     max_data = (heapq.nlargest(max_num, row_data))
     max_factor = []
     for ind in Xcol:
-        if dataset[ind].values[0:r+1][r] in max_data:
+        if dataset[ind].values[0:r + 1][r] in max_data:
             max_factor.append(ind)
     return (max_factor)
 
-def detect_same_elements(list1,list2):
-    same_element=0
+
+def detect_same_elements(list1, list2):
+    same_element = 0
     for i in list1:
         if i in list2:
             same_element = same_element + 1
     return (same_element)
 
-def select_one_element(dataset, Xcol,ycol):
+
+def select_one_element(dataset, Xcol, ycol):
     datasize = np.size(dataset[Xcol])
     y = dataset[ycol].values[0:datasize][datasize - 1]
     X = dataset[Xcol].values[0:datasize][datasize - 1]
-    return (X,y)
+    return (X, y)
+
 
 def find_all_zero_after_arow(dataset, Xcol, ycol):
     period = dataset[ycol]
@@ -358,7 +363,175 @@ def find_all_zero_after_arow(dataset, Xcol, ycol):
                 zero_lastdata = period[i]
     return (zero_lastdata)
 
+
 def find_column_mean(dataset):
-    meancol=statistics.mean(dataset)
+    meancol = statistics.mean(dataset)
     return (meancol)
 
+
+class NonFittingReport:
+    # Include several simple data comparison methods
+    def dependentcompare(m, X, y1, y2, Xcolname, ycolname1, ycolname2, begin, end):
+        if "magnificationcompare" in str(m):
+            if begin == "":
+                begin = 0
+            if end == "":
+                end = np.size(X) - 1
+            magnification1 = math.floor(y1[begin] / y2[begin])
+            magnification2 = round(y1[end] / y2[end], 1)
+            X1 = X[begin]
+            X2 = X[end]
+            return (Xcolname, begin, end, ycolname1, ycolname2, magnification1, magnification2, X, X1, X2)
+            # print(dc1.render(Xcol=Xcolname, begin=begin, end=end, loopnum=end, y1name=ycolname1, y2name=ycolname2,
+            #                  magnification1=magnification1,
+            #                  magnification2=magnification2, X=X, X1=X1, X2=X2))
+        if "quantitycomparison" in str(m):
+            if begin == "":
+                begin = 0
+            if end == "":
+                end = np.size(X) - 1
+            diff1 = round(y1[begin] - y2[begin], 2)
+            diff2 = round(y1[end] - y2[end], 2)
+            X1 = X[begin]
+            X2 = X[end]
+            return (Xcolname, begin, end, ycolname1, ycolname2, diff1, diff2, X, X1, X2)
+            # print(dc3.render(Xcol=Xcolname, begin=begin, end=end, loopnum=end, y1name=ycolname1, y2name=ycolname2,
+            #                  diff1=diff1, diff2=diff2, X=X, X1=X1, X2=X2))
+
+    def independenttwopointcompare(self, m, X, Xcolname, y1, y2, ycolname1, ycolname2, point, mode):
+        if "independenttwopointcomparison" in str(m):
+            if mode == "":
+                mode = "quantity"
+            if point == "":
+                point = np.size(X) - 1
+            y1 = y1[point]
+            y2 = y2[point]
+            mag = np.round(y1 / y2, 2)
+            return (Xcolname, point, ycolname1, ycolname2, X, y1, y2, mode, mag)
+            # print(idtpc.render(Xcol=Xcolname, point=point, y1name=ycolname1, y2name=ycolname2, X=X, y1=y1, y2=y2,
+            #                    mode=mode, mag=mag))
+
+    def samedependentcompare(self, m, X, y, Xcolname, ycolname, begin="", end=""):
+        if "samedependentmagnificationcompare" in str(m):
+            if begin == "":
+                begin = 0
+            if end == "":
+                end = np.size(X) - 1
+            magnification = round(y[end] / y[begin], 2)
+            return (Xcolname, ycolname, begin, end, magnification, X, y)
+            # print(dc2.render(Xcol=Xcolname, ycol=ycolname, begin=begin, end=end, magnification=magnification, X=X, y=y))
+        elif "trenddescription" in str(m):
+            Xmaxp = ""
+            Xminp = ""
+            story = ""
+            maxpoint = argrelextrema(y.values, np.greater, order=1)[0]
+            minpoint = argrelextrema(y.values, np.less, order=1)[0]
+            for i in range(np.size(maxpoint)):
+                if float(y[maxpoint[i]]) == max(y):
+                    Xmaxp = X[maxpoint[i]]
+            for i in range(np.size(minpoint)):
+                if float(y[minpoint[i]]) == min(y):
+                    Xminp = X[minpoint[i]]
+            maxy = max(y)
+            miny = min(y)
+            # return (Xcolname, ycolname, X, Xmaxp, Xminp, y, begin, end, maxy, miny)
+            # print(dct.render(Xcol=Xcolname, ycol=ycolname, X=X, Xmaxp=Xmaxp, Xminp=Xminp, y=y, begin=begin, end=end,
+            #                  maxy=max(y), miny=min(y)))
+            repeatvalue = list(unique_everseen(duplicates(y)))
+            if repeatvalue != []:
+                for i in range(np.size(repeatvalue)):
+                    Xsamep = ""
+                    for j in range(np.size(y) - 1):
+                        if y[j] == repeatvalue[i] and y[j + 1] == repeatvalue[i]:
+                            Xsamep = Xsamep + str(X[j]) + " "
+                        elif y[j] == repeatvalue[i] and y[j - 1] == repeatvalue[i]:
+                            Xsamep = Xsamep + str(X[j]) + " "
+                        if j == np.size(y) - 2 and y[j] == repeatvalue[i] and y[j + 1] == repeatvalue[i]:
+                            Xsamep = Xsamep + str(X[j + 1]) + " "
+                    story = story + "In " + Xcolname + " " + Xsamep.split()[0] + " to " + Xsamep.split()[
+                        np.size(Xsamep.split()) - 1] + " " + ycolname + " does not change much, it is around " + str(
+                        repeatvalue[i]) + ". "
+            return (Xcolname, ycolname, X, Xmaxp, Xminp, y, begin, end, maxy, miny,story)
+                    # print("In " + Xcolname + " " + Xsamep.split()[0] + " to " + Xsamep.split()[
+                    #     np.size(Xsamep.split()) - 1] + " " + ycolname + " does not change much, it is around " + str(
+                    #     repeatvalue[i]) + ".")
+        elif "trendpercentage" in str(m):
+            if begin == "":
+                begin = 0
+            if end == "":
+                end = np.size(X) - 1
+            ynew = [0] * (end - begin + 1)
+            for i in range(end - begin + 1):
+                ynew[i] = y[i + begin]
+            std = np.std(ynew)
+            return (Xcolname,begin,end,ycolname,X,y,std)
+            # print(dc4.render(Xcol=Xcolname, begin=begin, end=end, ycol=ycolname, X=X, y=y, std=std))
+
+    def independentcompare(self, m, X, y, Xcolname, ycolname, begin, end):
+        if "independentquantitycomparison" in str(m):
+            X1 = X[begin]
+            X2 = X[end]
+            y1 = y[begin]
+            y2 = y[end]
+            return (Xcolname,ycolname,X,X1,X2,y1,y2)
+            # print(idc1.render(Xcol=Xcolname, ycol=ycolname, X=X, X1=X1, X2=X2, y1=y1, y2=y2))
+
+    def two_point_and_peak(self, m, X, y, Xcolname, ycolname, point1, point2):
+        if "twopointpeak_child" in str(m):
+            X1 = X[point1]
+            X2 = X[point2]
+            y1 = y[point1]
+            y2 = y[point2]
+            ypeak = max(y)
+            for i in range(np.size(y)):
+                if y[i] == ypeak:
+                    Xpeak = X[i]
+            return (Xcolname,ycolname,Xpeak,ypeak,X1,X2,y1,y2)
+            # print(tppc.render(Xcol=Xcolname, ycol=ycolname, Xpeak=Xpeak, ypeak=ypeak, X1=X1, X2=X2, y1=y1, y2=y2))
+
+    def batchprovessing(self, m, X, y, Xcolname, ycolnames, category_name, end, begin=0):
+        if m == 1:
+            allincrease = True
+            alldecrease = True
+            X1 = X[begin]
+            X2 = X[end]
+            for i in range(np.size(ycolnames) - 1):
+                ycolname = ycolnames[i]
+                ydata = y[ycolname]
+                if ydata[end] > ydata[begin]:
+                    alldecrease = False
+                elif ydata[end] < ydata[begin]:
+                    allincrease = False
+            X1=0
+            # return (m,Xcolname,X1,allincrease,alldecrease,category_name)
+            # print(bp1.render(mode=m, Xcol=Xcolname, X1=0, allincrease=allincrease, alldecrease=alldecrease,
+            #                  category_name=category_name))
+            return (m, Xcolname, X1, allincrease, alldecrease, category_name, ycolnames,begin,end)
+            # story=""
+            # for i in range(np.size(ycolnames) - 1):
+            #     ycolname = ycolnames[i]
+            #     ydata = y[ycolname]
+            #     y1 = ydata[begin]
+            #     y2 = ydata[end]
+            #     story=story+bp2.render(mode=m, ycol=ycolname, y1=y1, y2=y2, X1=X1, X2=X2, mag=0)
+            #   # print(bp2.render(mode=m, ycol=ycolname, y1=y1, y2=y2, X1=X1, X2=X2, mag=0))
+            # return (m, Xcolname, X1, allincrease, alldecrease, category_name, story)
+        elif m == 2:
+            point = end
+            X1 = X[point]
+            allincrease = False
+            alldecrease = False
+            # return (m,Xcolname,X1,allincrease,alldecrease,category_name)
+            # print(bp1.render(mode=m, Xcol=Xcolname, X1=X1, allincrease=False, alldecrease=False,
+            #                  category_name=category_name))
+            total = y[category_name][point]
+            return (m, Xcolname, X1, allincrease, alldecrease, category_name,total,ycolnames,y,point)
+            # story=""
+            # for i in range(np.size(ycolnames) - 1):
+            #     ycolname = ycolnames[i]
+            #     ydata = y[ycolname]
+            #     y1 = ydata[point]
+            #     mag = np.round(y1 / total, 2)
+            #     story=story+bp2.render(mode=m, ycol=ycolname, y1=y1, y2=0, X1=0, X2=0, mag=mag)
+            #     # print(bp2.render(mode=m, ycol=ycolname, y1=y1, y2=0, X1=0, X2=0, mag=mag))
+            # return (m, Xcolname, X1, allincrease, alldecrease, category_name,story)

@@ -1,0 +1,3 @@
+The National average for reregistration is between {{nar}}.
+This has been an area of fluctuation in the City over the period as seen in the table below.
+To look at the {{rrly}} children re-registered in the period {{time}} and to report back on progress at the next Ops Sub Committee meeting.

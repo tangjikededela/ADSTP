@@ -53,6 +53,20 @@ reregister_story = env.get_template('reregister.txt')
 remain_story = env.get_template('remain_story.txt')
 enquiries_story = env.get_template('enquiries_story.txt')
 
+# for different dependent variables compared
+dc1 = env.get_template('dependentmagnificationcompare')
+dc2 = env.get_template('samedependentmagnificationcompare')
+dc3 = env.get_template('dependentquantitycompare')
+dc4 = env.get_template('trendpercentagedescription')
+dct = env.get_template('trenddescription')
+tppc = env.get_template('twopointpeak_child')
+# for different independent variables compared
+idc1 = env.get_template('independentquantitycompare')
+idtpc = env.get_template('independenttwopointcomparison')
+# for batch processing
+bp1 = env.get_template('batchprocessing1')
+bp2 = env.get_template('batchprocessing2')
+
 # creating the global variables
 models_names = ['Gradient Boosting Regressor', 'Random Forest Regressor', 'Linear Regression',
                 'Decision Tree Regressor', 'GAMs']
@@ -688,3 +702,8 @@ def enquiries_question6_view(ACmean, ASmean, MTmean, ACdata, ASdata, MTdata, per
                                             ASE=ASdata,
                                             MTE=MTdata, period=period)
     dash_only_text(app, listTabs, enquiriesstory, label)
+
+def dependentcompare_view(Xcolname, begin, end, ycolname1, ycolname2, magnification1, magnification2, X, X1, X2):
+    print(dc1.render(Xcol=Xcolname, begin=begin, end=end, loopnum=end, y1name=ycolname1, y2name=ycolname2,
+                     magnification1=magnification1,
+                     magnification2=magnification2, X=X, X1=X1, X2=X2))

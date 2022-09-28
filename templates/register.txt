@@ -1,0 +1,7 @@
+{%- if diff>-1 and diff<=0 -%}
+The {{Xcol}} statistics traditionally accord in general terms with national statistics.
+{%- elif diff>0 -%}
+{{Xcol}} has a proportionately high level of registration at {{minX}} - {{maxX}} per 1000 population.
+{%- else -%}
+{{Xcol}} is generally consistent other than in relation to a low rate of registration at {{minX}} - {{maxX}} per 1,000 children and fluctuating areas of concern.
+{%-endif-%}

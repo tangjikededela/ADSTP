@@ -1,0 +1,5 @@
+{%-if mode==1-%}
+•{{ycol}}, from {{y1}} in {{X1}} to {{y2}} in {{X2}}
+{%-elif mode==2-%}
+•{{ycol}} - {{y1}} ({{mag*100}}%)
+{%-endif-%}

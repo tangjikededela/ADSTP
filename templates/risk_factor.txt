@@ -1,0 +1,16 @@
+Data from the Child Protection Register,
+{%- if same_factor==5 -%}
+indicates that the risk factors in {{cityname}} have remained largely the same over the last year,
+{%- elif same_factor<5 and same_factor>=3 -%}
+indicates that the risk factors in {{cityname}} have changed slightly over the past year,
+{%- elif same_factor<3 and same_factor>=1 -%}
+indicates that the risk factors in {{cityname}} have changed significantly over the past year,
+{%- else -%}
+indicate that Aberdeen's risk factors are quite different from the past year,
+{%- endif -%}
+with the main areas of concern being {% for i in range(0,indeNum) %} {% if i==indeNum-1 %} and {{max_factor[i]}} {%- else %}{{max_factor[i]}},{% endif %}{% endfor %}.
+{%- if same_factor==5 -%}
+Although there are some fluctuations, these predominant categories for registration remain the same.
+{%- else -%}
+There are some fluctuations, and some predominant registration categories have changed.
+{%- endif -%}

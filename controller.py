@@ -153,3 +153,7 @@ def enquiries_question6(app_name,listTabs,enquiries_data, AC_enquiries, AS_enqui
     ASmean = MD.find_column_mean(ASdata)
     MTmean = MD.find_column_mean(MTdata)
     VW.enquiries_question6_view(ACmean, ASmean, MTmean, ACdata, ASdata, MTdata, period, label,app_name,listTabs)
+
+def dependentcompare(m, X, y1, y2, Xcolname, ycolname1, ycolname2, begin, end):
+    Xcolname, begin, end, ycolname1, ycolname2, magnification1, magnification2, X, X1, X2=MD.NonFittingReport.dependentcompare(m, X, y1, y2, Xcolname, ycolname1, ycolname2, begin, end)
+    VW.dependentcompare_view(Xcolname, begin, end, ycolname1, ycolname2, magnification1, magnification2, X, X1, X2)

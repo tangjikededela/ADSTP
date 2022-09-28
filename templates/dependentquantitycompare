@@ -1,0 +1,21 @@
+{%-if y1[end]>y1[begin] -%}
+{{Xcol}} from {{X1}} to {{X2}}, {{y1name}} increased from {{y1[begin]}} to {{y1[end]}}.
+{%-elif y1[end]<y1[begin] -%}
+{{Xcol}} from {{X1}} to {{X2}}, {{y1name}} decreased from {{y1[begin]}} to {{y1[end]}}.
+{%-else -%}
+{{Xcol}} from {{X1}} to {{X2}}, {{y1name}} did not change around {{y1[begin]}}.
+{%-endif -%}
+{%-if y2[end]>y2[begin] -%}
+{{Xcol}} from {{X1}} to {{X2}}, {{y2name}} increased from {{y2[begin]}} to {{y2[end]}}.
+{%-elif y2[end]<y2[begin] -%}
+{{Xcol}} from {{X1}} to {{X2}}, {{y2name}} decreased from {{y2[begin]}} to {{y2[end]}}.
+{%-else -%}
+{{Xcol}} from {{X1}} to {{X2}}, {{y2name}} did not change around {{y2[begin]}}.
+{%-endif -%}
+{%-if diff2>diff1 -%}
+With the increase of {{Xcol}}, the gap between the two is increasing from {{diff1}} to {{diff2}}.
+{%-elif diff2<diff1 -%}
+With the increase of {{Xcol}}, the gap between the two is decreasing from {{diff1}} to {{diff2}}.
+{%-else -%}
+With the increase of {{Xcol}}, the gap between the two did not change around {{diff1}}.
+{%-endif -%}

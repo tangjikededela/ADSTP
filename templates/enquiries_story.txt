@@ -1,0 +1,11 @@
+In the periods {% for i in range(0,indeNum) %}{{period[i]}}, {% endfor %}there were {% for i in range(0,indeNum) %}{{ACE[i]}}, {% endfor %}enquiries respectively from Aberdeen City to the CPR.
+This includes web searches as well as direct queries to the CPR team.
+{%- if ASM>ACM -%}
+Aberdeenshire practice of checks against the CPR would appear to be far better embedded.
+{%- elif ASM==ACM -%}
+Aberdeenshire has roughly the same number of consultations for CPR as Aberdeen City.
+{%- else -%}
+Aberdeenshire practice of checks against the CPR would appear to be less effective.
+{%- endif -%}
+For the corresponding periods, Aberdeenshire enquiries numbered{% for i in range(0,indeNum) %} {{ASE[i]}}, {% endfor %} respectively.
+Moray has significantly less child protection activity although their enquiries are{% if ACM>MTM %} also particularly low {% elif ACM==MTM %} roughly the same {%else%} higher than Aberdeen City {% endif %} ({% for i in range(0,indeNum) %} {{MTE[i]}}, {% endfor %}).

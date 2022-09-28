@@ -1,0 +1,3 @@
+{%- if zl!="" -%}
+After {{zl}}, there have been no children on the CPR in Aberdeen City for more than one year which would indicate that persistent significant harm is not tolerated and either the child’s home circumstances have improved or the child has been removed to safety within that timescale.
+{%- endif -%}

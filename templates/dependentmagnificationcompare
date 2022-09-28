@@ -1,0 +1,6 @@
+In {{X[begin]}}, {{y1name}} were {%if magnification1>1 -%} more than {{magnification1}} times{%-else-%}  {{magnification1*100}}% {%-endif%} as likely to have a drug-related death as {{y2name}}.
+{% if magnification1 < magnification2 -%}
+The ratio has increased over the {{Xcol}}. In {{X[end]}}, {{y1name}} were {%if magnification1>1 -%} {{magnification2}} times as{%-else-%}  {{magnification2*100}}% {%-endif%} likely to have a drug-related death as {{y2name}}.
+{%else-%}
+Overall, this gap has closed over the {{Xcol}}. In {{X[end]}}, {{y1name}} were {%if magnification1>1 -%} {{magnification2}} times as{%-else-%}  {{magnification2*100}}% {%-endif%} likely to have a drug-related death as {{y2name}}.
+{%- endif -%}

@@ -1,0 +1,7 @@
+In {{Xcol}} {{X[end]}}, {{ycol}} is {%if magnification>1 -%} {{magnification}} times{%-else-%}  {{magnification*100}}% {%-endif%} that of {{ycol}} in {{Xcol}} {{X[begin]}} which is {{y[begin]}}.
+{% if magnification > 1 -%}
+With {{Xcol}} increase, {{ycol}} is gradually increasing, it increased {{y[end]-y[begin]}} which is {{(magnification-1)*100}}%.
+{%else-%}
+With {{Xcol}} increase, {{ycol}} is gradually decreasing, it decreased {{y[begin]-y[end]}} which is {{(1-magnification)*100}}%.
+{%- endif -%}
+

@@ -1,0 +1,5 @@
+{%-if mode==1-%}
+With the {{Xcol}} increase, {%-if allincrease==True%} there has been an increase in the {{category_name}} were involved: {%-elif alldecrease==True%} there has been an decrease in the {{category_name}} were involved:{%-else %}below are the change trends of the {{category_name}} were involved:{%-endif-%}
+{%-elif mode==2-%}
+Of {{category_name}} in {{Xcol}} {{X1}}, the following substances were involved:
+{%-endif-%}

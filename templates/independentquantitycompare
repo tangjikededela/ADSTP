@@ -1,0 +1,1 @@
+Over the {{Xcol}}, the {{ycol}} has {%-if y2>y1-%} increased. {%-elif y1>y2-%} decreased. {%-else-%} did not change.{%-endif-%} In {{X1}}, the {{ycol}} was {{y1}}, and in {{X2}}, the {{ycol}} was {{y2}}.

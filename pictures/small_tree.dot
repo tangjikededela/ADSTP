@@ -1,0 +1,33 @@
+digraph Tree {
+node [shape=box, style="rounded", color="black", fontname=helvetica] ;
+edge [fontname=helvetica] ;
+0 [label="percentage of households with public assistance income <= 0.4\nmse = 0.1\nsamples = 889\nvalue = 0.2"] ;
+1 [label="percent of people in owner occupied households <= 0.6\nmse = 0.0\nsamples = 575\nvalue = 0.1"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label="percentage of households with public assistance income <= 0.2\nmse = 0.0\nsamples = 199\nvalue = 0.2"] ;
+1 -> 2 ;
+3 [label="mse = 0.0\nsamples = 97\nvalue = 0.2"] ;
+2 -> 3 ;
+4 [label="mse = 0.0\nsamples = 102\nvalue = 0.3"] ;
+2 -> 4 ;
+5 [label="percent of people in owner occupied households <= 0.7\nmse = 0.0\nsamples = 376\nvalue = 0.1"] ;
+1 -> 5 ;
+6 [label="mse = 0.0\nsamples = 201\nvalue = 0.1"] ;
+5 -> 6 ;
+7 [label="mse = 0.0\nsamples = 175\nvalue = 0.1"] ;
+5 -> 7 ;
+8 [label="percent of housing units with less than 3 bedrooms <= 0.8\nmse = 0.1\nsamples = 314\nvalue = 0.4"] ;
+0 -> 8 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+9 [label="percent of people in owner occupied households <= 0.5\nmse = 0.1\nsamples = 287\nvalue = 0.4"] ;
+8 -> 9 ;
+10 [label="mse = 0.1\nsamples = 184\nvalue = 0.4"] ;
+9 -> 10 ;
+11 [label="mse = 0.1\nsamples = 103\nvalue = 0.3"] ;
+9 -> 11 ;
+12 [label="percent of housing units with less than 3 bedrooms <= 1.0\nmse = 0.1\nsamples = 27\nvalue = 0.7"] ;
+8 -> 12 ;
+13 [label="mse = 0.0\nsamples = 25\nvalue = 0.8"] ;
+12 -> 13 ;
+14 [label="mse = 0.0\nsamples = 2\nvalue = 0.4"] ;
+12 -> 14 ;
+}

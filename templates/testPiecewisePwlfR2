@@ -1,0 +1,30 @@
+{% macro CI(R) %}{{dP}} CI{% endmacro -%}
+{% macro CI(R) %}{{nP}} CI{% endmacro -%}
+{% macro CI(R) %}{{iP}} CI{% endmacro -%}
+{% macro CI(R) %}{{n}} CI{% endmacro -%}
+{% macro CI(R) %}{{L}} CI{% endmacro -%}
+{% macro CI(R) %}{{SRSSI}} CI{% endmacro -%}
+{% macro CI(R) %}{{SRNSSI}} CI{% endmacro -%}
+{% macro CI(R) %}{{WRSSI}} CI{% endmacro -%}
+{% macro CI(R) %}{{WRNSSI}} CI{% endmacro -%}
+Last but not the least, after some mathematical calculation and verification,
+{% if SRSSI!="" and SRNSSI!="" %}
+on the fitting parts when {{Xcol}} {{SRSSI}} and {{SRNSSI}}
+{{Xcol}} have a strong relationship with {{ycol}}.
+{% elif SRSSI!="" %}
+when {{Xcol}} {{SRSSI}}
+{{Xcol}} have a strong relationship with {{ycol}}.
+{% elif SRNSSI!="" %}
+when {{Xcol}} {{SRNSSI}}
+{{Xcol}} have a strong relationship with {{ycol}}.
+{% endif %}
+{% if WRSSI!="" and WRNSSI!="" %}
+on the fitting parts when {{Xcol}} {{WRSSI}} and {{WRNSSI}}
+{{Xcol}} have a weak relationship with {{ycol}}.
+{% elif WRSSI!="" %}
+when {{Xcol}} {{WRSSI}}
+{{Xcol}} have a weak relationship with {{ycol}}.
+{% elif WRNSSI!="" %}
+when {{Xcol}} {{WRNSSI}}
+{{Xcol}} have a weak relationship with {{ycol}}.
+{% endif %}

@@ -1,0 +1,18 @@
+This is a data story to help you understand how to classify {{ycol}} by {%- for i in range(0,indeNum) %} {{Xcol[i]}}, {%endfor-%} through fitting the dataset to {{modelName}}.
+First of all, the story will {% if qs[0]==1-%} describe the credibility of the model as a whole. Then it will {%- endif %}
+{% if qs[1]==1-%} find critical values for each condition.{%- endif %}
+Finally, the story will summarize the analysis results{%- if qs[2]==1 %} and measure the importance of each independent variable.
+{%- endif -%}
+{%- if qs[0]==1%}
+The R-Squared for the {{modelName}} has a value of {{r2 | round(3)}}.
+{%- if r2 < 0.3 -%}
+So, the relationship between the chosen independent variable and the dependent variable is None or Very weak. You might not trust the analysis provided to make inferences.
+{%- elif r2 < 0.5 and r2 > 0.3 -%}
+So, the relationship between the chosen independent variable and the dependent variable is Weak or Low. You might use the analysis provided to make inferences.
+{%- elif r2 < 0.7 and r2 > 0.5 -%}
+So, the relationship between the chosen independent variable and the dependent variable is Moderate. You could trust the analysis provided to make inferences.
+{%- else -%}
+So, there is a strong relationship between the chosen independent variable and the dependent variable. You can trust the analysis provided to make inferences.
+{%- endif -%}
+{%- endif -%}
+The table below shows the metadata.

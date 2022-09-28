@@ -1,0 +1,14 @@
+{% for ind in data.index: %}
+{%  if  data['rank_overall'][ind] == 1 %}The most suitable model to use for this dataset is {{ ind }}.This is because it has the lowest RMSE out of the 4 models: {{ data['RMSE'][ind] | round(3) }} and the lowest mean abosulte error: {{  data['MeanAbsoluteError'][ind] | round(3)}}. The comparison can be observed in the plot below.
+{%- else -%} {%  if  data['rank_overall'][ind] == 2 %}The 2nd model is {{ind}} with RMSE value {{ data['RMSE'][ind] | round(3) }} and mean abosulte error {{ data['MeanAbsoluteError'][ind]  | round(3) }}.
+{%- else -%}{%-  if  data['rank_overall'][ind] == 3 -%}The 3rd model is {{ind}} with RMSE value {{ data['RMSE'][ind] | round(3) }} and mean abosulte error {{ data['MeanAbsoluteError'][ind]  | round(3) }}.
+{%- else -%} {%-  if  data['rank_overall'][ind] == 5 -%}
+A number of 5 mathematical models were fitted on the chosen dataset. In order to evaluate the models' predictive performance and find the most suitable for our regression task, two predictive metrics were computed and then compared: The RMSE and the MAE.
+The RMSE represents the Root Mean Square Error and the MAE the Mean Absolute Error. Given that they both measure predictive error, the smaller the value for the metrics, the better-performing the algorithm.
+Based on the comparison of these two metrics, the worst model is model is {{ind}} with RMSE value {{ data['RMSE'][ind] | round(3) }} and mean abosulte error {{ data['MeanAbsoluteError'][ind]  | round(3) }}.
+{%- endif -%}
+{%- endif -%}
+{%- endif -%}
+{%- endif -%}
+{%- endfor -%}
+{{ ' ' }}

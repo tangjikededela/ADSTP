@@ -1,0 +1,13 @@
+This is a story to help you understand how {%- for i in range(0,indeNum) %} {{Xcol[i]}} ,{% endfor %} as independent variables affect {{ycol}} as dependent variable.
+After mathematical calculation and analysis of the data,
+the R-Squared for the gradient boosting regression model has a value of {{r2 | round(3)}}.
+{%- if r2 < 0.3 -%}
+The relationship between the chosen independent variable and the dependent variable is None or Very weak. You might not trust the analysis provided to make inferences.
+{%- elif r2 < 0.5 and r2 > 0.3 -%}
+The relationship between the chosen independent variable and the dependent variable is Weak or Low. You might use the analysis provided to make inferences.
+{%- elif r2 < 0.7 and r2 > 0.5 -%}
+The relationship between the the chosen independent variable and the dependent variable is Moderate. You could trust the analysis provided to make inferences.
+{%- else -%}
+There is a strong relationship between the the chosen independent variable and the dependent variable. You can trust the analysis provided to make inferences.
+{%- endif -%}
+ Below is the table of the dataset.

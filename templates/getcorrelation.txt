@@ -1,0 +1,8 @@
+Pearson's correlation coefficient assumes a linear relationship between an independent variable and a dependent variable. In this case, the independent variable is {{Xcol}} and the independent variable is {{ycol}}.
+
+Pearson's coefficient value of {{Xcol}} in relation to {{ycol}} is {{coeff_value | round(3)}}. The associated p-value is {{p_value | round(3)}}, which is 
+{%- if p_value< 0.05 -%} 
+lower than the established threshold of 0.05. This means the coefficient has a statistically significant value.
+{%- else -%}
+higher than the established threshold of 0.05. This means the coefficient does not have a statistically significant value.
+{%- endif -%} 

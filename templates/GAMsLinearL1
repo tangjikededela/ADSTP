@@ -1,0 +1,12 @@
+This is a story to help you understand how {%- for i in range(0,indeNum) %} {{Xcol[i]}} as independent variables,{% endfor %} affects {{ycol}} as dependent variable.
+After mathematical calculation and analysis of the data,
+The R2 Squared value for the generalized additive model is {{r2 | round(3)}}.
+{%- if r2>=0.5 -%} The value of the metric shows that there is a strong relationship between the chosen independent variables and the dependent variable. You can trust the analysis provided to make inferences.
+{%- else -%} The value of the metric shows that there is not a strong relationship between the chosen independent variables and the dependent variable.You cannot trust the analysis provided to make inferences.
+{%- endif -%}
+{% if trend==0 -%}
+ And the expectation is that {{ycol}} should be as low as possible.
+{% else -%}
+ And the expectation is that {{ycol}} should be as high as possible.
+{% endif -%}
+ Below is the table of the dataset.

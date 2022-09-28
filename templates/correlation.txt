@@ -1,0 +1,7 @@
+The established threshold of correlation is {{treshold}}.
+
+Based on this treshold,  the independent variables correlated to the dependent variable are {{keep2}}.
+
+Among these, positively correlated are {{positive}}.
+
+Among these, negatively correlated are {{negative}}.

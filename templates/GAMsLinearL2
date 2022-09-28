@@ -1,0 +1,11 @@
+{% macro CI(R) %}{{R}} CI{% endmacro -%}
+{% macro CI(R) %}{{p}} CI{% endmacro -%}
+{% macro CI(R) %}{{slope}} CI{% endmacro -%}
+{% macro CI(R) %}{{L}} CI{% endmacro -%}
+{% macro CI(R) %}{{R}} CI{% endmacro -%}
+{% macro CI(R) %}{{p}} CI{% endmacro -%}
+{% macro CI(R) %}{{slope}} CI{% endmacro -%}
+{% macro CI(R) %}{{L}} CI{% endmacro -%}
+After some mathematical verification.
+The explained deviance between the {%- for i in range(0,indeNum-1) %} {{Xcol[i]}},{% endfor %}and {{ycol}} is {{R}}.
+Which means the explained deviance value of another model is greater than {{R}}, it indicates that this model is more reliable than the existing model.

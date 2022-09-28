@@ -1,0 +1,6 @@
+{%- if qs[2]==1-%}The coefficient for the independent variable {{xcol}} is {{coeff | round(3)}},
+{%- if coeff>=0-%} that means when the group which has {{xcol}} has {{odd | round(3)}}% more odds of having {{ycol}} than the group which does not have.
+{%- else -%} that means when the group which has {{xcol}} has {{odd | round(3)}}% less odds of having {{ycol}} than the group which does not have. {%- endif-%}{%- endif-%}
+
+{%- if qs[1]==1-%}{%- if p <0.05 -%} Also, the P-value is {{ p | round(3)}} that below the normal significance level of 0.05, which means that the results above are statistically significant.
+{%- else -%} However, the P-value is {{ p | round(3)}} that above the normal significance level of 0.05, which means that the results above are not statistically significant. {%- endif-%}{%- endif-%}

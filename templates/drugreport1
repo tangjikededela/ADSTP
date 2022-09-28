@@ -1,0 +1,17 @@
+{% macro CI(R) %}{{dP}} CI{% endmacro -%}
+{% macro CI(R) %}{{nP}} CI{% endmacro -%}
+{% macro CI(R) %}{{iP}} CI{% endmacro -%}
+{% macro CI(R) %}{{n}} CI{% endmacro -%}
+{% macro CI(R) %}{{L}} CI{% endmacro -%}
+{% macro CI(R) %}{{SRSSI}} CI{% endmacro -%}
+{% macro CI(R) %}{{SRNSSI}} CI{% endmacro -%}
+{% macro CI(R) %}{{WRSSI}} CI{% endmacro -%}
+{% macro CI(R) %}{{WRNSSI}} CI{% endmacro -%}
+
+In general, {{ycol}}
+{%- if iP != " " %} have risen {{iP}} and the rate was particularly high from {{mI}}.
+{%- endif -%}
+{%- if dP != " " %} have fallen {{dP}} and the rate was particularly low from {{mD}}.
+{%- endif -%}
+{%- if nP != " " %} have not change {{nP}}.
+{%- endif -%}

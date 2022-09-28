@@ -1,0 +1,5 @@
+You will be presented with the chosen independent variables and the associated values:
+{% for i in range(n): %}
+* {{ xcol[i] }}:{{xcol_values[i]}}
+{% endfor %}
+The predicted value for {{ycol}} using {{model_name}} is {{ycol_value}}

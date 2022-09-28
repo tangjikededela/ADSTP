@@ -1,0 +1,7 @@
+{%- if demand == 0 -%}
+In an ideal state, {{ycol}} can be as larger as possible when the following conditions are met,
+when {{condition}}
+{%- else -%}
+In an ideal state, {{ycol}} can be as less as possible when the following conditions are met,
+when {{mincondition}}
+{%- endif -%}

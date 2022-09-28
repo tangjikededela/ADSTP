@@ -1,0 +1,54 @@
+{% macro CI(R) %}{{dP}} CI{% endmacro -%}
+{% macro CI(R) %}{{nP}} CI{% endmacro -%}
+{% macro CI(R) %}{{iP}} CI{% endmacro -%}
+{% macro CI(R) %}{{n}} CI{% endmacro -%}
+{% macro CI(R) %}{{L}} CI{% endmacro -%}
+{% macro CI(R) %}{{SRSSI}} CI{% endmacro -%}
+{% macro CI(R) %}{{SRNSSI}} CI{% endmacro -%}
+{% macro CI(R) %}{{WRSSI}} CI{% endmacro -%}
+{% macro CI(R) %}{{WRNSSI}} CI{% endmacro -%}
+Last but not the least, after some mathematical calculation and verification,
+{% if L!=1 %}
+{% if SRSSI!="" and WRSSI!="" %}
+on the fitting parts when {{Xcol}} {{SRSSI}} and {{WRSSI}}
+{{Xcol}} have a statistically significant impact on {{ycol}}.
+{% elif SRSSI!="" %}
+when {{Xcol}} {{SRSSI}}
+{{Xcol}} have a statistically significant impact on {{ycol}}.
+{% elif WRSSI!="" %}
+when {{Xcol}} {{WRSSI}}
+{{Xcol}} have a statistically significant impact on {{ycol}}.
+{% endif %}
+{% if SRNSSI!="" and WRNSSI!="" %}
+on the fitting parts when {{Xcol}} {{SRNSSI}} and {{WRNSSI}}
+{{Xcol}} does not have a statistically significant impact on {{ycol}}.
+{% elif SRNSSI!="" %}
+when {{Xcol}} {{SRNSSI}}
+{{Xcol}} does not have a statistically significant impact on {{ycol}}.
+{% elif WRNSSI!="" %}
+when {{Xcol}} {{WRNSSI}}
+{{Xcol}} does not have a statistically significant impact on {{ycol}}.
+{% endif %}
+{% else %}
+{% if SRSSI!="" and WRSSI!="" %}
+on the fitting parts when {{Xcol}} {{SRSSI}} and {{WRSSI}}
+The relationship between {{Xcol}} and {{ycol}} is a common phenomenon.
+{% elif SRSSI!="" %}
+when {{Xcol}} {{SRSSI}}
+The relationship between {{Xcol}} and {{ycol}} is a common phenomenon.
+{% elif WRSSI!="" %}
+when {{Xcol}} {{WRSSI}}
+The relationship between {{Xcol}} and {{ycol}} is a common phenomenon.
+{% endif %}
+{% if SRNSSI!="" and WRNSSI!="" %}
+on the fitting parts when {{Xcol}} {{SRNSSI}} and {{WRNSSI}}
+The relationship between {{Xcol}} and {{ycol}} is not a common phenomenon.
+{% elif SRNSSI!="" %}
+when {{Xcol}} {{SRNSSI}}
+The relationship between {{Xcol}} and {{ycol}} is not a common phenomenon.
+{% elif WRNSSI!="" %}
+when {{Xcol}} {{WRNSSI}}
+The relationship between {{Xcol}} and {{ycol}} is not a common phenomenon.
+{% endif %}
+{% endif %}
+

@@ -1,0 +1,39 @@
+{% macro CI(R) %}{{dP}} CI{% endmacro -%}
+{% macro CI(R) %}{{nP}} CI{% endmacro -%}
+{% macro CI(R) %}{{iP}} CI{% endmacro -%}
+{% macro CI(R) %}{{n}} CI{% endmacro -%}
+{% macro CI(R) %}{{L}} CI{% endmacro -%}
+{% macro CI(R) %}{{SRSSI}} CI{% endmacro -%}
+{% macro CI(R) %}{{SRNSSI}} CI{% endmacro -%}
+{% macro CI(R) %}{{WRSSI}} CI{% endmacro -%}
+{% macro CI(R) %}{{WRNSSI}} CI{% endmacro -%}
+
+This is a data story to help quickly understand key information from the dataset that about
+how {{ycol}} change over the {{Xcol}} from {{Xbegin}} to {{Xend}}.
+{%- if L ==3 -%}
+All the breakpoints were found by Python package “pwlf”, more information about this package is in: https://jekel.me/piecewise_linear_fit_py/pwlf.html
+{%- endif -%}
+{%- if L !=1 -%}
+The coefficient of determination of the whole model is {{R1}}.
+The slopes for each fitting line are
+{{slope}},
+the R-squared of each fitting line are
+{{R2}},
+also notice that the p-value of constant and each fitting line are
+{{P}}.
+{%- endif -%}
+{%- if iP != " " %}
+When {{Xcol}} is {{iP}} {{ycol}} increases.
+It is noteworthy that {{ycol}} increased rapidly from {{Xcol}} {{mI}}.
+{%- else %}
+The data shows that {{ycol}} always has an downward trend with the growth of {{Xcol}}.
+{%- endif %}
+{%- if dP != " " %}
+When {{Xcol}} is {{dP}} {{ycol}} decreases.
+It is noteworthy that {{ycol}} decreased rapidly from {{Xcol}} {{mD}}.
+{%- else %}
+And the data shows that {{ycol}} always has an upward trend with the growth of {{Xcol}}.
+{%- endif %}
+{%- if nP != " " %}
+When {{Xcol}} is {{nP}} {{ycol}} does not change.
+{%- endif -%}

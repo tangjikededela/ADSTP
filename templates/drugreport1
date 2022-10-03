@@ -9,9 +9,9 @@
 {% macro CI(R) %}{{WRNSSI}} CI{% endmacro -%}
 
 In general, {{ycol}}
-{%- if iP != " " %} have risen {{iP}} and the rate was particularly high from {{mI}}.
+{%- if iP != " " %} have risen {{iP}} and the rate was particularly high from years {{mI}}.
 {%- endif -%}
-{%- if dP != " " %} have fallen {{dP}} and the rate was particularly low from {{mD}}.
+{%- if dP != " " %} have fallen {{dP}} and the rate was particularly low from years {{mD}}.
 {%- endif -%}
 {%- if nP != " " %} have not change {{nP}}.
 {%- endif -%}

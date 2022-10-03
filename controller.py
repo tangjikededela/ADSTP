@@ -154,6 +154,31 @@ def enquiries_question6(app_name,listTabs,enquiries_data, AC_enquiries, AS_enqui
     MTmean = MD.find_column_mean(MTdata)
     VW.enquiries_question6_view(ACmean, ASmean, MTmean, ACdata, ASdata, MTdata, period, label,app_name,listTabs)
 
-def dependentcompare(m, X, y1, y2, Xcolname, ycolname1, ycolname2, begin, end):
+def segmentedregressionsummary_con(X, y, Xcolname, ycolname, level, graph, base, r2, p, breakpointnum=1,
+                                   governmentdrug=False, governmentchild=False):
+    if governmentchild==True:
+        X, ymax, Xmax, ylast, Xlast, diff1, diff2, Xbegin, Xend, yend, iP, dP, nP, Xcol,ycol=MD.segmentedregressionsummary(X, y, Xcolname, ycolname, level, graph, base, r2, p, breakpointnum,governmentdrug, governmentchild)
+        VW.segmentedregressionsummary_CPview(X, ymax, Xmax, ylast, Xlast, diff1, diff2, Xbegin, Xend, yend, iP, dP, nP, Xcol,ycol)
+    elif governmentdrug==True:
+        increasePart, decreasePart, notchangePart, ycolname, maxIncrease, maxDecrease=MD.segmentedregressionsummary(X, y, Xcolname, ycolname, level, graph, base, r2, p, breakpointnum,governmentdrug, governmentchild)
+        VW.segmentedregressionsummary_DRDview(increasePart, decreasePart, notchangePart, ycolname, maxIncrease, maxDecrease)
+
+def dependentcompare_con(m, X, y1, y2, Xcolname, ycolname1, ycolname2, begin, end):
     Xcolname, begin, end, ycolname1, ycolname2, magnification1, magnification2, X, X1, X2=MD.NonFittingReport.dependentcompare(m, X, y1, y2, Xcolname, ycolname1, ycolname2, begin, end)
     VW.dependentcompare_view(Xcolname, begin, end, ycolname1, ycolname2, magnification1, magnification2, X, X1, X2)
+
+def batchprovessing_con(m, X, y, Xcolname, ycolnames, category_name, end, begin=0):
+    if m == 1:
+        m, Xcolname, X1,X2, y,allincrease, alldecrease, category_name, ycolnames, begin, end=MD.NonFittingReport.batchprovessing(m, X, y, Xcolname, ycolnames, category_name, end, begin)
+        VW.batchprovessing_view1(m, Xcolname, X1,X2, y,allincrease, alldecrease, category_name, ycolnames, begin, end)
+    elif m==2:
+        m, Xcolname, X1, allincrease, alldecrease, category_name, total, ycolnames, y, point=MD.NonFittingReport.batchprovessing(m, X, y, Xcolname, ycolnames, category_name, end, begin)
+        VW.batchprovessing_view2(m, Xcolname, X1, allincrease, alldecrease, category_name, total, ycolnames, y, point)
+
+def independenttwopointcompare_con(m, X, Xcolname, y1, y2, ycolname1, ycolname2, point, mode):
+    Xcolname, point, ycolname1, ycolname2, X, y1, y2, mode, mag=MD.NonFittingReport.independenttwopointcompare(m, X, Xcolname, y1, y2, ycolname1, ycolname2, point, mode)
+    VW.independenttwopointcompare_view(Xcolname, point, ycolname1, ycolname2, X, y1, y2, mode, mag)
+
+def two_point_and_peak_child_con(m, X, y, Xcolname, ycolname, point1, point2):
+    Xcolname, ycolname, Xpeak, ypeak, X1, X2, y1, y2=MD.NonFittingReport.two_point_and_peak(m, X, y, Xcolname, ycolname, point1, point2)
+    VW.two_point_and_peak_child_view(Xcolname, ycolname, Xpeak, ypeak, X1, X2, y1, y2)

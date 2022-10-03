@@ -8,11 +8,11 @@ The {{Xcol}} in {{X[point]}}, {{y2name}} (which is {{y2}}) higher than {{y1name}
 {%-endif -%}
 {%-else-%}
 {%-if mag>1 -%}
-In {{Xcol}} {{X[point]}}, {{y2name}} is {{mag}} times of {{y1name}}.
+In {{X[point]}}, {{y2name}} is {{mag}} times of {{y1name}}.
 {%-elif mag<1 -%}
-In {{Xcol}} {{X[point]}}, {{y2name}} accounted for {{mag*100}}% of {{y1name}}.
+In {{X[point]}}, {{y1name}} accounted for {{mag*100}}% of {{y2name}}.
 {%-else -%}
-In {{Xcol}} {{X[point]}}, {{y2name}} equal to {{y1name}} (which is {{y1}}).
+In {{X[point]}}, {{y2name}} equal to {{y1name}} (which is {{y1}}).
 {%-endif -%}
 {%-endif-%}
 

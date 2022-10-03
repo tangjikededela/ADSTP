@@ -8,11 +8,11 @@
 {% macro CI(R) %}{{WRSSI}} CI{% endmacro -%}
 {% macro CI(R) %}{{WRNSSI}} CI{% endmacro -%}
 
-In the {{Xcol}} {{Xend}}, there were an estimated {{yend}} {{ycol}} - {%-if diff1>0%} a increase of {{diff1}} ({{diff2*100}}%) from {{Xlast}}.{%-elif diff1<0%} a decrease of {{(-diff1)}} ({{(-diff2*100)}}%) from {{Xlast}}.{%-else%} it did not change from {{Xlast}}. {%-endif-%}
+In {{Xend}}, there were an estimated {{yend}} {{ycol}} - {%-if diff1>0%} a increase of {{diff1}} ({{diff2*100}}%) from {{Xlast}}.{%-elif diff1<0%} a decrease of {{(-diff1)}} ({{(-diff2*100)}}%) from {{Xlast}}.{%-else%} it did not change from {{Xlast}}. {%-endif-%}
 {%- if yend < ymax %} it is also less than the peak of {{ymax}} in {{Xmax}}.{%-endif-%}
 {%- if iP != " " %} Overall, the numbers have increased {{iP}}
 {%- endif -%}
-{%- if iP != " " and dP != " " %} and have decreased {{dP}}. {%- elif iP == " " and dP != " " %} The numbers have decreased {{dP}}.
+{%- if iP != " " and dP != " " %} and have decreased {{dP}} {%- elif iP == " " and dP != " " %} The numbers have decreased {{dP}}
 {%- endif -%}
 {%- if nP != " " %} have not change {{nP}}.
 {%- endif -%}

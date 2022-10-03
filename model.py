@@ -4,6 +4,8 @@ import statistics
 import matplotlib.pyplot as plt
 from pandas import DataFrame
 import heapq
+import pwlf
+from GPyOpt.methods import BayesianOptimization
 from sklearn import preprocessing
 from iteration_utilities import duplicates
 from iteration_utilities import unique_everseen
@@ -398,7 +400,7 @@ class NonFittingReport:
             # print(dc3.render(Xcol=Xcolname, begin=begin, end=end, loopnum=end, y1name=ycolname1, y2name=ycolname2,
             #                  diff1=diff1, diff2=diff2, X=X, X1=X1, X2=X2))
 
-    def independenttwopointcompare(self, m, X, Xcolname, y1, y2, ycolname1, ycolname2, point, mode):
+    def independenttwopointcompare(m, X, Xcolname, y1, y2, ycolname1, ycolname2, point, mode):
         if "independenttwopointcomparison" in str(m):
             if mode == "":
                 mode = "quantity"
@@ -411,7 +413,7 @@ class NonFittingReport:
             # print(idtpc.render(Xcol=Xcolname, point=point, y1name=ycolname1, y2name=ycolname2, X=X, y1=y1, y2=y2,
             #                    mode=mode, mag=mag))
 
-    def samedependentcompare(self, m, X, y, Xcolname, ycolname, begin="", end=""):
+    def samedependentcompare(m, X, y, Xcolname, ycolname, begin="", end=""):
         if "samedependentmagnificationcompare" in str(m):
             if begin == "":
                 begin = 0
@@ -451,10 +453,10 @@ class NonFittingReport:
                     story = story + "In " + Xcolname + " " + Xsamep.split()[0] + " to " + Xsamep.split()[
                         np.size(Xsamep.split()) - 1] + " " + ycolname + " does not change much, it is around " + str(
                         repeatvalue[i]) + ". "
-            return (Xcolname, ycolname, X, Xmaxp, Xminp, y, begin, end, maxy, miny,story)
-                    # print("In " + Xcolname + " " + Xsamep.split()[0] + " to " + Xsamep.split()[
-                    #     np.size(Xsamep.split()) - 1] + " " + ycolname + " does not change much, it is around " + str(
-                    #     repeatvalue[i]) + ".")
+            return (Xcolname, ycolname, X, Xmaxp, Xminp, y, begin, end, maxy, miny, story)
+            # print("In " + Xcolname + " " + Xsamep.split()[0] + " to " + Xsamep.split()[
+            #     np.size(Xsamep.split()) - 1] + " " + ycolname + " does not change much, it is around " + str(
+            #     repeatvalue[i]) + ".")
         elif "trendpercentage" in str(m):
             if begin == "":
                 begin = 0
@@ -464,19 +466,19 @@ class NonFittingReport:
             for i in range(end - begin + 1):
                 ynew[i] = y[i + begin]
             std = np.std(ynew)
-            return (Xcolname,begin,end,ycolname,X,y,std)
+            return (Xcolname, begin, end, ycolname, X, y, std)
             # print(dc4.render(Xcol=Xcolname, begin=begin, end=end, ycol=ycolname, X=X, y=y, std=std))
 
-    def independentcompare(self, m, X, y, Xcolname, ycolname, begin, end):
+    def independentcompare(m, X, y, Xcolname, ycolname, begin, end):
         if "independentquantitycomparison" in str(m):
             X1 = X[begin]
             X2 = X[end]
             y1 = y[begin]
             y2 = y[end]
-            return (Xcolname,ycolname,X,X1,X2,y1,y2)
+            return (Xcolname, ycolname, X, X1, X2, y1, y2)
             # print(idc1.render(Xcol=Xcolname, ycol=ycolname, X=X, X1=X1, X2=X2, y1=y1, y2=y2))
 
-    def two_point_and_peak(self, m, X, y, Xcolname, ycolname, point1, point2):
+    def two_point_and_peak(m, X, y, Xcolname, ycolname, point1, point2):
         if "twopointpeak_child" in str(m):
             X1 = X[point1]
             X2 = X[point2]
@@ -486,10 +488,10 @@ class NonFittingReport:
             for i in range(np.size(y)):
                 if y[i] == ypeak:
                     Xpeak = X[i]
-            return (Xcolname,ycolname,Xpeak,ypeak,X1,X2,y1,y2)
+            return (Xcolname, ycolname, Xpeak, ypeak, X1, X2, y1, y2)
             # print(tppc.render(Xcol=Xcolname, ycol=ycolname, Xpeak=Xpeak, ypeak=ypeak, X1=X1, X2=X2, y1=y1, y2=y2))
 
-    def batchprovessing(self, m, X, y, Xcolname, ycolnames, category_name, end, begin=0):
+    def batchprovessing(m, X, y, Xcolname, ycolnames, category_name, end, begin=0):
         if m == 1:
             allincrease = True
             alldecrease = True
@@ -502,11 +504,11 @@ class NonFittingReport:
                     alldecrease = False
                 elif ydata[end] < ydata[begin]:
                     allincrease = False
-            X1=0
+            X1 = 0
             # return (m,Xcolname,X1,allincrease,alldecrease,category_name)
             # print(bp1.render(mode=m, Xcol=Xcolname, X1=0, allincrease=allincrease, alldecrease=alldecrease,
             #                  category_name=category_name))
-            return (m, Xcolname, X1, allincrease, alldecrease, category_name, ycolnames,begin,end)
+            return (m, Xcolname, X1,X2,y, allincrease, alldecrease, category_name, ycolnames, begin, end)
             # story=""
             # for i in range(np.size(ycolnames) - 1):
             #     ycolname = ycolnames[i]
@@ -525,7 +527,7 @@ class NonFittingReport:
             # print(bp1.render(mode=m, Xcol=Xcolname, X1=X1, allincrease=False, alldecrease=False,
             #                  category_name=category_name))
             total = y[category_name][point]
-            return (m, Xcolname, X1, allincrease, alldecrease, category_name,total,ycolnames,y,point)
+            return (m, Xcolname, X1, allincrease, alldecrease, category_name, total, ycolnames, y, point)
             # story=""
             # for i in range(np.size(ycolnames) - 1):
             #     ycolname = ycolnames[i]
@@ -535,3 +537,328 @@ class NonFittingReport:
             #     story=story+bp2.render(mode=m, ycol=ycolname, y1=y1, y2=0, X1=0, X2=0, mag=mag)
             #     # print(bp2.render(mode=m, ycol=ycolname, y1=y1, y2=0, X1=0, X2=0, mag=mag))
             # return (m, Xcolname, X1, allincrease, alldecrease, category_name,story)
+
+def segmentedregressionsummary(X, y, Xcolname, ycolname, level, graph, base, r2, p, breakpointnum=1,
+                               governmentdrug=False, governmentchild=False):
+    my_pwlf = pwlf.PiecewiseLinFit(X, y)
+
+    def my_obj(x):
+        # define some penalty parameter l
+        # you'll have to arbitrarily pick this
+        # it depends upon the noise in your data,
+        # and the value of your sum of square of residuals
+        l = y.mean() * 0.001
+        f = np.zeros(x.shape[0])
+        for i, j in enumerate(x):
+            my_pwlf.fit(j[0])
+            f[i] = my_pwlf.ssr + (l * j[0])
+        return f
+
+    # define the lower and upper bound for the number of line segments
+    bounds = [{'name': 'var_1', 'type': 'discrete',
+               'domain': np.arange(2, 2 + breakpointnum)}]
+
+    np.random.seed(12121)
+
+    myBopt = BayesianOptimization(my_obj, domain=bounds, model_type='GP',
+                                  initial_design_numdata=10,
+                                  initial_design_type='latin',
+                                  exact_feval=True, verbosity=True,
+                                  verbosity_model=False)
+    max_iter = 30
+
+    # perform the bayesian optimization to find the optimum number of line segments
+    myBopt.run_optimization(max_iter=max_iter, verbosity=True)
+    #######
+    # if graph == True:
+    #     myBopt.plot_acquisition()
+    #     myBopt.plot_convergence()
+
+    # perform the fit for the optimum
+    BP = my_pwlf.fit(myBopt.x_opt)
+    slopes = my_pwlf.calc_slopes()
+    BPNumber = int(myBopt.x_opt[0])
+    rsq = my_pwlf.r_squared()
+    pvalue = my_pwlf.p_values()
+    R = [0] * BPNumber
+    P = [0] * BPNumber
+    # predict for the determined points
+    xHat = np.linspace(min(X), max(X), num=1000)
+    yHat = my_pwlf.predict(xHat)
+    m = 1
+    xSize = 0
+    # plot the results
+    if (graph == True):
+        plt.figure()
+        plt.plot(X, y, 'o')
+        plt.plot(xHat, yHat, '-')
+        plt.show()
+    increasePart = " "
+    decreasePart = " "
+    notchangePart = " "
+    maxIncrease = " "
+    maxDecrease = " "
+    strongRSSI = ""
+    strongRNSSI = ""
+    weakRSSI = ""
+    weakRNSSI = ""
+    begin1 = ""
+    end1 = ""
+    begin2 = ""
+    end2 = ""
+    X0 = X[0]
+    for i in range(BPNumber):
+        for n in range(len(X)):
+            if X[n] <= BP[m] and X[n] >= X0:
+                xSize = xSize + 1
+        Xnew = [0] * (xSize)
+        ynew = [0] * (xSize)
+        l = 0
+        for n in range(len(X)):
+            if X[n] <= BP[m] and X[n] >= X0:
+                Xnew[l] = X[n]
+                ynew[l] = y[n]
+                l = l + 1
+        if len(Xnew) != 0 and len(ynew) != 0:
+            Xnew, ynew = np.array(Xnew).reshape(-1, 1), np.array(ynew)
+            modelfit = LinearRegression().fit(Xnew, ynew)
+            R[m - 1] = modelfit.score(Xnew, ynew)
+            Xnew2 = sm.add_constant(Xnew)
+            est = sm.OLS(ynew, Xnew2)
+            est2 = est.fit()
+            if np.size(est2.pvalues) > 1:
+                P[m - 1] = est2.pvalues[1]
+            else:
+                P[m - 1] = est2.pvalues[0]
+        X0 = BP[m]
+        m = m + 1
+        xSize = 0
+    # print(R)
+    # print(P)
+    # print(pvalue)
+    for i in range(BPNumber):
+        if slopes[i] < 0:
+            if i > 0:
+                temporary1 = decreasePart
+            decreasePart = decreasePart + "over " + str(np.round(BP[i], 0)) + " to " + str(
+                np.round(BP[i + 1], 0)) + ", "
+            temporary2 = "over " + str(np.round(BP[i], 0)) + " to " + str(np.round(BP[i + 1], 0)) + ", "
+            if i > 0 and np.size(temporary1.split()) != 0:
+                if temporary1.split()[np.size(temporary1.split()) - 1].strip(',') == temporary2.split()[1]:
+                    decreasePart = "over " + temporary1.split()[1] + " to " + temporary2.split()[
+                        np.size(temporary2.split()) - 1]
+            if slopes[i] == min(slopes):
+                maxDecrease = str(np.round(BP[i], 0)) + " till " + str(np.round(BP[i + 1], 0))
+        elif slopes[i] > 0:
+            if i > 0:
+                temporary3 = increasePart
+            increasePart = increasePart + "over " + str(np.round(BP[i], 0)) + " to " + str(
+                np.round(BP[i + 1], 0)) + ", "
+            temporary4 = "over " + str(np.round(BP[i], 0)) + " to " + str(np.round(BP[i + 1], 0)) + ", "
+
+            if slopes[i] == max(slopes):
+                maxIncrease = maxIncrease + str(np.round(BP[i], 0)) + " to " + str(np.round(BP[i + 1], 0))
+                begin1 = str(np.round(BP[i], 0))
+                end1 = str(np.round(BP[i + 1], 0))
+            elif slopes[i] == sorted(slopes)[-2]:
+                maxIncrease = maxIncrease + str(np.round(BP[i], 0)) + " to " + str(
+                    np.round(BP[i + 1], 0)) + ", "
+                begin2 = str(np.round(BP[i], 0))
+                end2 = str(np.round(BP[i + 1], 0))
+            if end1 == begin2:
+                maxIncrease = begin1 + " to " + end2
+            elif end2 == begin1:
+                maxIncrease = begin2 + " to " + end1
+            if i > 0 and np.size(temporary3.split()) != 0:
+                if temporary3.split()[np.size(temporary3.split()) - 1].strip(',') == temporary4.split()[1]:
+                    increasePart = "over " + temporary3.split()[1] + " to " + temporary4.split()[
+                        np.size(temporary4.split()) - 1]
+        else:
+            notchangePart = notchangePart + "over " + str(np.round(BP[i], 0)) + " to " + str(
+                np.round(BP[i + 1], 0)) + ", "
+        if R[i] > 0.7 and P[i] < 0.05:
+            strongRSSI = strongRSSI + "over " + str(np.round(BP[i], 0)) + " to " + str(
+                np.round(BP[i + 1], 0)) + ", "
+        elif R[i] > 0.7 and P[i] > 0.05:
+            strongRNSSI = strongRNSSI + "over " + str(np.round(BP[i], 0)) + " to " + str(
+                np.round(BP[i + 1], 0)) + ", "
+        elif R[i] < 0.7 and P[i] < 0.05:
+            weakRSSI = weakRSSI + "over " + str(np.round(BP[i], 0)) + " to " + str(
+                np.round(BP[i + 1], 0)) + ", "
+        elif R[i] < 0.7 and P[i] > 0.05:
+            weakRNSSI = weakRNSSI + "over " + str(np.round(BP[i], 0)) + " to " + str(
+                np.round(BP[i + 1], 0)) + ", "
+    if maxIncrease.split()[0] == "to":
+        mi = ""
+        for j in range(np.size(maxIncrease.split()) - 1):
+            mi = mi + maxIncrease.split()[j + 1]
+            if j != np.size(maxIncrease.split()) - 2:
+                mi = mi + " "
+        maxIncrease = mi
+    if governmentchild == True:
+        Xmaxp = ""
+        Xminp = ""
+        maxpoint = argrelextrema(y.values, np.greater, order=1)[0]
+        minpoint = argrelextrema(y.values, np.less, order=1)[0]
+        for i in range(np.size(maxpoint)):
+            if float(y[maxpoint[i]]) == max(y):
+                Xmaxp = X[maxpoint[i]]
+        for i in range(np.size(minpoint)):
+            if float(y[minpoint[i]]) == min(y):
+                Xminp = X[minpoint[i]]
+        diff_from_last_year1 = y[np.size(X) - 1] - y[np.size(X) - 2]
+        diff_from_last_year2 = np.round(diff_from_last_year1 / y[np.size(X) - 2], 2)
+        return (
+            X, max(y), Xmaxp, np.round(y[np.size(X) - 2], 2), np.round(X[np.size(X) - 2], 2),
+            diff_from_last_year1,
+            diff_from_last_year2
+            , np.round(X[0], 2), np.round(X[np.size(X) - 1], 2), np.round(y[np.size(X) - 1], 2), increasePart,
+            decreasePart,
+            notchangePart, Xcolname, ycolname)
+        # print(segmented_GC1.render(
+        #     X=X,
+        #     ymax=max(y),
+        #     Xmax=Xmaxp,
+        #     ylast=np.round(y[np.size(X) - 2], 2),
+        #     Xlast=np.round(X[np.size(X) - 2], 2),
+        #     diff1=diff_from_last_year1,
+        #     diff2=diff_from_last_year2,
+        #     Xbegin=np.round(X[0], 2),
+        #     Xend=np.round(X[np.size(X) - 1], 2),
+        #     yend=np.round(y[np.size(X) - 1], 2),
+        #     iP=increasePart,
+        #     dP=decreasePart,
+        #     nP=notchangePart,
+        #     Xcol=Xcolname,
+        #     ycol=ycolname, ))
+    if governmentdrug == True:
+
+        return (increasePart, decreasePart, notchangePart, ycolname, maxIncrease, maxDecrease)
+        # print(segmented_GD1.render(
+        #     iP=increasePart,
+        #     dP=decreasePart,
+        #     nP=notchangePart,
+        #     ycol=ycolname,
+        #     mI=maxIncrease,
+        #     mD=maxDecrease,))
+    if base == True:
+        return (X,
+                np.round(X[0], 2),
+                np.round(X[np.size(X) - 1], 2),
+                increasePart,
+                decreasePart,
+                notchangePart,
+                Xcolname,
+                ycolname,
+                BPNumber,
+                maxIncrease,
+                maxDecrease,
+                level,
+                slopes,
+                rsq,
+                R,
+                P,
+                strongRSSI,
+                strongRNSSI,
+                weakRSSI,
+                weakRNSSI,)
+        # print(segmented_B.render(
+        #     X=X,
+        #     Xbegin=np.round(X[0], 2),
+        #     Xend=np.round(X[np.size(X) - 1], 2),
+        #     iP=increasePart,
+        #     dP=decreasePart,
+        #     nP=notchangePart,
+        #     Xcol=Xcolname,
+        #     ycol=ycolname,
+        #     n=BPNumber,
+        #     mI=maxIncrease,
+        #     mD=maxDecrease,
+        #     L=level,
+        #     slope=slopes,
+        #     R1=rsq,
+        #     R2=R,
+        #     P=P,
+        #     SRSSI=strongRSSI,
+        #     SRNSSI=strongRNSSI,
+        #     WRSSI=weakRSSI,
+        #     WRNSSI=weakRNSSI, ))
+    ###########
+    if r2 == True or p == True:
+        return (increasePart,
+                decreasePart,
+                notchangePart,
+                Xcolname,
+                ycolname,
+                BPNumber,
+                maxIncrease,
+                maxDecrease,
+                level,
+                slopes,
+                rsq,
+                R,
+                P,
+                strongRSSI,
+                strongRNSSI,
+                weakRSSI,
+                weakRNSSI,)
+    # if r2 == True and p == True:
+    #     print(segmented_R2P.render(
+    #         iP=increasePart,
+    #         dP=decreasePart,
+    #         nP=notchangePart,
+    #         Xcol=Xcolname,
+    #         ycol=ycolname,
+    #         n=BPNumber,
+    #         mI=maxIncrease,
+    #         mD=maxDecrease,
+    #         L=level,
+    #         slope=slopes,
+    #         R1=rsq,
+    #         R2=R,
+    #         P=P,
+    #         SRSSI=strongRSSI,
+    #         SRNSSI=strongRNSSI,
+    #         WRSSI=weakRSSI,
+    #         WRNSSI=weakRNSSI,
+    #     ))
+    # elif r2 == True and p == False:
+    #     print(segmented_R2.render(
+    #         iP=increasePart,
+    #         dP=decreasePart,
+    #         nP=notchangePart,
+    #         Xcol=Xcolname,
+    #         ycol=ycolname,
+    #         n=BPNumber,
+    #         mI=maxIncrease,
+    #         mD=maxDecrease,
+    #         L=level,
+    #         slope=slopes,
+    #         R1=rsq,
+    #         R2=R,
+    #         P=P,
+    #         SRSSI=strongRSSI,
+    #         SRNSSI=strongRNSSI,
+    #         WRSSI=weakRSSI,
+    #         WRNSSI=weakRNSSI,
+    #     ))
+    # elif p == True and r2 == False:
+    #     print(segmented_P.render(
+    #         iP=increasePart,
+    #         dP=decreasePart,
+    #         nP=notchangePart,
+    #         Xcol=Xcolname,
+    #         ycol=ycolname,
+    #         n=BPNumber,
+    #         mI=maxIncrease,
+    #         mD=maxDecrease,
+    #         L=level,
+    #         slope=slopes,
+    #         R1=rsq,
+    #         R2=R,
+    #         P=P,
+    #         SRSSI=strongRSSI,
+    #         SRNSSI=strongRNSSI,
+    #         WRSSI=weakRSSI,
+    #         WRNSSI=weakRNSSI,
+    #     ))

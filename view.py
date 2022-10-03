@@ -11,7 +11,7 @@ from scipy import stats
 import math
 from jupyter_dash import JupyterDash
 import dash_bootstrap_components as dbc
-from dash import Dash, html, dcc,dash_table, callback
+from dash import Dash, html, dcc, dash_table, callback
 import plotly.express as px
 import base64
 import language_tool_python
@@ -47,13 +47,22 @@ GB1 = env.get_template('GB1')
 GB2 = env.get_template('GB2')
 GB3 = env.get_template('GB3')
 
+# variables which each load a different segmented regression template
+segmented_R2P = env.get_template('testPiecewisePwlfR2P')
+segmented_R2 = env.get_template('testPiecewisePwlfR2')
+segmented_P = env.get_template('testPiecewisePwlfP')
+segmented_B = env.get_template('testPiecewisePwlfB')
+segmented_GD1 = env.get_template('drugreport1')
+segmented_GC1 = env.get_template('childreport1')
+
+# For Aberdeen City CP
 register_story = env.get_template('register.txt')
 risk_factor_story = env.get_template('risk_factor.txt')
 reregister_story = env.get_template('reregister.txt')
 remain_story = env.get_template('remain_story.txt')
 enquiries_story = env.get_template('enquiries_story.txt')
 
-# for different dependent variables compared
+# For different dependent variables compared DRD
 dc1 = env.get_template('dependentmagnificationcompare')
 dc2 = env.get_template('samedependentmagnificationcompare')
 dc3 = env.get_template('dependentquantitycompare')
@@ -255,14 +264,17 @@ def PrintGraphs(model_type='all'):
         ysmodel.score(X_test, y_test)
         ysmodel.show(outpath='pictures/{}.png'.format(current_index), clear_figure=True)
 
+
 def start_app():
     app_name = JupyterDash(__name__)
     listTabs = []
-    return (app_name,listTabs)
+    return (app_name, listTabs)
 
-def run_app(app_name,listTabs):
+
+def run_app(app_name, listTabs):
     app_name.layout = html.Div([dcc.Tabs(listTabs)])
     app_name.run_server(mode='inline', debug=True)
+
 
 def LinearModelStats_view(data, Xcol, ycol, linearData, r2, questionset, trend):
     # Store results for xcol
@@ -594,7 +606,7 @@ def DecisionTreeModelStats_view(data, Xcol, ycol, DTData, DTmodel, r2, mse, ques
     DT_app.run_server(mode='inline', debug=True)
 
 
-def GAMs_view(gam,data,Xcol,ycol,r2,p,conflict,nss,ss,mincondition,condition):
+def GAMs_view(gam, data, Xcol, ycol, r2, p, conflict, nss, ss, mincondition, condition):
     # Analysis and Graphs Generate
     for i, term in enumerate(gam.terms):
         if term.isintercept:
@@ -635,7 +647,7 @@ def GAMs_view(gam,data,Xcol,ycol,r2,p,conflict,nss,ss,mincondition,condition):
     for i in range(len(Xcol)):
         # other story for one independent variable add in here
         story = gamStory.render(pvalue=p[i], xcol=Xcol[i], ycol=ycol, ) + conflict[i]
-        dash_with_figure(gamm_app,listTabs,story,Xcol[i],_base64[i],path='data:image/png;base64,{}')
+        dash_with_figure(gamm_app, listTabs, story, Xcol[i], _base64[i], path='data:image/png;base64,{}')
         # listTabs.append(dcc.Tab(label=Xcol[i], children=[
         #     html.Img(src='data:image/png;base64,{}'.format(_base64[i])), html.P(story)
         # ]))
@@ -648,10 +660,13 @@ def GAMs_view(gam,data,Xcol,ycol,r2,p,conflict,nss,ss,mincondition,condition):
     gamm_app.layout = html.Div([dcc.Tabs(listTabs)])
     gamm_app.run_server(mode='inline', debug=True)
 
-def dash_with_figure(app_name, listTabs,text,label,format,path='data:image/png;base64,{}'):
+
+def dash_with_figure(app_name, listTabs, text, label, format, path='data:image/png;base64,{}'):
     listTabs.append(dcc.Tab(label=label, children=[
         html.Img(src=path.format(format)), html.P(text)
     ]))
+
+
 def dash_with_table(app_name, listTabs, text, dataset, label):
     listTabs.append(dcc.Tab(label=label,
                             children=[html.P(text),
@@ -665,6 +680,7 @@ def dash_with_table(app_name, listTabs, text, dataset, label):
 def dash_only_text(app_name, listTabs, text, label):
     listTabs.append(dcc.Tab(label=label,
                             children=[html.P(text), ]), )
+
 
 def register_question1_view(register_dataset, per1000inCity_col, diff, table_col, label, app, listTabs):
     registerstory = "The data from local comparators features in the Child Protection Register (CPR) report prepared quarterly. "
@@ -703,7 +719,67 @@ def enquiries_question6_view(ACmean, ASmean, MTmean, ACdata, ASdata, MTdata, per
                                             MTE=MTdata, period=period)
     dash_only_text(app, listTabs, enquiriesstory, label)
 
+
+def segmentedregressionsummary_CPview(X, ymax, Xmax, ylast, Xlast, diff1, diff2, Xbegin, Xend, yend, iP, dP, nP, Xcol,
+                                      ycol):
+    print(segmented_GC1.render(
+        X=X,
+        ymax=ymax,
+        Xmax=Xmax,
+        ylast=ylast,
+        Xlast=Xlast,
+        diff1=diff1,
+        diff2=diff2,
+        Xbegin=Xbegin,
+        Xend=Xend,
+        yend=yend,
+        iP=iP,
+        dP=dP,
+        nP=nP,
+        Xcol=Xcol,
+        ycol=ycol, ))
+
+
+def segmentedregressionsummary_DRDview(increasePart, decreasePart, notchangePart, ycolname, maxIncrease, maxDecrease):
+    print(segmented_GD1.render(
+        iP=increasePart,
+        dP=decreasePart,
+        nP=notchangePart,
+        ycol=ycolname,
+        mI=maxIncrease,
+        mD=maxDecrease, ))
+
+
 def dependentcompare_view(Xcolname, begin, end, ycolname1, ycolname2, magnification1, magnification2, X, X1, X2):
     print(dc1.render(Xcol=Xcolname, begin=begin, end=end, loopnum=end, y1name=ycolname1, y2name=ycolname2,
                      magnification1=magnification1,
                      magnification2=magnification2, X=X, X1=X1, X2=X2))
+
+def batchprovessing_view1(m, Xcolname, X1,X2, y,allincrease, alldecrease, category_name, ycolnames, begin, end):
+    story=(bp1.render(mode=m, Xcol=Xcolname, X1=0, allincrease=allincrease, alldecrease=alldecrease,
+                     category_name=category_name))+"\n"
+    for i in range(np.size(ycolnames) - 1):
+        ycolname = ycolnames[i]
+        ydata = y[ycolname]
+        y1 = ydata[begin]
+        y2 = ydata[end]
+        story=story+bp2.render(mode=m, ycol=ycolname, y1=y1, y2=y2, X1=X1, X2=X2, mag=0)
+    print(story)
+
+def batchprovessing_view2(m, Xcolname, X1, allincrease, alldecrease, category_name, total, ycolnames, y, point):
+    story= (bp1.render(mode=m, Xcol=Xcolname, X1=X1, allincrease=False, alldecrease=False,
+            category_name=category_name))+"\n"
+    for i in range(np.size(ycolnames) - 1):
+        ycolname = ycolnames[i]
+        ydata = y[ycolname]
+        y1 = ydata[point]
+        mag = np.round(y1 / total, 2)
+        story=story+bp2.render(mode=m, ycol=ycolname, y1=y1, y2=0, X1=0, X2=0, mag=mag)
+    print(story)
+
+def independenttwopointcompare_view(Xcolname, point, ycolname1, ycolname2, X, y1, y2, mode, mag):
+    print(idtpc.render(Xcol=Xcolname, point=point, y1name=ycolname1, y2name=ycolname2, X=X, y1=y1, y2=y2,
+                       mode=mode, mag=mag))
+
+def two_point_and_peak_child_view(Xcolname, ycolname, Xpeak, ypeak, X1, X2, y1, y2):
+    print(tppc.render(Xcol=Xcolname, ycol=ycolname, Xpeak=Xpeak, ypeak=ypeak, X1=X1, X2=X2, y1=y1, y2=y2))

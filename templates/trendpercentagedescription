@@ -1,13 +1,13 @@
 According to data,
 {%-if std<1-%}
-the percentage of {{ycol}} did not change much over the {{Xcol}},
-it remained around {{y[end]}}% from years {{X[begin]}} to {{X[end]}}.
+the percentage of {{ycol}} did not change much over the years,
+it remained around {{y[end]}}% from years {{X[samepoint]}} to {{X[end]}}.
 {%else-%}
 {%-if y[end]>y[begin]-%}
-the percentage of {{ycol}} has increased over the {{Xcol}},
+the percentage of {{ycol}} has increased over the years,
 with an estimated {{y[end]}}% of the total in {{X[end]}} when compared to {{y[begin]}}% in {{X[begin]}}.
 {%else-%}
-the percentage of {{ycol}} has decreased over the {{Xcol}},
+the percentage of {{ycol}} has decreased over the years,
 with an estimated {{y[end]}}% of the total in {{X[end]}} when compared to {{y[begin]}}% in {{X[begin]}}.
 {%- endif -%}
 {%- endif -%}

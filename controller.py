@@ -182,3 +182,7 @@ def independenttwopointcompare_con(m, X, Xcolname, y1, y2, ycolname1, ycolname2,
 def two_point_and_peak_child_con(m, X, y, Xcolname, ycolname, point1, point2):
     Xcolname, ycolname, Xpeak, ypeak, X1, X2, y1, y2=MD.NonFittingReport.two_point_and_peak(m, X, y, Xcolname, ycolname, point1, point2)
     VW.two_point_and_peak_child_view(Xcolname, ycolname, Xpeak, ypeak, X1, X2, y1, y2)
+
+def trendpercentage_con(m, X, y, Xcolname, ycolname, begin="", end=""):
+    Xcolname, begin, end, ycolname, X, y, std,samepoint=MD.NonFittingReport.samedependentcompare(m, X, y, Xcolname, ycolname, begin, end)
+    VW.trendpercentage_view(Xcolname, begin, end, ycolname, X, y, std,samepoint)

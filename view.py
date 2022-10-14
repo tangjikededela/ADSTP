@@ -783,3 +783,6 @@ def independenttwopointcompare_view(Xcolname, point, ycolname1, ycolname2, X, y1
 
 def two_point_and_peak_child_view(Xcolname, ycolname, Xpeak, ypeak, X1, X2, y1, y2):
     print(tppc.render(Xcol=Xcolname, ycol=ycolname, Xpeak=Xpeak, ypeak=ypeak, X1=X1, X2=X2, y1=y1, y2=y2))
+
+def trendpercentage_view(Xcolname, begin, end, ycolname, X, y, std,samepoint):
+    print(dc4.render(Xcol=Xcolname, begin=begin, end=end, ycol=ycolname, X=X, y=y, std=std,samepoint=samepoint))

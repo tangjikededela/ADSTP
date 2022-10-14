@@ -413,7 +413,7 @@ class NonFittingReport:
             # print(idtpc.render(Xcol=Xcolname, point=point, y1name=ycolname1, y2name=ycolname2, X=X, y1=y1, y2=y2,
             #                    mode=mode, mag=mag))
 
-    def samedependentcompare(m, X, y, Xcolname, ycolname, begin="", end=""):
+    def samedependentcompare(m, X, y, Xcolname, ycolname, begin, end):
         if "samedependentmagnificationcompare" in str(m):
             if begin == "":
                 begin = 0
@@ -466,7 +466,11 @@ class NonFittingReport:
             for i in range(end - begin + 1):
                 ynew[i] = y[i + begin]
             std = np.std(ynew)
-            return (Xcolname, begin, end, ycolname, X, y, std)
+            samepoint=end-1
+            for i in range(end - begin + 1):
+                if y[samepoint]==y[end]:
+                    samepoint=samepoint-1
+            return (Xcolname, begin, end, ycolname, X, y, std,samepoint+1)
             # print(dc4.render(Xcol=Xcolname, begin=begin, end=end, ycol=ycolname, X=X, y=y, std=std))
 
     def independentcompare(m, X, y, Xcolname, ycolname, begin, end):

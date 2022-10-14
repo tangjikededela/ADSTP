@@ -122,7 +122,7 @@ import UI
 #              'children looked after with foster carers provided by LA (%)', 'children looked after with foster carers purchased by LA (%)',
 #              'children looked after with prospective adopters (%)', 'children looked after in other community (%)',
 #              'children looked after in residential care settings (%)',
-#              'looked-after children','in particular with foster carers']
+#              'looked-after children','children looked after with foster carers (%)']
 # data = read_csv("childtable1-1.csv", header=None, names=col_names)
 # X = data.Year  # Features
 # Xcolname = "Year"
@@ -131,7 +131,7 @@ import UI
 #              'children looked after with foster carers provided by LA (%)', 'children looked after with foster carers purchased by LA (%)',
 #              'children looked after with prospective adopters (%)', 'children looked after in other community (%)',
 #              'children looked after in residential care settings (%)',
-#              'looked-after children','in particular with foster carers']
+#              'looked-after children','children looked after with foster carers (%)']
 # ycolname = "looked-after children"
 # y=data[ycolname] # Target variable
 # level = 1
@@ -141,33 +141,64 @@ import UI
 # p = False
 # CT.segmentedregressionsummary_con(X, y, Xcolname, ycolname, level, g, b, r2, p,breakpointnum=5,governmentdrug=False, governmentchild=True)
 
+# # #P2
+# ycolname="children looked after at home (%)"
+# y=data[ycolname]
+# m="trendpercentage"
+# CT.trendpercentage_con(m, X, y, Xcolname, ycolname, begin=3, end="")
+#
+# ycolname="children looked after with foster carers (%)"
+# y=data[ycolname]
+# m="trendpercentage"
+# CT.trendpercentage_con(m, X, y, Xcolname, ycolname, begin=3, end="")
+# #
+# ycolname="children looked after in residential care settings (%)"
+# y=data[ycolname]
+# m="trendpercentage"
+# CT.trendpercentage_con(m, X, y, Xcolname, ycolname, begin=3, end="")
 
-#P3
-col_names = ['years', 'Number of children starting to be looked after under age 1',
-             'Number of children starting to be looked after age between 1 to 4',
-             'Number of children starting to be looked after age between 5 to 11',
-             'Number of children starting to be looked after age between 12 to 15',
-             'Number of children starting to be looked after age between 16 to 17',
-             'Number of children starting to be looked after age between 18 to 21',
-             'Number of children starting to be looked after with unknown age',
-             'total number of children starting to be looked after',
-             'percent of children starting to be looked after under age 5']
-data = read_csv("numberofchildrenbyage.csv", header=None, names=col_names)
 
-X = data.years  # Features
-Xcolname = "years"
-ycolnames = ['Number of children starting to be looked after under age 1',
-             'Number of children starting to be looked after age between 1 to 4',
-             'Number of children starting to be looked after age between 5 to 11',
-             'Number of children starting to be looked after age between 12 to 15',
-             'Number of children starting to be looked after age between 16 to 17',
-             'Number of children starting to be looked after age between 18 to 21',
-             'Number of children starting to be looked after with unknown age',
-             'total number of children starting to be looked after',
-             'percent of children starting to be looked after under age 5']
-ycolname = "percent of children starting to be looked after under age 5"
-y=data[ycolname] # Target variable
-begin=0
-end=numpy.size(X)-1
-model="twopointpeak_child"
-CT.two_point_and_peak_child_con(model, X, y, Xcolname, ycolname, begin,end)
+# # P3
+# col_names = ['years', 'Number of children starting to be looked after under age 1',
+#              'Number of children starting to be looked after age between 1 to 4',
+#              'Number of children starting to be looked after age between 5 to 11',
+#              'Number of children starting to be looked after age between 12 to 15',
+#              'Number of children starting to be looked after age between 16 to 17',
+#              'Number of children starting to be looked after age between 18 to 21',
+#              'Number of children starting to be looked after with unknown age',
+#              'total number of children starting to be looked after',
+#              'percent of children starting to be looked after under age 5']
+# data = read_csv("numberofchildrenbyage.csv", header=None, names=col_names)
+#
+# X = data.years  # Features
+# Xcolname = "years"
+# ycolnames = ['Number of children starting to be looked after under age 1',
+#              'Number of children starting to be looked after age between 1 to 4',
+#              'Number of children starting to be looked after age between 5 to 11',
+#              'Number of children starting to be looked after age between 12 to 15',
+#              'Number of children starting to be looked after age between 16 to 17',
+#              'Number of children starting to be looked after age between 18 to 21',
+#              'Number of children starting to be looked after with unknown age',
+#              'total number of children starting to be looked after',
+#              'percent of children starting to be looked after under age 5']
+# ycolname = "percent of children starting to be looked after under age 5"
+# y=data[ycolname] # Target variable
+# begin=0
+# end=numpy.size(X)-1
+# model="twopointpeak_child"
+# CT.two_point_and_peak_child_con(model, X, y, Xcolname, ycolname, begin,end)
+
+
+## An example for general template data story.
+# features = read_csv('attributes.csv', delim_whitespace=True)
+# dataset = read_csv('communities.data', names=features['attributes'])
+# dataset = dataset.drop(columns=['state', 'county', 'community', 'communityname', 'fold'], axis=1)
+# dataset = dataset.drop(columns=['racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'], axis=1)
+# # print("The number of instances: ", dataset.shape[0])
+# # print("The number of variables: ", dataset.shape[1])
+# dataset = CT.cleanData(dataset, 0.8)  # Clear data with a threshold of 80%
+# CT.LinearModelStats(dataset, [
+#     'pctWPubAsst',
+#     'PctHousLess3BR',
+#     'PctPersOwnOccup'], 'ViolentCrimesPerPop', ['percentage of households with public assistance income','percent of housing units with less than 3 bedrooms','percent of people in owner occupied households'],
+#                      'total number of violent crimes per 100K popuation', questionset=[1, 1, 1, 1], trend=1)

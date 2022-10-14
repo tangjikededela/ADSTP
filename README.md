@@ -44,6 +44,7 @@ Uncomment those lines after it and run will show a series of data stories on a d
 Regardless of data preprocessing tasks (which is not the main task for ADSTP), any user can generate similar data stories for any dataset fitting by linear regression model with just one line of command.
 
 *LinearModelStats(dataset, [indepdent variables], depdent variable, [Phrases or words to replace independent variable names],Phrases or words that replace the name of the dependent variable, questionset, trend)*
+
 For the data story generation function of a linear model, it requies seven variables.  
 
 | Variable | Require and Effect |

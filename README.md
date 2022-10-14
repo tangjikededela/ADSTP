@@ -46,6 +46,8 @@ Regardless of data preprocessing tasks (which is not the main task for ADSTP), a
 *LinearModelStats(dataset, [indepdent variables], depdent variable, [Phrases or words to replace independent variable names],Phrases or words that replace the name of the dependent variable, questionset, trend)*
 For the data story generation function of a linear model, it requies seven variables.  
 
+| Variable | Effect |
+| :----|:---- |
 |  dataset   | the dataset input  |
 |  indepdent variables  | the indepdent variables names, usually the same as the header in the dataset |
 | depdent variable  | the depdent variable name, usually the same as the header in the dataset  |

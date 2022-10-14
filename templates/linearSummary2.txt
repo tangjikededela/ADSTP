@@ -5,7 +5,7 @@ First of all, the story will {% if qs[0]==1-%} describe the credibility of the m
 {%- if t ==1  -%}
 describe under what circumstances each independent variable can make the dependent variable as small as possible.
 {%- elif t ==0 -%}
-describe under what circumstances each independent variable can make the dependent variable as small as possible.
+describe under what circumstances each independent variable can make the dependent variable as large as possible.
 {%- else -%}
 
 {%- endif -%} {%- endif -%}

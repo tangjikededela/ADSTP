@@ -194,11 +194,6 @@ import UI
 # dataset = read_csv('communities.data', names=features['attributes'])
 # dataset = dataset.drop(columns=['state', 'county', 'community', 'communityname', 'fold'], axis=1)
 # dataset = dataset.drop(columns=['racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'], axis=1)
-# # print("The number of instances: ", dataset.shape[0])
-# # print("The number of variables: ", dataset.shape[1])
 # dataset = CT.cleanData(dataset, 0.8)  # Clear data with a threshold of 80%
-# CT.LinearModelStats(dataset, [
-#     'pctWPubAsst',
-#     'PctHousLess3BR',
-#     'PctPersOwnOccup'], 'ViolentCrimesPerPop', ['percentage of households with public assistance income','percent of housing units with less than 3 bedrooms','percent of people in owner occupied households'],
-#                      'total number of violent crimes per 100K popuation', questionset=[1, 1, 1, 1], trend=1)
+
+# CT.LinearModelStats(dataset, ['pctWPubAsst','PctHousLess3BR','PctPersOwnOccup'], 'ViolentCrimesPerPop', ['percentage of households with public assistance income','percent of housing units with less than 3 bedrooms','percent of people in owner occupied households'],'total number of violent crimes per 100K popuation', questionset=[1, 1, 1, 1], trend=1)

@@ -7,7 +7,7 @@ the percentage of children who have begun episodes at a younger age (under 5 yea
 the percentage of children who have begun episodes at a younger age (under 5 years old) does not change much.{%- endif -%}
 In {{X2}}, there were an estimated {{y2}} {{ycol}}
 {%- if y1 < y2 %}
-- a increase of {{y2-y1}}% from {{X1}},
+- an increase of {{y2-y1}}% from {{X1}},
 {%- elif y1 > y2 %}
 - a decrease of {{y1-y2}}% from {{X1}},
 {%- else %}

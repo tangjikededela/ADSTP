@@ -37,10 +37,10 @@ ____
 ## Quick Start
 Here is a tutorial to help you quickly understand how ADSTP works.
 ### General data story
-In the "usecase" file, there is a line called "An example for general template data story." This is an example which uses the linear regression model to fit the crime rate dataset.
-Uncomment those lines after it and run will show a series of data stories on a dashboard that explain to the user whether it is credible to use the model, whether the selected independent variables have a strong relationship with the dependent variable, and how each independent variable affects the dependent variable.
-Regardless of data preprocessing tasks (which is not the main task for ADSTP), any user can generate similar data stories for any dataset fitting by linear regression model with just one line of command.
-*LinearModelStats(dataset, [indepdent variables], depdent variable, [Phrases or words to replace independent variable names],Phrases or words that replace the name of the dependent variable, questionset, trend)*
+In the "usecase" file, there is a line called "An example for general template data story." This is an example which uses the linear regression model to fit the crime rate dataset.  
+Uncomment those lines after it and run will show a series of data stories on a dashboard that explain to the user whether it is credible to use the model, whether the selected independent variables have a strong relationship with the dependent variable, and how each independent variable affects the dependent variable.  
+Regardless of data preprocessing tasks (which is not the main task for ADSTP), any user can generate similar data stories for any dataset fitting by linear regression model with just one line of command.  
+*LinearModelStats(dataset, [indepdent variables], depdent variable, [Phrases or words to replace independent variable names],Phrases or words that replace the name of the dependent variable, questionset, trend)* <br>
 For the data story generation function of a linear model, it requies seven variables.
 |  dataset   | the dataset input  |
 |  indepdent variables  | the indepdent variables names, usually the same as the header in the dataset |

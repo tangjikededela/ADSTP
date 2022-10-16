@@ -4,15 +4,14 @@ import controller as CT
 import UI
 
 # # Register # Question 1-2
-# register_dataset = read_csv('registrations_data.csv', header=0, converters={'Period': str})
+# register_dataset = read_csv('./data/AberdeenCityCP/registrations_data.csv', header=0, converters={'Period': str})
 # per1000inCity_col = ['Registrations per 1000 population in Aberdeen City',
 #                  'Registrations per 1000 population in Aberdeenshire', 'Registrations per 1000 population in Moray']
 # per1000nation_col = 'per 1000 population in Nation'
-# # table_col=['Period','Registrations In Aberdeen City','Registrations per 1000 population in Aberdeen City','Compared with last year for Aberdeen City']
-# # CT.register_question1(register_dataset, per1000inCity_col, per1000nation_col)
-#
+# table_col=['Period','Registrations In Aberdeen City','Registrations per 1000 population in Aberdeen City','Compared with last year for Aberdeen City']
+#CT.register_question1(register_dataset, per1000inCity_col, per1000nation_col)
 # # Risk Factor # Question 1-3
-# risk_factor_dataset = read_csv('risk_factor.csv', header=0, converters={'Period': str})
+# risk_factor_dataset = read_csv('./data/AberdeenCityCP/risk_factor.csv', header=0, converters={'Period': str})
 # risk_factor_col = ['Emotional Abuse', 'Parental Drug Misuse', 'Domestic Abuse', 'Non-engaging Family', 'Neglect',
 #                'Parent mental health', 'Parental alcohol use', 'Sexual Abuse', 'Physical Abuse', 'Other concern', 'CSE',
 #                'Forced Labour', 'Placing self at risk', 'Child Trafficking']
@@ -25,13 +24,13 @@ import UI
 # # CT.re_register_question4(register_dataset, reregister_col, period_col,national_average_reregistration)
 #
 # # Remain time # Question 5
-# remain_data = read_csv('children_remaining_Aberdeen.csv', header=0, converters={'Period': str})
+# remain_data = read_csv('./data/AberdeenCityCP/children_remaining_Aberdeen.csv', header=0, converters={'Period': str})
 # check_col = ['13-18 months', 'more than 19 months']
 # period_col='Period'
 # # CT.remain_time_question5(remain_data, check_col, period_col)
 #
 # # Enquiries # Question 6
-# enquiries_data = read_csv('enquiries_data.csv', header=0, converters={'Period': str})
+# enquiries_data = read_csv('./data/AberdeenCityCP/enquiries_data.csv', header=0, converters={'Period': str})
 # AC_enquiries = 'Enquiries to the CP Register of Aberdeen City'
 # AS_enquiries = 'Enquiries to the CP Register of Aberdeenshire'
 # MT_enquiries = 'Enquiries to the CP Register of Moray'
@@ -39,7 +38,7 @@ import UI
 # # CT.enquiries_question6(enquiries_data, AC_enquiries, AS_enquiries, MT_enquiries, period_col)
 
 #Aberdeen city council CP
-# UI.child_protection_UI()
+UI.child_protection_UI()
 
 # drug-related death
 # col_names = ['years', 'drug related deaths', 'males', 'females', 'Deaths under age 14',
@@ -49,7 +48,7 @@ import UI
 #              'dead by Heroin/morphine 2', 'dead by Methadone', 'dead by Heroin/morphine, Methadone or Bupren-orphine',
 #              'dead by Codeine or a codeine-containing compound',
 #              'dead by Dihydro-codeine or a d.h.c-containing compound', 'dead by any opiate or opioid', ]
-# data = read_csv("drugdeathsexagetype.csv", header=None, names=col_names)
+# data = read_csv("./data/drugdeathsexagetype.csv", header=None, names=col_names)
 #
 # X = data.years  # Features
 # Xcolname = "years"
@@ -81,7 +80,7 @@ import UI
 
 #P3
 # col_names = ['Year', 'all drug-related deaths','more than one drug was found', 'only one drug was found', 'more than one drug was found in %','more than one drug was found to be present in the body','accidental poisonings']
-# data = read_csv("onedrug.csv", header=None, names=col_names)
+# data = read_csv("./data/onedrug.csv", header=None, names=col_names)
 # Xcolname="Year"
 # ycolname1 = "accidental poisonings"
 # ycolname2 = "all drug-related deaths"
@@ -100,7 +99,7 @@ import UI
 #              'death by gabapentin and/or pregabalin',
 #              'death by cocaine', 'death by opiates/opioids (such as heroin/morphine and methadone)',
 #              'death by benzodiazepines (such as diazepam and etizolam)']
-# data = read_csv("drugsubstancesimplicated.csv", header=None, names=col_names)
+# data = read_csv("./data/drugsubstancesimplicated.csv", header=None, names=col_names)
 # X = data.Year  # Features
 # Xcolname = "Year"
 # ycolnames = ["death by ‘street’ benzodiazepines (such as etizolam)",
@@ -123,7 +122,7 @@ import UI
 #              'children looked after with prospective adopters (%)', 'children looked after in other community (%)',
 #              'children looked after in residential care settings (%)',
 #              'looked-after children','children looked after with foster carers (%)']
-# data = read_csv("childtable1-1.csv", header=None, names=col_names)
+# data = read_csv("./data/childtable1-1.csv", header=None, names=col_names)
 # X = data.Year  # Features
 # Xcolname = "Year"
 # ycolnames = ['children looked after in the community (%)',
@@ -168,7 +167,7 @@ import UI
 #              'Number of children starting to be looked after with unknown age',
 #              'total number of children starting to be looked after',
 #              'percent of children starting to be looked after under age 5']
-# data = read_csv("numberofchildrenbyage.csv", header=None, names=col_names)
+# data = read_csv("./data/numberofchildrenbyage.csv", header=None, names=col_names)
 #
 # X = data.years  # Features
 # Xcolname = "years"
@@ -190,10 +189,9 @@ import UI
 
 
 ## An example for general template data story.
-# features = read_csv('attributes.csv', delim_whitespace=True)
-# dataset = read_csv('communities.data', names=features['attributes'])
+# features = read_csv('./data/attributes.csv', delim_whitespace=True)
+# dataset = read_csv('./data/communities.data', names=features['attributes'])
 # dataset = dataset.drop(columns=['state', 'county', 'community', 'communityname', 'fold'], axis=1)
 # dataset = dataset.drop(columns=['racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'], axis=1)
 # dataset = CT.cleanData(dataset, 0.8)  # Clear data with a threshold of 80%
-
 # CT.LinearModelStats(dataset, ['pctWPubAsst','PctHousLess3BR','PctPersOwnOccup'], 'ViolentCrimesPerPop', ['percentage of households with public assistance income','percent of housing units with less than 3 bedrooms','percent of people in owner occupied households'],'total number of violent crimes per 100K popuation', questionset=[1, 1, 1, 1], trend=1)

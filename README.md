@@ -41,7 +41,7 @@ In the "usecase" file, there is a line called "An example for general template d
 
 Uncomment those lines after it and run will show a series of data stories on a dashboard that explain to the user whether it is credible to use the model, whether the selected independent variables have a strong relationship with the dependent variable, and how each independent variable affects the dependent variable.
 
-Regardless of data preprocessing tasks (which is not the main task for ADSTP), any user can generate similar data stories for any dataset fitting by linear regression model with just one line of command as below.
+In fact, any user can use the following one-line command to generate a data story for a linear model fit on any dataset.
 
 *LinearModelStats(dataset, [indepdent variables], depdent variable, [Phrases or words to replace independent variable names],Phrases or words that replace the name of the dependent variable, questionset, trend)*
 

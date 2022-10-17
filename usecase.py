@@ -38,7 +38,7 @@ import UI
 # # CT.enquiries_question6(enquiries_data, AC_enquiries, AS_enquiries, MT_enquiries, period_col)
 
 #Aberdeen city council CP
-UI.child_protection_UI()
+# UI.child_protection_UI()
 
 # drug-related death
 # col_names = ['years', 'drug related deaths', 'males', 'females', 'Deaths under age 14',

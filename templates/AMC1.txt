@@ -1,3 +1,5 @@
 {%-if n_select==1-%}
-After comparing all models, without comparing {{exclude}}, {{best}} is the best model when measured by {{sort}}.
+All models were compared with {{sort}} as the primary measure{%-if exclude!=[]%} without considering the {{exclude}} model{%-endif-%}, the best fit model for this dataset was {{best}}.
+Details of the model are shown below:
+{{detail}}
 {%-endif-%}

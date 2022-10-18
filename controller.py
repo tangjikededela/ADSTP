@@ -186,3 +186,11 @@ def two_point_and_peak_child_con(m, X, y, Xcolname, ycolname, point1, point2):
 def trendpercentage_con(m, X, y, Xcolname, ycolname, begin="", end=""):
     Xcolname, begin, end, ycolname, X, y, std,samepoint=MD.NonFittingReport.samedependentcompare(m, X, y, Xcolname, ycolname, begin, end)
     VW.trendpercentage_view(Xcolname, begin, end, ycolname, X, y, std,samepoint)
+
+def pycaret_find_best_model_con(dataset,type,target,sort="",exclude=[],n=1,session_id=123):
+    detail=MD.pycaret_find_best_model(dataset,type,target,sort,exclude,n,session_id)
+    model = MD.model_translate(detail, n)
+    if n ==1:
+        VW.pycaret_find_one_best_model(model, detail, n, sort, exclude)
+    elif n>1:
+        VW.pycaret_find_best_models(model, detail, n, sort, exclude, length=len(detail))

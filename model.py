@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import statistics
+from pycaret.classification import *
+from pycaret.regression import *
 import matplotlib.pyplot as plt
 from pandas import DataFrame
 import heapq
@@ -866,3 +868,113 @@ def segmentedregressionsummary(X, y, Xcolname, ycolname, level, graph, base, r2,
     #         WRSSI=weakRSSI,
     #         WRNSSI=weakRNSSI,
     #     ))
+
+
+def pycaret_find_best_model(dataset,type,target,sort,exclude,n,session_id):
+    print("If all of the data types are correctly identified 'enter' can be pressed to continue or 'quit' can be typed to end the expriment.")
+    if type==0:
+        clf = setup(data = dataset, target = target, session_id=session_id)
+        if sort=="":
+            sort='Accuracy'
+        best_model = compare_models(exclude=exclude,n_select=n,sort=sort)
+    elif type==1:
+        reg = setup(data=dataset, target=target, session_id=session_id)
+        if sort=="":
+            sort='R2'
+        best_model = compare_models(exclude=exclude,n_select=n,sort=sort)
+    return (best_model)
+
+def model_translate(modeldetail,n=1):
+    if n==1:
+        modeldetail=str(modeldetail)
+        if "_ridge.Ridge" in modeldetail:
+            translatedmodel="Ridge Model"
+        elif "LinearDiscriminant" in modeldetail:
+            translatedmodel="Linear Discriminant Analysis"
+        elif "GradientBoosting" in modeldetail:
+            translatedmodel="Gradient Boosting Model"
+        elif "AdaBoost" in modeldetail:
+            translatedmodel="Ada Boost"
+        elif "LGBMRegressor" in modeldetail:
+            translatedmodel = "Light Gradient Boosting Machine"
+        elif "RandomForest" in modeldetail:
+            translatedmodel = "Random Forest Model"
+        elif "XGBRegressor" in modeldetail:
+            translatedmodel = "Extreme Gradient Boosting"
+        elif "ExtraTrees" in modeldetail:
+            translatedmodel = "Extra Trees model"
+        elif "DecisionTree" in modeldetail:
+            translatedmodel = "Decision Tree Model"
+        elif "_coordinate_descent.Lasso" in modeldetail:
+            translatedmodel = "Lasso Regression	"
+        elif "LassoLars" in modeldetail:
+            translatedmodel = "Lasso Least Angle Regression	"
+        elif "BayesianRidge" in modeldetail:
+            translatedmodel = "Bayesian Ridge"
+        elif "LinearRegression" in modeldetail:
+            translatedmodel = "Linear Regression"
+        elif "HuberRegressor" in modeldetail:
+            translatedmodel = "Huber Regressor"
+        elif "PassiveAggressiveRegressor" in modeldetail:
+            translatedmodel = "Passive Aggressive Regressor"
+        elif "OrthogonalMatchingPursuit" in modeldetail:
+            translatedmodel = "Orthogonal Matching Pursuit"
+        elif "AdaBoostRegressor" in modeldetail:
+            translatedmodel = "AdaBoost Regressor"
+        elif "KNeighborsRegressor" in modeldetail:
+            translatedmodel = "K Neighbors Regressor"
+        elif "ElasticNet" in modeldetail:
+            translatedmodel = "Elastic Net"
+        elif "DummyRegressor" in modeldetail:
+            translatedmodel = "Dummy Regressor"
+        elif "Lars" in modeldetail:
+            translatedmodel = "Least Angle Regression"
+        return (translatedmodel)
+    else:
+        for i in range(len(modeldetail)):
+            modeldetail[i] = str(modeldetail[i])
+        translatedmodel=[0]*len(modeldetail)
+        for i in range(len(modeldetail)):
+            if "Ridge" in modeldetail[i] and "BayesianRidge" not in modeldetail[i]:
+                translatedmodel[i] = "Ridge Model"
+            elif "LinearDiscriminant" in modeldetail[i]:
+                translatedmodel[i] = "Linear Discriminant Analysis"
+            elif "GradientBoosting" in modeldetail[i]:
+                translatedmodel[i] = "Gradient Boosting Model"
+            elif "AdaBoost" in modeldetail[i]:
+                translatedmodel[i] = "Ada Boost"
+            elif "LGBMRegressor" in modeldetail[i]:
+                translatedmodel[i] = "Light Gradient Boosting Machine"
+            elif "RandomForest" in modeldetail[i]:
+                translatedmodel[i] = "Random Forest Model"
+            elif "XGBRegressor" in modeldetail[i]:
+                translatedmodel[i] = "Extreme Gradient Boosting"
+            elif "ExtraTrees" in modeldetail[i]:
+                translatedmodel[i] = "Extra Trees model"
+            elif "DecisionTree" in modeldetail[i]:
+                translatedmodel[i] = "Decision Tree Model"
+            elif "Lasso" in modeldetail[i] and "LassoLars" not in modeldetail[i]:
+                translatedmodel[i] = "Lasso Regression"
+            elif "LassoLars" in modeldetail[i]:
+                translatedmodel[i] = "Lasso Least Angle Regression"
+            elif "BayesianRidge" in modeldetail[i]:
+                translatedmodel[i] = "Bayesian Ridge"
+            elif "LinearRegression" in modeldetail[i]:
+                translatedmodel[i] = "Linear Regression"
+            elif "HuberRegressor" in modeldetail[i]:
+                translatedmodel[i] = "Huber Regressor"
+            elif "PassiveAggressiveRegressor" in modeldetail[i]:
+                translatedmodel[i] = "Passive Aggressive Regressor"
+            elif "OrthogonalMatchingPursuit" in modeldetail[i]:
+                translatedmodel[i] = "Orthogonal Matching Pursuit"
+            elif "AdaBoostRegressor" in modeldetail[i]:
+                translatedmodel[i] = "AdaBoost Regressor"
+            elif "KNeighborsRegressor" in modeldetail[i]:
+                translatedmodel[i] = "K Neighbors Regressor"
+            elif "ElasticNet" in modeldetail[i]:
+                translatedmodel[i] = "Elastic Net"
+            elif "DummyRegressor" in modeldetail[i]:
+                translatedmodel[i] = "Dummy Regressor"
+            elif "Lars" in modeldetail[i]:
+                translatedmodel[i] = "Least Angle Regression"
+        return (translatedmodel)

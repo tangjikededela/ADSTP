@@ -1,6 +1,9 @@
 from pycaret.datasets import get_data
 from pycaret.classification import *
 from pycaret.regression import *
+import model as MD
+import view as VW
+import controller as CT
 from jinja2 import Environment, FileSystemLoader
 import numpy as np
 # Loading the folder that contains the txt templates
@@ -42,19 +45,14 @@ data_unseen = dataset.drop(data.index)
 data.reset_index(drop=True, inplace=True)
 data_unseen.reset_index(drop=True, inplace=True)
 
-print('Data for Modeling: ' + str(data.shape))
-print('Unseen Data For Predictions: ' + str(data_unseen.shape))
+# print('Data for Modeling: ' + str(data.shape))
+# print('Unseen Data For Predictions: ' + str(data_unseen.shape))
 
-exp_reg101 = setup(data = data, target = 'Price', session_id=123)
-n=1
-s='R2'
-exclude='ransac'
-best = compare_models(exclude = [exclude],n_select=n,sort=s)
-# print(best)
-# print(len(best))
-# print(type(best[0]))
-# print(str(best[1])[0])
-print(automodelcompare.render(best=best,n_select=n, sort=s, exclude=exclude))
+dataset,type,target,sort,exclude,n,session_id=data,1,'Price','R2',['xgboost'],3,123
+best =MD.pycaret_find_best_model(dataset,type,target,sort,exclude,n,session_id)
+
+
+
 # lightgbm = create_model('lightgbm')
 
 # lgbm_params = {'num_leaves': np.arange(10,200,10),

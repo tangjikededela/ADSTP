@@ -75,6 +75,9 @@ idtpc = env.get_template('independenttwopointcomparison')
 # for batch processing
 bp1 = env.get_template('batchprocessing1')
 bp2 = env.get_template('batchprocessing2')
+# for pycaret
+automodelcompare1 = env.get_template('AMC1.txt')
+automodelcompare2 = env.get_template('AMC2.txt')
 
 # creating the global variables
 models_names = ['Gradient Boosting Regressor', 'Random Forest Regressor', 'Linear Regression',
@@ -755,34 +758,47 @@ def dependentcompare_view(Xcolname, begin, end, ycolname1, ycolname2, magnificat
                      magnification1=magnification1,
                      magnification2=magnification2, X=X, X1=X1, X2=X2))
 
-def batchprovessing_view1(m, Xcolname, X1,X2, y,allincrease, alldecrease, category_name, ycolnames, begin, end):
-    story=(bp1.render(mode=m, Xcol=Xcolname, X1=0, allincrease=allincrease, alldecrease=alldecrease,
-                     category_name=category_name))+"\n"
+
+def batchprovessing_view1(m, Xcolname, X1, X2, y, allincrease, alldecrease, category_name, ycolnames, begin, end):
+    story = (bp1.render(mode=m, Xcol=Xcolname, X1=0, allincrease=allincrease, alldecrease=alldecrease,
+                        category_name=category_name)) + "\n"
     for i in range(np.size(ycolnames) - 1):
         ycolname = ycolnames[i]
         ydata = y[ycolname]
         y1 = ydata[begin]
         y2 = ydata[end]
-        story=story+bp2.render(mode=m, ycol=ycolname, y1=y1, y2=y2, X1=X1, X2=X2, mag=0)
+        story = story + bp2.render(mode=m, ycol=ycolname, y1=y1, y2=y2, X1=X1, X2=X2, mag=0)
     print(story)
 
+
 def batchprovessing_view2(m, Xcolname, X1, allincrease, alldecrease, category_name, total, ycolnames, y, point):
-    story= (bp1.render(mode=m, Xcol=Xcolname, X1=X1, allincrease=False, alldecrease=False,
-            category_name=category_name))+"\n"
+    story = (bp1.render(mode=m, Xcol=Xcolname, X1=X1, allincrease=False, alldecrease=False,
+                        category_name=category_name)) + "\n"
     for i in range(np.size(ycolnames) - 1):
         ycolname = ycolnames[i]
         ydata = y[ycolname]
         y1 = ydata[point]
         mag = np.round(y1 / total, 2)
-        story=story+bp2.render(mode=m, ycol=ycolname, y1=y1, y2=0, X1=0, X2=0, mag=mag)
+        story = story + bp2.render(mode=m, ycol=ycolname, y1=y1, y2=0, X1=0, X2=0, mag=mag)
     print(story)
+
 
 def independenttwopointcompare_view(Xcolname, point, ycolname1, ycolname2, X, y1, y2, mode, mag):
     print(idtpc.render(Xcol=Xcolname, point=point, y1name=ycolname1, y2name=ycolname2, X=X, y1=y1, y2=y2,
                        mode=mode, mag=mag))
 
+
 def two_point_and_peak_child_view(Xcolname, ycolname, Xpeak, ypeak, X1, X2, y1, y2):
     print(tppc.render(Xcol=Xcolname, ycol=ycolname, Xpeak=Xpeak, ypeak=ypeak, X1=X1, X2=X2, y1=y1, y2=y2))
 
-def trendpercentage_view(Xcolname, begin, end, ycolname, X, y, std,samepoint):
-    print(dc4.render(Xcol=Xcolname, begin=begin, end=end, ycol=ycolname, X=X, y=y, std=std,samepoint=samepoint))
+
+def trendpercentage_view(Xcolname, begin, end, ycolname, X, y, std, samepoint):
+    print(dc4.render(Xcol=Xcolname, begin=begin, end=end, ycol=ycolname, X=X, y=y, std=std, samepoint=samepoint))
+
+
+def pycaret_find_one_best_model(model, detail, n, sort, exclude):
+    print(automodelcompare1.render(best=model, detail=detail, n_select=n, sort=sort, exclude=exclude))
+
+
+def pycaret_find_best_models(model, detail, n, sort, exclude, length):
+    print(automodelcompare2.render(best=model, detail=detail, n_select=n, sort=sort, exclude=exclude, length=length))

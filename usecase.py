@@ -1,7 +1,8 @@
-from pandas import read_csv,DataFrame
+from pandas import read_csv, DataFrame
 import numpy
 import controller as CT
 import UI
+from pycaret.datasets import get_data
 
 # # Register # Question 1-2
 # register_dataset = read_csv('./data/AberdeenCityCP/registrations_data.csv', header=0, converters={'Period': str})
@@ -9,7 +10,7 @@ import UI
 #                  'Registrations per 1000 population in Aberdeenshire', 'Registrations per 1000 population in Moray']
 # per1000nation_col = 'per 1000 population in Nation'
 # table_col=['Period','Registrations In Aberdeen City','Registrations per 1000 population in Aberdeen City','Compared with last year for Aberdeen City']
-#CT.register_question1(register_dataset, per1000inCity_col, per1000nation_col)
+# CT.register_question1(register_dataset, per1000inCity_col, per1000nation_col)
 # # Risk Factor # Question 1-3
 # risk_factor_dataset = read_csv('./data/AberdeenCityCP/risk_factor.csv', header=0, converters={'Period': str})
 # risk_factor_col = ['Emotional Abuse', 'Parental Drug Misuse', 'Domestic Abuse', 'Non-engaging Family', 'Neglect',
@@ -37,7 +38,7 @@ import UI
 # period_col='Period'
 # # CT.enquiries_question6(enquiries_data, AC_enquiries, AS_enquiries, MT_enquiries, period_col)
 
-#Aberdeen city council CP
+# Aberdeen city council CP
 # UI.child_protection_UI()
 
 # drug-related death
@@ -59,7 +60,7 @@ import UI
 #              'dead by Heroin/morphine 2', 'dead by Methadone', 'dead by Heroin/morphine, Methadone or Bupren-orphine',
 #              'dead by Codeine or a codeine-containing compound',
 #              'dead by Dihydro-codeine or a d.h.c-containing compound', 'dead by any opiate or opioid', ]
-#P1
+# P1
 # ycolname = "drug related deaths"
 # y = data[ycolname]
 # level = 1
@@ -78,7 +79,7 @@ import UI
 # model="magnificationcompare"
 # CT.dependentcompare_con(model, X, y1, y2, Xcolname, y1name, y2name, begin, end)
 
-#P3
+# P3
 # col_names = ['Year', 'all drug-related deaths','more than one drug was found', 'only one drug was found', 'more than one drug was found in %','more than one drug was found to be present in the body','accidental poisonings']
 # data = read_csv("./data/onedrug.csv", header=None, names=col_names)
 # Xcolname="Year"
@@ -195,3 +196,17 @@ import UI
 # dataset = dataset.drop(columns=['racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'], axis=1)
 # dataset = CT.cleanData(dataset, 0.8)  # Clear data with a threshold of 80%
 # CT.LinearModelStats(dataset, ['pctWPubAsst','PctHousLess3BR','PctPersOwnOccup'], 'ViolentCrimesPerPop', ['percentage of households with public assistance income','percent of housing units with less than 3 bedrooms','percent of people in owner occupied households'],'total number of violent crimes per 100K popuation', questionset=[1, 1, 1, 1], trend=1)
+
+
+## An example for Automatic model comparison by PyCaret
+dataset = get_data('diamond', profile=True)
+data = dataset.sample(frac=0.9, random_state=786)
+data_unseen = dataset.drop(data.index)
+data.reset_index(drop=True, inplace=True)
+data_unseen.reset_index(drop=True, inplace=True)
+# type parameter=0 means find best Classifiction, =1 means find best Regression.
+# sort parameter means Models will be compared primarily against this criterion
+# exclude parameter is used to block certain models
+# n parameter means find the best n models.
+dataset, type, target_variable, sort, exclude, n, session_id = data, 1, 'Price', 'R2', ['xgboost'], 3, 123
+CT.pycaret_find_best_model_con(dataset, type, target_variable, sort, exclude, n, session_id)

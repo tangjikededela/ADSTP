@@ -1,11 +1,12 @@
 from pycaret.datasets import get_data
-from pycaret.classification import *
-from pycaret.regression import *
+from pycaret import classification
+from pycaret import regression
 import model as MD
 import view as VW
 import controller as CT
 from jinja2 import Environment, FileSystemLoader
 import numpy as np
+import pandas as pd
 # Loading the folder that contains the txt templates
 
 file_loader = FileSystemLoader('templates')
@@ -23,12 +24,15 @@ automodelcompare = env.get_template('AMC1.txt')
 # data_unseen = dataset.drop(data.index)
 # data.reset_index(inplace=True, drop=True)
 # data_unseen.reset_index(inplace=True, drop=True)
-# # print('Data for Modeling: ' + str(data.shape))
-# # print('Unseen Data For Predictions: ' + str(data_unseen.shape))
-# #find best model
-# exp_clf101 = setup(data = data, target = 'default', session_id=123)
-# best_model = compare_models(n_select=3)
-# print(best_model)
+# print('Data for Modeling: ' + str(data.shape))
+# print('Unseen Data For Predictions: ' + str(data_unseen.shape))
+#find best model
+# exp_clf101 = classification.setup(data = data, target = 'default', session_id=123)
+# dataset,type,target_variable,sort,exclude,n,session_id=data,0,'default','Accuracy',[],20,123
+# CT.pycaret_find_best_model_con(dataset, type, target_variable, sort, exclude, n, session_id)
+# best_model = classification.compare_models(n_select=20,sort='Accuracy')
+# for i in range(len(best_model)):
+#     print(type(best_model[i]))
 
 # #or dt
 # rf = create_model('rf')
@@ -48,9 +52,28 @@ data_unseen.reset_index(drop=True, inplace=True)
 # print('Data for Modeling: ' + str(data.shape))
 # print('Unseen Data For Predictions: ' + str(data_unseen.shape))
 
-dataset,type,target,sort,exclude,n,session_id=data,1,'Price','R2',['xgboost'],3,123
-best =MD.pycaret_find_best_model(dataset,type,target,sort,exclude,n,session_id)
-
+dataset,type,target_variable,sort,exclude,n,session_id=data,1,'Price','R2',['xgboost'],3,123
+exp_reg101 = regression.setup(data = data, target = 'Price', session_id=123)
+model = regression.create_model('dt')
+tuned_model = regression.tune_model(model)
+regression.plot_model(tuned_model, plot='error',save=True)
+regression.plot_model(tuned_model, plot='feature',save=True)
+# regression.evaluate_model(tuned_model)
+regression.interpret_model(tuned_model,save=True)
+importance=pd.DataFrame({'Feature': regression.get_config('X_train').columns, 'Value' : abs(model.feature_importances_)}).sort_values(by='Value', ascending=False)
+# print(importance['Feature'])
+# print(importance['Value'])
+# for ind in importance.index:
+#     if importance['Value'][ind] == max(importance['Value']):
+#         imp = importance['Feature'][ind]
+# print(imp)
+regression.predict_model(model)
+r=regression.pull(model)
+# MAE MSE RMSE R2
+# print(r['MAE'])
+# print(r['MSE'])
+# print(r['RMSE'])
+print(r['R2'][0])
 
 
 # lightgbm = create_model('lightgbm')

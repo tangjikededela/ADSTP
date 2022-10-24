@@ -78,6 +78,8 @@ bp2 = env.get_template('batchprocessing2')
 # for pycaret
 automodelcompare1 = env.get_template('AMC1.txt')
 automodelcompare2 = env.get_template('AMC2.txt')
+pycaretimp=env.get_template('pycaret_imp.txt')
+pycaretmodelfit=env.get_template('pycaret_modelfit.txt')
 
 # creating the global variables
 models_names = ['Gradient Boosting Regressor', 'Random Forest Regressor', 'Linear Regression',
@@ -798,7 +800,18 @@ def trendpercentage_view(Xcolname, begin, end, ycolname, X, y, std, samepoint):
 
 def pycaret_find_one_best_model(model, detail, n, sort, exclude):
     print(automodelcompare1.render(best=model, detail=detail, n_select=n, sort=sort, exclude=exclude))
+    modelcomparestory=automodelcompare1.render(best=model, detail=detail, n_select=n, sort=sort, exclude=exclude)
+    return (modelcomparestory)
 
 
 def pycaret_find_best_models(model, detail, n, sort, exclude, length):
     print(automodelcompare2.render(best=model, detail=detail, n_select=n, sort=sort, exclude=exclude, length=length))
+    modelcomparestory =automodelcompare2.render(best=model, detail=detail, n_select=n, sort=sort, exclude=exclude, length=length)
+    return (modelcomparestory)
+
+def pycaret_model_summary_view(imp_var, r2,mape):
+    story1=pycaretmodelfit.render(r2=r2, mape=mape)
+    story2=pycaretimp.render(imp=imp_var)
+    return (story1,story2)
+    print(story1)
+    print(story2)

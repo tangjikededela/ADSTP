@@ -3,8 +3,19 @@ from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
 import model as MD
 import view as VW
+import base64
+import sys
+from jupyter_dash import JupyterDash
+from dash import Dash, html, dcc
 
+def start_app():
+    app_name = JupyterDash(__name__)
+    listTabs = []
+    return (app_name,listTabs)
 
+def run_app(app_name,listTabs):
+    app_name.layout = html.Div([dcc.Tabs(listTabs)])
+    app_name.run_server(mode='inline', debug=True)
 # creating the methods for the library
 def cleanData(data, threshold):
     """This function takes in as input a dataset, and returns a clean dataset.
@@ -188,9 +199,26 @@ def trendpercentage_con(m, X, y, Xcolname, ycolname, begin="", end=""):
     VW.trendpercentage_view(Xcolname, begin, end, ycolname, X, y, std,samepoint)
 
 def pycaret_find_best_model_con(dataset,type,target,sort="",exclude=[],n=1,session_id=123):
-    detail=MD.pycaret_find_best_model(dataset,type,target,sort,exclude,n,session_id)
+    detail,pycaretname=MD.pycaret_find_best_model(dataset,type,target,sort,exclude,n,session_id)
     model = MD.model_translate(detail, n)
     if n ==1:
-        VW.pycaret_find_one_best_model(model, detail, n, sort, exclude)
+        comparestory=VW.pycaret_find_one_best_model(model, detail, n, sort, exclude)
     elif n>1:
-        VW.pycaret_find_best_models(model, detail, n, sort, exclude, length=len(detail))
+        comparestory=VW.pycaret_find_best_models(model, detail, n, sort, exclude, length=len(detail))
+    print("You could use the information to fit the model or enter 'continue' the system will automatically fit the best model.")
+    userinput=input("Or enter 'quit' to end the process:")
+    if userinput=="continue":
+        independent_var,imp,r2,mape,imp_figure,Error_figure=MD.pycaret_create_model(type,pycaretname)
+        fitstory,impstory=VW.pycaret_model_summary_view(imp, r2,mape)
+        app_name, listTabs = start_app()
+        VW.dash_with_table(app_name, listTabs, comparestory, dataset, "Model Compare Overview")
+        _base64 = []
+        _base64.append(base64.b64encode(open('./{}.png'.format("Prediction Error"), 'rb').read()).decode('ascii'))
+        _base64.append(base64.b64encode(open('./{}.png'.format("Feature Importance"), 'rb').read()).decode('ascii'))
+        listTabs.append(dcc.Tab(label='Summary', children=[html.Img(src='data:image/png;base64,{}'.format(_base64[0])),
+                                                           html.P(fitstory), ]), )
+        listTabs.append(dcc.Tab(label='Summary', children=[html.Img(src='data:image/png;base64,{}'.format(_base64[1])),
+                                                           html.P(impstory), ]), )
+        run_app(app_name, listTabs)
+    else:
+        sys.exit()

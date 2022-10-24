@@ -1,0 +1,14 @@
+{%- if r2 < 0.5 -%}
+The relationship between the chosen independent variable and the dependent variable is not so strong, so the model is not so credible.
+{%- else -%}
+The relationship between the chosen independent variable and the dependent variable is strong enough, so the model is credible.
+{%- endif %}
+{%if mape < 0.05 -%}
+And the forecast of the model is acceptable with good accuracy.
+{%- elif mape < 0.1 and mape>0.05-%}
+And the forecast of the model is acceptably accurate.
+{%- elif mape < 0.25 and mape>0.1-%}
+And the forecast of the model has low accuracy, but still acceptable.
+{%- else -%}
+And the forecast of the model is not acceptable in terms of its very low accuracy.
+{%- endif -%}

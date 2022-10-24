@@ -208,5 +208,6 @@ data_unseen.reset_index(drop=True, inplace=True)
 # sort parameter means Models will be compared primarily against this criterion
 # exclude parameter is used to block certain models
 # n parameter means find the best n models.
-dataset, type, target_variable, sort, exclude, n, session_id = data, 1, 'Price', 'R2', ['xgboost'], 3, 123
+dataset, type, target_variable, sort, exclude, n, session_id = data, 1, 'Price', 'R2', ['xgboost','et','rf','lightgbm','gbr'], 1, 123
 CT.pycaret_find_best_model_con(dataset, type, target_variable, sort, exclude, n, session_id)
+

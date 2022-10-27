@@ -323,13 +323,13 @@ def LinearModelStats_view(data, Xcol, ycol, linearData, r2, questionset, trend):
         if linearData['coeff'][ind] == max(linearData['coeff']):
             imp = ind
         if linearData['coeff'][ind] > 0:
-            pf = pf + ind + ", "
+            pf = pf + "the "+ind + ", "
         elif linearData['coeff'][ind] < 0:
-            nf = nf + ind + ", "
+            nf = nf + "the "+ind + ", "
         if linearData['pvalue'][ind] > 0.05:
-            nss = nss + ind + ", "
+            nss = nss + "the "+ind + ", "
         else:
-            ss = ss + ind + ", "
+            ss = ss + "the "+ind + ", "
         if questionset[1] == 1 or questionset[2] == 1:
             listTabs.append(dcc.Tab(label=ind, children=[
                 html.Img(src='data:image/png;base64,{}'.format(_base64[i])), html.P(conflict)

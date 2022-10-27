@@ -318,9 +318,9 @@ def GAMModel(data, Xcol, ycol, X, y, expect=1, epochs=100, splines=''):
     for i in range(np.size(p) - 1):
         p[i] = round(p[i], 3)
         if p[i] > 0.05:
-            nss = nss + Xcol[i] + ", "
+            nss = nss + "the "+ Xcol[i] + ", "
         else:
-            ss = ss + Xcol[i] + ", "
+            ss = ss + "the "+Xcol[i] + ", "
     return (gam, data, Xcol, ycol, r2, p, conflict, nss, ss, mincondition, condition)
 
 
@@ -1104,7 +1104,6 @@ def pycaret_create_model(types, modelname):
         # A MAPE greater than 10% but less than 25% indicates low,
         # but acceptable accuracy and MAPE greater than 25% very low accuracy,
         # so low that the forecast is not acceptable in terms of its accuracy.
-        print(results['R2'][0])
         imp_figure=cv2.imread('Feature Importance.png')
         Error_figure = cv2.imread('Prediction Error.png')
         SHAP_figure = cv2.imread('SHAP summary.png')

@@ -72,7 +72,8 @@ def ModelData(data, Xcol, ycol):
     VW.ModelData_view(mae_metrics, rmse_metrics,ycol)
 
 def LinearModelStats(data, Xcol, ycol, Xnewname="", ynewname="", questionset=[1, 1, 1, 1], trend=1):
-    data, Xcol, ycol = variablenamechange(data, Xcol, ycol, Xnewname, ynewname)
+    if Xnewname!="" or ynewname!="":
+        data, Xcol, ycol = variablenamechange(data, Xcol, ycol, Xnewname, ynewname)
     X = data[Xcol].values
     y = data[ycol]
     columns, linearData, predicted, mse, rmse, r2 = MD.LinearDefaultModel(X, y, Xcol)

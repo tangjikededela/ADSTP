@@ -38,6 +38,7 @@ DecisionTree2 = env.get_template('decisiontree2.txt')
 DecisionTree3 = env.get_template('decisiontree3.txt')
 logisticSummary = env.get_template('logisticSummary.txt')
 logisticSummary2 = env.get_template('logisticSummary2')
+logisticSummary3 = env.get_template('logisticSummary3.txt')
 gamStory = env.get_template('gamStory.txt')
 GAMslinear_stats = env.get_template('GAMsLinearL1')
 GAMslinear_R2 = env.get_template('GAMsLinearL2')
@@ -358,7 +359,7 @@ def LogisticModelStats_view(data, Xcol, ycol, logisticData1, logisticData2, r2, 
     i = 0
 
     # Add to dashbord Model Statistics
-    intro = linearSummary2.render(r2=r2, indeNum=np.size(Xcol), modelName="Logistic Model", Xcol=Xcol,
+    intro = logisticSummary3.render(r2=r2, indeNum=np.size(Xcol), modelName="Logistic Model", Xcol=Xcol,
                                   ycol=ycol, qs=questionset, t=9)
     aim = Xcol
     aim.insert(0, ycol)

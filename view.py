@@ -401,10 +401,12 @@ def LogisticModelStats_view(data, Xcol, ycol, logisticData1, logisticData2, r2, 
             ]))
         i = i + 1
     fig = px.bar(logisticData2)
+    plt.savefig('pictures/{}.png'.format(imp))
+    plt.clf()
     summary = logisticSummary2.render(pos=pos_eff, neg=neg_eff, ycol=ycol, nss=nss, ss=ss, imp=imp,
                                       r2=r2, qs=questionset)
     # summary = model.MicroLexicalization(summary)
-    listTabs.append(dcc.Tab(label='Summary', children=[dcc.Graph(figure=fig), html.P(summary), ]), )
+    listTabs.append(dcc.Tab(label='Summary', children=[dcc.Graph(figure=fig), html.P(summary)]), )
 
     logistic_app.layout = html.Div([dcc.Tabs(listTabs)])
     logistic_app.run_server(mode='inline', debug=True)

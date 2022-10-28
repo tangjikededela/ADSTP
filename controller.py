@@ -80,7 +80,8 @@ def LinearModelStats(data, Xcol, ycol, Xnewname="", ynewname="", questionset=[1,
     VW.LinearModelStats_view(data, Xcol, ycol, linearData, r2, questionset, trend)
 
 def LogisticModelStats(data, Xcol, ycol, Xnewname="", ynewname="", questionset=[1, 1, 1, 1]):
-    data, Xcol, ycol = variablenamechange(data, Xcol, ycol, Xnewname, ynewname)
+    if Xnewname != "" or ynewname != "":
+        data, Xcol, ycol = variablenamechange(data, Xcol, ycol, Xnewname, ynewname)
     X = data[Xcol].values
     y = data[ycol]
     columns1, logisticData1, columns2, logisticData2, r2 = MD.LogisticrDefaultModel(X, y, Xcol)

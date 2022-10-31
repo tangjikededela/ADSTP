@@ -281,6 +281,9 @@ def run_app(app_name, listTabs):
     app_name.layout = html.Div([dcc.Tabs(listTabs)])
     app_name.run_server(mode='inline', debug=True)
 
+def read_figure(_base64,name):
+    _base64.append(base64.b64encode(open('./{}.png'.format(name), 'rb').read()).decode('ascii'))
+    return (_base64)
 
 def LinearModelStats_view(data, Xcol, ycol, linearData, r2, questionset, trend):
     # Store results for xcol
@@ -380,12 +383,12 @@ def LogisticModelStats_view(data, Xcol, ycol, logisticData1, logisticData2, r2, 
     # Add to dashbord Xcol plots and data story
 
     for ind in logisticData1.index:
-        # conflict
-        conflict = logisticSummary.render(xcol=ind, ycol=ycol,
+        # independent_variable_story
+        independent_variable_story = logisticSummary.render(xcol=ind, ycol=ycol,
                                           odd=abs(100 * (math.exp(logisticData1['coeff'][ind]) - 1)),
                                           coeff=logisticData1['coeff'][ind], p=logisticData1['pvalue'][ind],
                                           qs=questionset)
-        # conflict = model.MicroLexicalization(conflict)
+        # independent_variable_story = model.MicroLexicalization(independent_variable_story)
         if logisticData1['coeff'][ind] == max(logisticData1['coeff']):
             imp = ind
         if logisticData1['coeff'][ind] > 0:
@@ -398,7 +401,7 @@ def LogisticModelStats_view(data, Xcol, ycol, logisticData1, logisticData2, r2, 
             ss = ss + ind + ", "
         if questionset[1] == 1 or questionset[2] == 1:
             listTabs.append(dcc.Tab(label=ind, children=[
-                html.Img(src='data:image/png;base64,{}'.format(_base64[i])), html.P(conflict)
+                html.Img(src='data:image/png;base64,{}'.format(_base64[i])), html.P(independent_variable_story)
             ]))
         i = i + 1
     fig = px.bar(logisticData2)
@@ -552,10 +555,10 @@ def RandomForestModelStats_view(data, Xcol, ycol, tree_small, rf_small, DTData, 
                                                                                                'height': '400px',
                                                                                                'overflowY': 'auto'})]), )
     aim.remove(ycol)
-    conflict = explain
+    tree_explain_story = explain
     listTabs.append(
         dcc.Tab(label='Tree Explanation', children=[html.Img(src='data:image/png;base64,{}'.format(encoded_image)),
-                                                    html.Pre(conflict)]), )
+                                                    html.Pre(tree_explain_story)]), )
     summary = DecisionTree3.render(imp=imp, ycol=ycol, r2=round(r2, 3), qs=questionset, mse=mse)
     listTabs.append(dcc.Tab(label='Summary', children=[dcc.Graph(figure=fig), html.P(summary)]), )
     RF_app.layout = html.Div([dcc.Tabs(listTabs)])
@@ -604,10 +607,10 @@ def DecisionTreeModelStats_view(data, Xcol, ycol, DTData, DTmodel, r2, mse, ques
     # Explain of the tree
     explain = TreeExplain(DTmodel, Xcol)
     # Text need to fix here
-    conflict = explain
+    tree_explain_story = explain
     listTabs.append(
         dcc.Tab(label='Tree Explanation', children=[html.Img(src='data:image/png;base64,{}'.format(encoded_image)),
-                                                    html.Pre(conflict)]), )
+                                                    html.Pre(tree_explain_story)]), )
     summary = DecisionTree3.render(imp=imp, ycol=ycol, r2=round(r2, 3), qs=questionset, mse=mse)
     listTabs.append(dcc.Tab(label='Summary', children=[dcc.Graph(figure=fig), html.P(summary)]), )
     DT_app.layout = html.Div([dcc.Tabs(listTabs)])

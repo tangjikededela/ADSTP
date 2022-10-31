@@ -1,4 +1,4 @@
-This is a data story to help you understand how {% for i in range(0,indeNum) %} {% if i !=(indeNum-1)  -%} {{Xcol[i]}}, {%- else  -%} and {{Xcol[i]}} {%endif-%}{%endfor-%} affect the probability of having {{ycol}} by fitting the dataset to the {{modelName}}.
+This is a data story to help you understand how {% for i in range(0,indeNum) %} {% if i !=(indeNum-1)  -%} {{Xcol[i]}}, {%- else  -%} and {{Xcol[i]}} {%endif-%}{%endfor-%} affect the probability of {{ycol}} by fitting the dataset to the {{modelName}}.
 First of all, the story will {% if qs[0]==1-%} describe the credibility of the model as a whole. Then it will {% endif %}
 {%- if qs[1]==1%} analyze whether each independent variable has a significant effect on the dependent variable, and {% endif %}
 {%- if qs[2]==1 -%}
@@ -12,11 +12,9 @@ describe under what circumstances each independent variable can make the depende
 {%- if qs[2]==1 or qs[1]==1 %} Finally, the story will {% endif -%} summarize the analysis results{%- if qs[3]==1 %} and measure the importance of each independent variable{%- endif -%}.
 {% if qs[0]==1%}
 The R-Squared for the {{modelName}} has a value of {{r2 | round(3)}}.
-{% if r2 < 0.3 -%}
+{% if r2 < 0.1 -%}
 So, the relationship between the chosen independent variable and the dependent variable is None or Very weak. You should not trust the analysis provided to make inferences.
-{% elif r2 < 0.5 and r2 > 0.3 -%}
-So, the relationship between the chosen independent variable and the dependent variable is Weak or Low. You might not use the analysis provided to make inferences.
-{% elif r2 < 0.7 and r2 > 0.5 -%}
+{% elif r2 < 0.2 and r2 > 0.1 -%}
 So, the relationship between the chosen independent variable and the dependent variable is Moderate. You could trust the analysis provided to make inferences.
 {% else -%}
 So, there is a strong relationship between the chosen independent variable and the dependent variable. You can trust the analysis provided to make inferences.

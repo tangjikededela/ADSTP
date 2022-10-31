@@ -1108,3 +1108,4 @@ def pycaret_create_model(types, modelname):
         Error_figure = cv2.imread('Prediction Error.png')
         SHAP_figure = cv2.imread('SHAP summary.png')
         return (importance['Feature'],imp_var, results['R2'][0], results['MAPE'][0],imp_figure,Error_figure)
+

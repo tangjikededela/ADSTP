@@ -1,0 +1,6 @@
+euribor3m: the euribor 3 month rate
+job_blue-collar: the job is blue-collar
+job_housemaid: the job is housemaid
+education_illiterate: the education level is illiterate
+poutcome_success: the successful last marketing campaign
+y: subscribing to a term deposit

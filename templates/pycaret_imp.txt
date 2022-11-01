@@ -1,1 +1,14 @@
-The {{imp}} is the most important independent variable that affects the {{target}}.
+As the above figure shows, the {{imp}} is the most important independent variable that affects the {{target}}.
+Also, the below SHAP figure shows, {%if imp_pos_ave > imp_neg_ave and imp_pos_value_ave > imp_neg_value_ave-%}
+as the {{imp}} increases, it will bring positive effects to the {{target}}, and as the {{imp}} decreases, it will bring negative effects to the {{target}}.
+Moreover, the positive effect of increasing the {{imp}} is greater than the negative effect of decreasing the {{imp}}.
+{%elif imp_pos_ave > imp_neg_ave and imp_pos_value_ave < imp_neg_value_ave%}
+as the {{imp}} decreases, it will bring positive effects to the {{target}}, and as the {{imp}} increases, it will bring negative effects to the {{target}}.
+Moreover, the positive effect of decreasing the {{imp}} is greater than the negative effect of increasing the {{imp}}.
+{%elif imp_pos_ave < imp_neg_ave and imp_pos_value_ave > imp_neg_value_ave%}
+as the {{imp}} increases, it will bring positive effects to the {{target}}, and as the {{imp}} decreases, it will bring negative effects to the {{target}}.
+Moreover, the positive effect of increasing the {{imp}} is less than the negative effect of decreasing the {{imp}}.
+{%elif imp_pos_ave < imp_neg_ave and imp_pos_value_ave < imp_neg_value_ave%}
+as the {{imp}} decreases, it will bring positive effects to the {{target}}, and as the {{imp}} increases, it will bring negative effects to the {{target}}.
+Moreover, the positive effect of decreasing the {{imp}} is less than the negative effect of increasing the {{imp}}.
+{%-endif-%}

@@ -77,15 +77,17 @@ class general_datastory_for_pycaret_pipelines():
         if types==0:
             print("Coming soon.")
         elif types==1:
-            independent_var, imp, r2, mape, imp_figure, Error_figure = MD.pycaret_create_model(types, pycaretname)
-            fitstory, impstory = VW.pycaret_model_summary_view(imp, r2, mape,target)
+            independent_var, imp, r2, mape, imp_figure, Error_figure,SHAP_figure,imp_pos_ave,imp_pos_value_ave,imp_neg_ave,imp_neg_value_ave = MD.pycaret_create_model(types, pycaretname)
+            fitstory, impstory = VW.pycaret_model_summary_view(imp, r2, mape,imp_pos_ave,imp_pos_value_ave,imp_neg_ave,imp_neg_value_ave,target)
             app_name, listTabs = VW.start_app()
             VW.dash_with_table(app_name, listTabs, comparestory, dataset, "Model Compare Overview")
             _base64 = []
             _base64 = VW.read_figure(_base64, "Prediction Error")
             _base64 = VW.read_figure(_base64, "Feature Importance")
+            _base64 = VW.read_figure(_base64, "SHAP summary")
             VW.dash_with_table(app_name, listTabs, fitstory, comapre_results, "Model credibility")
-            VW.dash_with_figure(app_name, listTabs, impstory, 'Variables Summary', _base64[1])
+            # VW.dash_with_figure(app_name, listTabs, impstory, 'Variables Summary', _base64[1])
+            VW.dash_with_two_figure(app_name, listTabs, impstory, 'Important Variables Summary', _base64[1],_base64[2])
             VW.run_app(app_name, listTabs)
 
     def pycaret_find_best_model(dataset,types,target,sort="",exclude=[],n=1,session_id=123,userinput="quit"):

@@ -677,6 +677,11 @@ def dash_with_figure(app_name, listTabs, text, label, format, path='data:image/p
         html.Img(src=path.format(format)), html.P(text)
     ]))
 
+def dash_with_two_figure(app_name, listTabs, text, label, format1,format2, path='data:image/png;base64,{}'):
+    listTabs.append(dcc.Tab(label=label, children=[
+        html.Img(src=path.format(format1)), html.P(text),html.Img(src=path.format(format2))
+    ]))
+
 
 def dash_with_table(app_name, listTabs, text, dataset, label):
     listTabs.append(dcc.Tab(label=label,
@@ -815,9 +820,9 @@ def pycaret_find_best_models(model, detail, n, sort, exclude, excludeNum,length)
     modelcomparestory =automodelcompare2.render(best=model, detail=detail, n_select=n, sort=sort, exclude=exclude, length=length,excludeNum=excludeNum)
     return (modelcomparestory)
 
-def pycaret_model_summary_view(imp_var, r2,mape,target):
+def pycaret_model_summary_view(imp_var, r2,mape,imp_pos_ave,imp_pos_value_ave,imp_neg_ave,imp_neg_value_ave,target):
     story1=pycaretmodelfit.render(r2=r2, mape=mape)
-    story2=pycaretimp.render(imp=imp_var,target=target)
+    story2=pycaretimp.render(imp=imp_var,target=target,imp_pos_ave=imp_pos_ave,imp_pos_value_ave=imp_pos_value_ave,imp_neg_ave=imp_neg_ave,imp_neg_value_ave=imp_neg_value_ave)
     print(story1)
     print(story2)
     return (story1, story2)

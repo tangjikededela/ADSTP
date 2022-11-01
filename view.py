@@ -804,20 +804,20 @@ def trendpercentage_view(Xcolname, begin, end, ycolname, X, y, std, samepoint):
     print(dc4.render(Xcol=Xcolname, begin=begin, end=end, ycol=ycolname, X=X, y=y, std=std, samepoint=samepoint))
 
 
-def pycaret_find_one_best_model(model, detail, n, sort, exclude):
-    print(automodelcompare1.render(best=model, detail=detail, n_select=n, sort=sort, exclude=exclude))
-    modelcomparestory=automodelcompare1.render(best=model, detail=detail, n_select=n, sort=sort, exclude=exclude)
+def pycaret_find_one_best_model(model, detail, n, sort, exclude,excludeNum):
+    print(automodelcompare1.render(best=model, detail=detail, n_select=n, sort=sort, exclude=exclude,excludeNum=excludeNum))
+    modelcomparestory=automodelcompare1.render(best=model, detail=detail, n_select=n, sort=sort, exclude=exclude,excludeNum=excludeNum)
     return (modelcomparestory)
 
 
-def pycaret_find_best_models(model, detail, n, sort, exclude, length):
-    print(automodelcompare2.render(best=model, detail=detail, n_select=n, sort=sort, exclude=exclude, length=length))
-    modelcomparestory =automodelcompare2.render(best=model, detail=detail, n_select=n, sort=sort, exclude=exclude, length=length)
+def pycaret_find_best_models(model, detail, n, sort, exclude, excludeNum,length):
+    print(automodelcompare2.render(best=model, detail=detail, n_select=n, sort=sort, exclude=exclude, length=length,excludeNum=excludeNum))
+    modelcomparestory =automodelcompare2.render(best=model, detail=detail, n_select=n, sort=sort, exclude=exclude, length=length,excludeNum=excludeNum)
     return (modelcomparestory)
 
-def pycaret_model_summary_view(imp_var, r2,mape):
+def pycaret_model_summary_view(imp_var, r2,mape,target):
     story1=pycaretmodelfit.render(r2=r2, mape=mape)
-    story2=pycaretimp.render(imp=imp_var)
-    return (story1,story2)
+    story2=pycaretimp.render(imp=imp_var,target=target)
     print(story1)
     print(story2)
+    return (story1, story2)

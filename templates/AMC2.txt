@@ -1,5 +1,5 @@
 {%-if n_select>1-%}
-All models were compared with {{sort}} as the primary measure {%-if exclude!=[]-%} without considering the {{exclude}} model{%-endif-%}, the {{n_select}} models that best fit this dataset were {%-for i in range(0,length)%} {{best[i]}},{%-endfor%} with {{best[0]}} being the best fit.
+All models were compared with {{sort}} as the primary measure {%-if exclude!=[]-%} without considering {%- for i in range(0,excludeNum) %} {% if i!=excludeNum-1%}the {{exclude[i]}}, {% else %}and the {{exclude[i]}}{%-endif-%}{%-endfor %}{%-endif-%}, the {{n_select}} models that best fit this dataset were {%-for i in range(0,length)%} {{best[i]}},{%-endfor%} with {{best[0]}} being the best fit.
 Details of the {{n_select}} models are shown below:
 {%for i in range(0,length)%} {{detail[i]}}
 {%endfor%}

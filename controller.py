@@ -4,19 +4,8 @@ from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
 import model as MD
 import view as VW
-import base64
 import sys
-from jupyter_dash import JupyterDash
-from dash import Dash, html, dcc
 
-def start_app():
-    app_name = JupyterDash(__name__)
-    listTabs = []
-    return (app_name,listTabs)
-
-def run_app(app_name,listTabs):
-    app_name.layout = html.Div([dcc.Tabs(listTabs)])
-    app_name.run_server(mode='inline', debug=True)
 # creating the methods for the library
 def cleanData(data, threshold):
     """This function takes in as input a dataset, and returns a clean dataset.
@@ -83,29 +72,38 @@ def ModelData(data, Xcol, ycol):
     VW.ModelData_view(mae_metrics, rmse_metrics,ycol)
 
 class general_datastory_for_pycaret_pipelines():
-    def pycaret_find_best_model_con(dataset,type,target,sort="",exclude=[],n=1,session_id=123):
-        detail,pycaretname=MD.pycaret_find_best_model(dataset,type,target,sort,exclude,n,session_id)
-        model = MD.model_translate(detail, n)
-        if n ==1:
-            comparestory=VW.pycaret_find_one_best_model(model, detail, n, sort, exclude)
-        elif n>1:
-            comparestory=VW.pycaret_find_best_models(model, detail, n, sort, exclude, length=len(detail))
-        print("You could use the information to fit the model or enter 'continue' the system will automatically fit the best model.")
-        userinput=input("Or enter 'quit' to end the process:")
 
-        if userinput=="continue":
-            independent_var,imp,r2,mape,imp_figure,Error_figure=MD.pycaret_create_model(type,pycaretname)
-            fitstory,impstory=VW.pycaret_model_summary_view(imp, r2,mape)
-            app_name, listTabs = start_app()
+    def pycaret_model_fit(dataset,types,pycaretname,comparestory,comapre_results,target):
+        if types==0:
+            print("Coming soon.")
+        elif types==1:
+            independent_var, imp, r2, mape, imp_figure, Error_figure = MD.pycaret_create_model(types, pycaretname)
+            fitstory, impstory = VW.pycaret_model_summary_view(imp, r2, mape,target)
+            app_name, listTabs = VW.start_app()
             VW.dash_with_table(app_name, listTabs, comparestory, dataset, "Model Compare Overview")
             _base64 = []
-            _base64=VW.read_figure(_base64,"Prediction Error")
-            _base64=VW.read_figure(_base64, "Feature Importance")
-            VW.dash_with_figure(app_name, listTabs, fitstory, 'Model credibility', _base64[0])
+            _base64 = VW.read_figure(_base64, "Prediction Error")
+            _base64 = VW.read_figure(_base64, "Feature Importance")
+            VW.dash_with_table(app_name, listTabs, fitstory, comapre_results, "Model credibility")
             VW.dash_with_figure(app_name, listTabs, impstory, 'Variables Summary', _base64[1])
-            run_app(app_name, listTabs)
+            VW.run_app(app_name, listTabs)
+
+    def pycaret_find_best_model(dataset,types,target,sort="",exclude=[],n=1,session_id=123,userinput="quit"):
+        detail,pycaretname,comapre_results=MD.pycaret_find_best_model(dataset,types,target,sort,exclude,n,session_id)
+        model = MD.model_translate(detail, n)
+        excludeNum=len(exclude)
+        trans_exclude=MD.inputname_to_readablename(exclude,types)
+        if n ==1:
+            comparestory=VW.pycaret_find_one_best_model(model, detail, n, sort, trans_exclude,excludeNum)
+        elif n>1:
+            comparestory=VW.pycaret_find_best_models(model, detail, n, sort, trans_exclude, excludeNum,length=len(detail))
+        # print("You could use the information to fit the model or enter 'continue' the system will automatically fit the best model.")
+        # userinput=input("Or enter 'quit' to end the process:")
+        if userinput=="continue":
+            general_datastory_for_pycaret_pipelines.pycaret_model_fit(dataset,types, pycaretname, comparestory, comapre_results,target)
         else:
             sys.exit()
+
 
 class general_datastory_pipeline:
     def LinearFit(data, Xcol, ycol, Xnewname="", ynewname="", questionset=[1, 1, 1, 1], trend=1):

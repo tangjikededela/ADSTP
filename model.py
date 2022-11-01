@@ -879,148 +879,96 @@ def pycaret_find_best_model(dataset, types, target, sort, exclude, n, session_id
         if sort == "":
             sort = 'Accuracy'
         best_model = classification.compare_models(exclude=exclude, n_select=n, sort=sort)
+        comapre_results = classification.pull()
 
     elif types == 1:
         reg = regression.setup(data=dataset, target=target, session_id=session_id)
         if sort == "":
             sort = 'R2'
         best_model = regression.compare_models(exclude=exclude, n_select=n, sort=sort)
-    if n == 1:
-        pycaretname = pycaret_model_name_translate(best_model)
-    else:
-        pycaretname = pycaret_model_name_translate(best_model[0])
-    return (best_model, pycaretname)
+        comapre_results = regression.pull()
 
+    if n == 1:
+        pycaretname = readable_name_converted_input_name(best_model)
+    else:
+        pycaretname = readable_name_converted_input_name(best_model[0])
+    return (best_model, pycaretname,comapre_results)
+
+def more_readable_model_name(modeldetail):
+    if "Ridge" in modeldetail and "BayesianRidge" not in modeldetail:
+        translatedmodel = "Ridge Model"
+    elif "LinearDiscriminant" in modeldetail:
+        translatedmodel = "Linear Discriminant Analysis"
+    elif "GradientBoosting" in modeldetail:
+        translatedmodel = "Gradient Boosting Model"
+    elif "AdaBoost" in modeldetail:
+        translatedmodel = "Ada Boost"
+    elif "LGBMClassifier" in modeldetail:
+        translatedmodel = "Light Gradient Boosting Machine Classifier"
+    elif "DummyClassifier" in modeldetail:
+        translatedmodel = "Dummy Classifier"
+    elif "KNeighborsClassifier" in modeldetail:
+        translatedmodel = "K Neighbors Classifier"
+    elif "SGDClassifier" in modeldetail:
+        translatedmodel = "SGD Classifier"
+    elif "LGBMRegressor" in modeldetail:
+        translatedmodel = "Light Gradient Boosting Machine"
+    elif "RandomForest" in modeldetail:
+        translatedmodel = "Random Forest Model"
+    elif "XGBRegressor" in modeldetail:
+        translatedmodel = "Extreme Gradient Boosting"
+    elif "XGBClassifier" in modeldetail:
+        translatedmodel = "Extreme Gradient Boosting Classifier"
+    elif "Logistic" in modeldetail:
+        translatedmodel = "Logistic Model"
+    elif "QuadraticDiscriminant" in modeldetail:
+        translatedmodel = "Quadratic Discriminant Analysis"
+    elif "GaussianNB" in modeldetail:
+        translatedmodel = "Naive Bayes"
+    elif "ExtraTrees" in modeldetail:
+        translatedmodel = "Extra Trees model"
+    elif "DecisionTree" in modeldetail:
+        translatedmodel = "Decision Tree Model"
+    elif "Lasso" in modeldetail and "LassoLars" not in modeldetail:
+        translatedmodel = "Lasso Regression	"
+    elif "LassoLars" in modeldetail:
+        translatedmodel = "Lasso Least Angle Regression	"
+    elif "BayesianRidge" in modeldetail:
+        translatedmodel = "Bayesian Ridge"
+    elif "LinearRegression" in modeldetail:
+        translatedmodel = "Linear Regression"
+    elif "HuberRegressor" in modeldetail:
+        translatedmodel = "Huber Regressor"
+    elif "PassiveAggressiveRegressor" in modeldetail:
+        translatedmodel = "Passive Aggressive Regressor"
+    elif "OrthogonalMatchingPursuit" in modeldetail:
+        translatedmodel = "Orthogonal Matching Pursuit"
+    elif "AdaBoostRegressor" in modeldetail:
+        translatedmodel = "AdaBoost Regressor"
+    elif "KNeighborsRegressor" in modeldetail:
+        translatedmodel = "K Neighbors Regressor"
+    elif "ElasticNet" in modeldetail:
+        translatedmodel = "Elastic Net"
+    elif "DummyRegressor" in modeldetail:
+        translatedmodel = "Dummy Regressor"
+    elif "Lars" in modeldetail:
+        translatedmodel = "Least Angle Regression"
+    return (translatedmodel)
 
 def model_translate(modeldetail, n=1):
     if n == 1:
         modeldetail = str(modeldetail)
-        if "Ridge" in modeldetail and "BayesianRidge" not in modeldetail:
-            translatedmodel = "Ridge Model"
-        elif "LinearDiscriminant" in modeldetail:
-            translatedmodel = "Linear Discriminant Analysis"
-        elif "GradientBoosting" in modeldetail:
-            translatedmodel = "Gradient Boosting Model"
-        elif "AdaBoost" in modeldetail:
-            translatedmodel = "Ada Boost"
-        elif "LGBMClassifier" in modeldetail:
-            translatedmodel = "Light Gradient Boosting Machine Classifier"
-        elif "DummyClassifier" in modeldetail:
-            translatedmodel = "Dummy Classifier"
-        elif "KNeighborsClassifier" in modeldetail:
-            translatedmodel = "K Neighbors Classifier"
-        elif "SGDClassifier" in modeldetail:
-            translatedmodel = "SGD Classifier"
-        elif "LGBMRegressor" in modeldetail:
-            translatedmodel = "Light Gradient Boosting Machine"
-        elif "RandomForest" in modeldetail:
-            translatedmodel = "Random Forest Model"
-        elif "XGBRegressor" in modeldetail:
-            translatedmodel = "Extreme Gradient Boosting"
-        elif "XGBClassifier" in modeldetail:
-            translatedmodel = "Extreme Gradient Boosting Classifier"
-        elif "Logistic" in modeldetail:
-            translatedmodel = "Logistic Model"
-        elif "QuadraticDiscriminant" in modeldetail:
-            translatedmodel = "Quadratic Discriminant Analysis"
-        elif "GaussianNB" in modeldetail:
-            translatedmodel = "Naive Bayes"
-        elif "ExtraTrees" in modeldetail:
-            translatedmodel = "Extra Trees model"
-        elif "DecisionTree" in modeldetail:
-            translatedmodel = "Decision Tree Model"
-        elif "Lasso" in modeldetail and "LassoLars" not in modeldetail:
-            translatedmodel = "Lasso Regression	"
-        elif "LassoLars" in modeldetail:
-            translatedmodel = "Lasso Least Angle Regression	"
-        elif "BayesianRidge" in modeldetail:
-            translatedmodel = "Bayesian Ridge"
-        elif "LinearRegression" in modeldetail:
-            translatedmodel = "Linear Regression"
-        elif "HuberRegressor" in modeldetail:
-            translatedmodel = "Huber Regressor"
-        elif "PassiveAggressiveRegressor" in modeldetail:
-            translatedmodel = "Passive Aggressive Regressor"
-        elif "OrthogonalMatchingPursuit" in modeldetail:
-            translatedmodel = "Orthogonal Matching Pursuit"
-        elif "AdaBoostRegressor" in modeldetail:
-            translatedmodel = "AdaBoost Regressor"
-        elif "KNeighborsRegressor" in modeldetail:
-            translatedmodel = "K Neighbors Regressor"
-        elif "ElasticNet" in modeldetail:
-            translatedmodel = "Elastic Net"
-        elif "DummyRegressor" in modeldetail:
-            translatedmodel = "Dummy Regressor"
-        elif "Lars" in modeldetail:
-            translatedmodel = "Least Angle Regression"
+        translatedmodel=more_readable_model_name(modeldetail)
         return (translatedmodel)
     else:
         for i in range(len(modeldetail)):
             modeldetail[i] = str(modeldetail[i])
         translatedmodel = [0] * len(modeldetail)
         for i in range(len(modeldetail)):
-            if "Ridge" in modeldetail[i] and "BayesianRidge" not in modeldetail[i]:
-                translatedmodel[i] = "Ridge Model"
-            elif "LinearDiscriminant" in modeldetail[i]:
-                translatedmodel[i] = "Linear Discriminant Analysis"
-            elif "GradientBoosting" in modeldetail[i]:
-                translatedmodel[i] = "Gradient Boosting Model"
-            elif "AdaBoost" in modeldetail[i]:
-                translatedmodel[i] = "Ada Boost"
-            elif "LGBMClassifier" in modeldetail[i]:
-                translatedmodel[i] = "Light Gradient Boosting Machine Classifier"
-            elif "DummyClassifier" in modeldetail[i]:
-                translatedmodel[i] = "Dummy Classifier"
-            elif "KNeighborsClassifier" in modeldetail[i]:
-                translatedmodel[i] = "K Neighbors Classifier"
-            elif "SGDClassifier" in modeldetail[i]:
-                translatedmodel[i] = "SGD Classifier"
-            elif "LGBMRegressor" in modeldetail[i]:
-                translatedmodel[i] = "Light Gradient Boosting Machine"
-            elif "RandomForest" in modeldetail[i]:
-                translatedmodel[i] = "Random Forest Model"
-            elif "XGBRegressor" in modeldetail[i]:
-                translatedmodel[i] = "Extreme Gradient Boosting"
-            elif "XGBClassifier" in modeldetail[i]:
-                translatedmodel[i] = "Extreme Gradient Boosting Classifier"
-            elif "Logistic" in modeldetail[i]:
-                translatedmodel[i] = "Logistic Model"
-            elif "QuadraticDiscriminant" in modeldetail[i]:
-                translatedmodel[i] = "Quadratic Discriminant Analysis"
-            elif "GaussianNB" in modeldetail[i]:
-                translatedmodel[i] = "Naive Bayes"
-            elif "ExtraTrees" in modeldetail[i]:
-                translatedmodel[i] = "Extra Trees model"
-            elif "DecisionTree" in modeldetail[i]:
-                translatedmodel[i] = "Decision Tree Model"
-            elif "Lasso" in modeldetail[i] and "LassoLars" not in modeldetail[i]:
-                translatedmodel[i] = "Lasso Regression"
-            elif "LassoLars" in modeldetail[i]:
-                translatedmodel[i] = "Lasso Least Angle Regression"
-            elif "BayesianRidge" in modeldetail[i]:
-                translatedmodel[i] = "Bayesian Ridge"
-            elif "LinearRegression" in modeldetail[i]:
-                translatedmodel[i] = "Linear Regression"
-            elif "HuberRegressor" in modeldetail[i]:
-                translatedmodel[i] = "Huber Regressor"
-            elif "PassiveAggressiveRegressor" in modeldetail[i]:
-                translatedmodel[i] = "Passive Aggressive Regressor"
-            elif "OrthogonalMatchingPursuit" in modeldetail[i]:
-                translatedmodel[i] = "Orthogonal Matching Pursuit"
-            elif "AdaBoostRegressor" in modeldetail[i]:
-                translatedmodel[i] = "AdaBoost Regressor"
-            elif "KNeighborsRegressor" in modeldetail[i]:
-                translatedmodel[i] = "K Neighbors Regressor"
-            elif "ElasticNet" in modeldetail[i]:
-                translatedmodel[i] = "Elastic Net"
-            elif "DummyRegressor" in modeldetail[i]:
-                translatedmodel[i] = "Dummy Regressor"
-            elif "Lars" in modeldetail[i]:
-                translatedmodel[i] = "Least Angle Regression"
+            translatedmodel[i]=more_readable_model_name(modeldetail[i])
         return (translatedmodel)
 
-
-def pycaret_model_name_translate(modeldetail):
+def readable_name_converted_input_name(modeldetail):
     modeldetail = str(modeldetail)
     if "Ridge" in modeldetail and "BayesianRidge" not in modeldetail:
         pycaretname = "ridge"
@@ -1082,10 +1030,90 @@ def pycaret_model_name_translate(modeldetail):
         pycaretname = "lar"
     return (pycaretname)
 
+def input_name_converted_readable_name(inputname,types):
+    modeldetail = str(inputname)
+    if "ridge" in modeldetail:
+        pycaretname = "Ridge model"
+    elif "lda" in modeldetail:
+        pycaretname = "Linear Discriminant model"
+    elif "gbr" in modeldetail:
+        pycaretname = "Gradient Boosting model"
+    elif "lightgbm" in modeldetail:
+        pycaretname = "Light Gradient Boosting Machine model"
+    elif "svm" in modeldetail:
+        pycaretname = "SGD Classifier"
+    elif "rf" in modeldetail:
+        pycaretname = "Random Forest model"
+    elif "xgboost" in modeldetail:
+        pycaretname = "Extreme Gradient Boosting model"
+    elif "lr" in modeldetail and types==0:
+        pycaretname = "Logistic model"
+    elif "qda" in modeldetail:
+        pycaretname = "Quadratic Discriminant model"
+    elif "nb" in modeldetail:
+        pycaretname = "Gaussian NB model"
+    elif "et" in modeldetail:
+        pycaretname = "Extra Trees model"
+    elif "dt" in modeldetail:
+        pycaretname = "Decision Tree model"
+    elif "lasso" in modeldetail:
+        pycaretname = "Lasso model"
+    elif "llar" in modeldetail:
+        pycaretname = "Lasso Lars model"
+    elif "br" in modeldetail:
+        pycaretname = "Bayesian Ridge model"
+    elif "lr" in modeldetail and types==1:
+        pycaretname = "Linear Regression model"
+    elif "huber" in modeldetail:
+        pycaretname = "Huber Regressor model"
+    elif "par" in modeldetail:
+        pycaretname = "Passive Aggressive Regressor model"
+    elif "omp" in modeldetail:
+        pycaretname = "Orthogonal Matching Pursuit model"
+    elif "en" in modeldetail:
+        pycaretname = "Elastic Net model"
+    elif "lar" in modeldetail and "llar" not in modeldetail:
+        pycaretname = "Lars model"
+    elif "dummy" in modeldetail:
+        pycaretname = "Dummy model"
+    elif "knn" in modeldetail:
+        pycaretname = "K Neighbors model"
+    elif "ada" in modeldetail:
+        pycaretname = "Ada Boost model"
+    return (pycaretname)
+
+
+def inputname_to_readablename(inputname,types):
+    if (len(inputname)==1):
+        readablename=[]
+        readablename=input_name_converted_readable_name(inputname,types)
+    else:
+        readablename = [0] * len(inputname)
+        for i in range(len(inputname)):
+            readablename[i]=input_name_converted_readable_name(inputname[i],types)
+    return (readablename)
+
 
 def pycaret_create_model(types, modelname):
     if types == 0:
         model = classification.create_model(modelname)
+        tuned_model = classification.tune_model(model)
+        # classification.plot_model(tuned_model, plot='error', save=True)
+        # classification.plot_model(tuned_model, plot='feature', save=True)
+        # classification.interpret_model(tuned_model, save=True)
+        importance = pd.DataFrame({'Feature': classification.get_config('X_train').columns,
+                                   'Value': abs(tuned_model.feature_importances_)}).sort_values(by='Value', ascending=False)
+        for ind in importance.index:
+            if importance['Value'][ind] == max(importance['Value']):
+                imp_var = importance['Feature'][ind]
+        classification.predict_model(tuned_model)
+        results = classification.pull(tuned_model)
+        print(imp_var)
+        print(results)
+        # imp_figure=cv2.imread('Feature Importance.png')
+        # Error_figure = cv2.imread('Prediction Error.png')
+        # SHAP_figure = cv2.imread('SHAP summary.png')
+        # return (importance['Feature'],imp_var, results['R2'][0], results['MAPE'][0],imp_figure,Error_figure)
     elif types == 1:
         model = regression.create_model(modelname)
         tuned_model = regression.tune_model(model)
@@ -1093,17 +1121,12 @@ def pycaret_create_model(types, modelname):
         regression.plot_model(tuned_model, plot='feature', save=True)
         regression.interpret_model(tuned_model, save=True)
         importance = pd.DataFrame({'Feature': regression.get_config('X_train').columns,
-                                   'Value': abs(model.feature_importances_)}).sort_values(by='Value', ascending=False)
+                                   'Value': abs(tuned_model.feature_importances_)}).sort_values(by='Value', ascending=False)
         for ind in importance.index:
             if importance['Value'][ind] == max(importance['Value']):
                 imp_var = importance['Feature'][ind]
-        regression.predict_model(model)
-        results = regression.pull(model)
-        # MAE MSE RMSE R2 RMSLE MAPE
-        # A MAPE less than 5% is considered as an indication that the forecast is acceptably accurate.
-        # A MAPE greater than 10% but less than 25% indicates low,
-        # but acceptable accuracy and MAPE greater than 25% very low accuracy,
-        # so low that the forecast is not acceptable in terms of its accuracy.
+        regression.predict_model(tuned_model)
+        results = regression.pull(tuned_model)
         imp_figure=cv2.imread('Feature Importance.png')
         Error_figure = cv2.imread('Prediction Error.png')
         SHAP_figure = cv2.imread('SHAP summary.png')

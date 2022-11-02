@@ -175,14 +175,14 @@ def GAMModel(data, Xcol, ycol, X, y, expect=1, epochs=100, splines=''):
     r2 = gam.statistics_.get('pseudo_r2')
     p = gam.statistics_.get('p_values')
     # Plotting
-    fig, axs = plt.subplots(1, np.size(Xcol), figsize=(40, 10))
+    # fig, axs = plt.subplots(1, np.size(Xcol), figsize=(40, 10))
     factor = ""
     mincondition = ""
     condition = ""
     choose = expect
     conflict = [0] * np.size(Xcol)
     # Analysis and Story Generate
-    for i, ax in enumerate(axs):
+    for i in range(len(Xcol)):
         maxfirst = 0
         minfirst = 0
         XX = gam.generate_X_grid(term=i)
@@ -217,7 +217,7 @@ def GAMModel(data, Xcol, ycol, X, y, expect=1, epochs=100, splines=''):
                         else:
                             factor = factor + "a relative minimum"
                     elif maxfirst == 1:
-                        factor = "With the growth of  " + Xcol[i] + " , " + ycol + " first increase to "
+                        factor = "With the growth of  " + Xcol[i] + " , " + ycol + " first increases to "
                         if ypre[maxpoint[0]] == max(ypre):
                             factor = factor + "the maximum when " + Xcol[i] + " is " + str(
                                 round(Xpre[maxpoint[0]], 3))
@@ -286,18 +286,18 @@ def GAMModel(data, Xcol, ycol, X, y, expect=1, epochs=100, splines=''):
                     mincondition = mincondition + Xcol[i] + " the less the better, "
         elif np.size(maxpoint) != 0 and np.size(minpoint) == 0:
             factor = "With the growth of  " + Xcol[
-                i] + " , the " + ycol + " first increase to the maximum when " + Xcol[i] + " is " + str(
-                Xpre[maxpoint]) + " then continues to decline."
-            condition = condition + Xcol[i] + " is around " + str(Xpre[maxpoint]) + ", "
+                i] + " , the " + ycol + " first increases to the maximum when " + Xcol[i] + " is " + str(round(
+                Xpre[maxpoint][0],3)) + " then continues to decline."
+            condition = condition + Xcol[i] + " is around " + str(round(Xpre[maxpoint][0],3)) + ", "
             if ypre[0] > ypre[len(ypre) - 1]:
                 mincondition = mincondition + Xcol[i] + " the higher the better, "
             else:
                 mincondition = mincondition + Xcol[i] + " the less the better, "
         elif np.size(maxpoint) == 0 and np.size(minpoint) != 0:
-            mincondition = mincondition + Xcol[i] + " is around " + str(Xpre[minpoint]) + ", "
+            mincondition = mincondition + Xcol[i] + " is around " + str(round(Xpre[minpoint][0],3)) + ", "
             factor = "With the growth of  " + Xcol[
-                i] + " , the " + ycol + " first decrease to the minimum when " + Xcol[i] + " is " + str(
-                Xpre[minpoint]) + " then continues to increase."
+                i] + " , the " + ycol + " first decrease to the minimum when " + Xcol[i] + " is " + str(round(
+                Xpre[minpoint][0],3)) + " then continues to increase."
         elif np.size(maxpoint) == 0 and np.size(minpoint) == 0:
             if ypre[0] < ypre[np.size(ypre) - 1]:
                 factor = ycol + " keep increase as " + Xcol[i] + " increase."
@@ -310,9 +310,9 @@ def GAMModel(data, Xcol, ycol, X, y, expect=1, epochs=100, splines=''):
         if np.size(minpoint) >= 2 and np.size(maxpoint) >= 2:
             factor = factor + " It is worth noting that as " + Xcol[
                 i] + " increases, " + ycol + " tends to fluctuate periodically."
-        ax.plot(XX[:, i], gam.partial_dependence(term=i, X=XX))
-        ax.plot(XX[:, i], gam.partial_dependence(term=i, X=XX, width=.95)[1], c='r', ls='--')
-        ax.set_title(Xcol[i])
+        # ax.plot(XX[:, i], gam.partial_dependence(term=i, X=XX))
+        # ax.plot(XX[:, i], gam.partial_dependence(term=i, X=XX, width=.95)[1], c='r', ls='--')
+        # ax.set_title(Xcol[i])
         conflict[i] = factor
     nss = ""
     ss = ""

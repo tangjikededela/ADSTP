@@ -129,7 +129,6 @@ class general_datastory_pipeline:
                                                'learning_rate': 0.01, 'loss': 'ls'}):
         if Xnewname != "" or ynewname != "":
             data, Xcol, ycol = variablenamechange(data, Xcol, ycol, Xnewname, ynewname)
-        data, Xcol, ycol, r2 = variablenamechange(data, Xcol, ycol, Xnewname, ynewname)
         X = data[Xcol].values
         y = data[ycol]
         GBmodel, mse, rmse = MD.GradientBoostingDefaultModel(X, y, Xcol, gbr_params)
@@ -139,7 +138,6 @@ class general_datastory_pipeline:
                                max_depth=3):
         if Xnewname != "" or ynewname != "":
             data, Xcol, ycol = variablenamechange(data, Xcol, ycol, Xnewname, ynewname)
-        data, Xcol, ycol = variablenamechange(data, Xcol, ycol, Xnewname, ynewname)
         X = data[Xcol].values
         y = data[ycol]
         tree_small, rf_small, DTData, r2, mse, rmse = MD.RandomForestDefaultModel(X, y, Xcol, n_estimators, max_depth)
@@ -148,7 +146,6 @@ class general_datastory_pipeline:
     def DecisionTreeFit(data, Xcol, ycol, Xnewname="", ynewname="", questionset=[1, 1, 1], max_depth=3):
         if Xnewname != "" or ynewname != "":
             data, Xcol, ycol = variablenamechange(data, Xcol, ycol, Xnewname, ynewname)
-        data, Xcol, ycol = variablenamechange(data, Xcol, ycol, Xnewname, ynewname)
         X = data[Xcol].values
         y = data[ycol]
         DTmodel, r2, mse, rmse, DTData = MD.DecisionTreeDefaultModel(X, y, Xcol, max_depth)
@@ -157,7 +154,6 @@ class general_datastory_pipeline:
     def GAMsFit(data, Xcol, ycol, Xnewname="", ynewname="", expect=1, epochs=100, splines=''):
         if Xnewname != "" or ynewname != "":
             data, Xcol, ycol = variablenamechange(data, Xcol, ycol, Xnewname, ynewname)
-        data, Xcol, ycol = variablenamechange(data, Xcol, ycol, Xnewname, ynewname)
         X = data[Xcol].values
         y = data[ycol]
         gam, data, Xcol, ycol, r2, p, conflict, nss, ss, mincondition, condition = MD.GAMModel(data, Xcol, ycol, X, y,

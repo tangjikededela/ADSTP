@@ -1,18 +1,18 @@
 {%- if indeNum > 2 -%}
 {%- if Ss!= "" -%}
-Overall, the relationship between {{Ss}}and {{ycol}} is statistically significant.
+Overall, the relationship between {{Ss}}and the {{ycol}} is statistically significant.
 {%-endif-%}
 {%- if Nss!= "" -%}
-However, the relationship between {{Nss}}and {{ycol}} is not statistically significant.
+However, the relationship between {{Nss}}and the {{ycol}} is not statistically significant.
 {%-endif-%}
 {%- else -%}
 {%- if pvalue[0] < 0.05 -%}
 Since the p-value of {{Xcol}} is {{pvalue[0]}} less than usual significance level of 0.05,
-the relationship between {{Xcol}} and {{ycol}} is statistically significant,
+the relationship between {{Xcol}} and the {{ycol}} is statistically significant,
 so there is enough evidence to confidently use this relationship in making business decisions.
 {%- else -%}
 Since the p-value of {{Xcol}} is {{pvalue[0]}} bigger than usual significance level of 0.05,
-the relationship between {{Xcol}} and {{ycol}} is not statistically significant,
+the relationship between {{Xcol}} and the {{ycol}} is not statistically significant,
 so there is not enough evidence to confidently use this relationship in making business decisions.
 {%- endif -%}
 {%- endif -%}

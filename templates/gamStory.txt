@@ -1,4 +1,3 @@
-For the independent variable {{xcol}} the p-value was computed.
-The P-value {{ pvalue | round(3)}} {%- if pvalue <0.05 -%} is below the normal significance level of 0.05, which means that the results above are statistically significant.
- {%- else -%} is above the normal significance level of 0.05, which means that the results above are not statistically significant and cannot be used. {%- endif-%}
+For the independent variable {{xcol}}, the p-value was computed.
+The P-value {{ pvalue | round(3)}} {% if pvalue <0.05 %}is below the normal significance level of 0.05, which means that the results above are statistically significant.{% else %} is above the normal significance level of 0.05, which means that the results above are not statistically significant and cannot be used. {%endif-%}
 You can see the relationship between {{xcol}} and {{ycol}} in the graph.

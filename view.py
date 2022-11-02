@@ -619,6 +619,7 @@ def DecisionTreeModelStats_view(data, Xcol, ycol, DTData, DTmodel, r2, mse, ques
 
 def GAMs_view(gam, data, Xcol, ycol, r2, p, conflict, nss, ss, mincondition, condition):
     # Analysis and Graphs Generate
+    _base64 = []
     for i, term in enumerate(gam.terms):
         if term.isintercept:
             continue
@@ -627,7 +628,9 @@ def GAMs_view(gam, data, Xcol, ycol, r2, p, conflict, nss, ss, mincondition, con
         plt.plot(XX[:, term.feature], pdep)
         plt.plot(XX[:, term.feature], confi, c='r', ls='--')
         plt.title(Xcol[i])
+        # plt.show()
         plt.savefig('pictures/{}.png'.format(i))
+        _base64.append(base64.b64encode(open('pictures/{}.png'.format(i), 'rb').read()).decode('ascii'))
         plt.clf()
     # print(GAMslinear_R2.render(R=round(r2.get('explained_deviance'), 3), Xcol=Xcol, ycol=ycol,
     #                            indeNum=np.size(Xcol)))
@@ -640,7 +643,7 @@ def GAMs_view(gam, data, Xcol, ycol, r2, p, conflict, nss, ss, mincondition, con
     intro = GAMslinear_stats.render(Xcol=Xcol, ycol=ycol, trend=0, indeNum=np.size(Xcol), r2=r2['McFadden_adj'])
     # Add table
     aim = Xcol
-    aim.insert(0, ycol)
+    # aim.insert(0, ycol)
     # newstory = MicroLexicalization(story)
     # listTabs.append(dcc.Tab(label='GAMs Model Stats', children=[html.P(intro),
     #                                                             dash_table.DataTable(data[aim].to_dict('records'),
@@ -650,15 +653,12 @@ def GAMs_view(gam, data, Xcol, ycol, r2, p, conflict, nss, ss, mincondition, con
     #                                                                                               'overflowY': 'auto'})]), )
     dash_with_table(gamm_app, listTabs, intro, data[aim], 'GAMs Model Stats')
     # Fromat list with files names
-    _base64 = []
-    for i in range(len(Xcol)):
-        _base64.append(base64.b64encode(open('pictures/{}.png'.format(i), 'rb').read()).decode('ascii'))
-    aim.remove(ycol)
+    # aim.remove(ycol)
     # Add to dashbord values of Xcol and graphs
     for i in range(len(Xcol)):
         # other story for one independent variable add in here
         story = gamStory.render(pvalue=p[i], xcol=Xcol[i], ycol=ycol, ) + conflict[i]
-        dash_with_figure(gamm_app, listTabs, story, Xcol[i], _base64[i], path='data:image/png;base64,{}')
+        dash_with_figure(gamm_app, listTabs, story, Xcol[i], _base64[i])
         # listTabs.append(dcc.Tab(label=Xcol[i], children=[
         #     html.Img(src='data:image/png;base64,{}'.format(_base64[i])), html.P(story)
         # ]))

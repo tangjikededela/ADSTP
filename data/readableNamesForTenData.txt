@@ -1,0 +1,28 @@
+Species: species
+Weight: weight
+Length: length
+Diagonal: diagonal
+Height: height
+Width: width
+incidenceRate: mean per capita (100,000) cancer diagnoses
+medIncome: median income per county
+popEst2015: population of a county
+povertyPercent: percent of the populace in poverty
+MedianAge: median age of a county residents
+TARGET_deathRate: mean per capita (100,000) cancer mortalities
+bmi: BMI
+children: number of children
+charges: insurance charge
+age: age
+X1 transaction date: transaction date
+X2 house age: house age
+X3 distance to the nearest MRT station: distance to the nearest MRT station
+X4 number of convenience stores: number of convenience stores
+X5 latitude: latitude
+X6 longitude: longitude
+Y house price of unit area: house price of unit area
+Present_Price: present price
+Kms_Driven:  Kms driven
+Owner: number of reselling
+Year: year of car production
+Selling_Price: selling price

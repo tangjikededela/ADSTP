@@ -1,4 +1,4 @@
-This is a data story to help you understand how {% for i in range(0,indeNum) %} {% if i !=(indeNum-1)  -%}the {{Xcol[i]}}, {%- else  -%} and the {{Xcol[i]}} {%endif-%}{%endfor-%} affect the {{ycol}} by fitting the dataset to {{modelName}}.
+This is a data story to help you understand how {% for i in range(0,indeNum) %} {% if i !=(indeNum-1)  -%}the {{Xcol[i]}}, {%- else  -%} and the {{Xcol[i]}} {%endif-%}{%endfor-%} affect the {{ycol}} by fitting the dataset to the {{modelName}}.
 First of all, the story will {% if qs[0]==1-%} describe the credibility of the model as a whole. Then it will {% endif %}
 {%- if qs[1]==1%} analyze whether each independent variable has a significant effect on the dependent variable, and {% endif %}
 {%- if qs[2]==1 -%}

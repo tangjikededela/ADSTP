@@ -13,7 +13,7 @@ data_unseen.reset_index(drop=True, inplace=True)
 # 'n' parameter means find the best n models.
 # Step 1: Setting the pipelines.
 pipeline=CT.general_datastory_for_pycaret_pipelines
-# If no custom options are required, just use the input dataset, type of model and the target variable will be enough, as below.
+# If no custom options are required, just input dataset, type of model and the target variable will be enough, as below.
 # # pipeline.pycaret_find_best_model(dataset, 1, 'Price')
 # Step 2: (optional) Setting parameters allows users to decide which models do not need to compare, metrics and the number of models to output.
 dataset, types, target_variable, sort, exclude, n, session_id = data, 1, 'Price', 'R2', ['xgboost','et','rf','lightgbm','gbr'], 1, 123

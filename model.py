@@ -296,7 +296,7 @@ def GAMModel(data, Xcol, ycol, X, y, expect=1, epochs=100, splines=''):
         elif np.size(maxpoint) == 0 and np.size(minpoint) != 0:
             mincondition = mincondition + Xcol[i] + " is around " + str(round(Xpre[minpoint][0],3)) + ", "
             factor = "With the growth of  " + Xcol[
-                i] + " , the " + ycol + " first decrease to the minimum when " + Xcol[i] + " is " + str(round(
+                i] + " , the " + ycol + " first decreases to the minimum when " + Xcol[i] + " is " + str(round(
                 Xpre[minpoint][0],3)) + " then continues to increase."
         elif np.size(maxpoint) == 0 and np.size(minpoint) == 0:
             if ypre[0] < ypre[np.size(ypre) - 1]:
@@ -304,7 +304,7 @@ def GAMModel(data, Xcol, ycol, X, y, expect=1, epochs=100, splines=''):
                 condition = condition + Xcol[i] + " the larger the better, "
                 mincondition = mincondition + Xcol[i] + " the less the better, "
             else:
-                factor = ycol + " keep decrease as " + Xcol[i] + " increase."
+                factor = ycol + " keep decreases as " + Xcol[i] + " increase."
                 condition = condition + Xcol[i] + " the less the better, "
                 mincondition = mincondition + Xcol[i] + " the higher the better, "
         if np.size(minpoint) >= 2 and np.size(maxpoint) >= 2:

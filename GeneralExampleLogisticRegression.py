@@ -8,17 +8,17 @@ import controller as CT
 # the output will be a series of stories about fitting the data with this model.
 
 # Step 1: Read the example dataset about diabetes, the dependent column (target variable) should use 0 or 1 to represent not having diabetes or having diabetes
-# col_names = ['pregnant', 'glucose level', 'blood pressure', 'skin', 'insulin level', 'BMI', 'pedigree', 'age', 'diabetes']
-# diabetes_dataset = read_csv("./data/diabetes.csv", header=None, names=col_names)
-# # Step 2: Choose the model (which is logistic regression here) and the independent and dependent variables, the stories will be generated.
-# pipeline=CT.general_datastory_pipeline
-# pipeline.LogisticFit(diabetes_dataset, [ 'glucose level', 'blood pressure', 'insulin level', 'BMI', 'age'],'diabetes')
+col_names = ['pregnant', 'glucose level', 'blood pressure', 'skin', 'insulin level', 'BMI', 'pedigree', 'age', 'diabetes']
+diabetes_dataset = read_csv("./data/diabetes.csv", header=None, names=col_names)
+# Step 2: Choose the model (which is logistic regression here) and the independent and dependent variables, the stories will be generated.
+pipeline=CT.general_datastory_pipeline
+pipeline.LogisticFit(diabetes_dataset, [ 'glucose level', 'blood pressure', 'insulin level', 'BMI', 'age'],'diabetes')
 
 
 # # # Example 2: A more complex example.
 # # Users can create dummy variables for better fitting.
 # # Select the question you want the system to answer.
-
+#
 # Step 1: Read the example dataset about direct marketing campaigns (phone calls) of a Portuguese banking institution.
 # which aim at figure out what kinds of client subscribed a term deposit?
 bank_dataset = read_csv("./data/banking.csv", header=0)

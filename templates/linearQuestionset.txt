@@ -1,0 +1,24 @@
+{%- if section==1 -%}
+{%- if qs[0]==1 -%}
+Question: Is the relationship between{% for i in range(0,indeNum) %} {% if i !=(indeNum-1)  -%}the {{xcol[i]}}, {%- else  -%} and the {{xcol[i]}} {%endif-%}{%endfor-%} with the {{ycol}} strong?
+{%- else -%}
+Data Stories Overview
+{%- endif -%}
+{%- endif -%}
+{%- if section==2 -%}
+{%- if qs[2]==1 and qs[1]==0 -%}
+Question: What does the {{ycol}} change by increasing the {{xcol}}?
+{%- elif qs[1]==1 and qs[2]==0 -%}
+Question: Does the {{xcol}} have a significant effect on the {{ycol}}?
+{%- elif qs[1]==1 and qs[2]==1 -%}
+Question: What does the {{ycol}} change by increasing the {{xcol}}? And does the {{xcol}} have a significant effect on the {{ycol}}?
+{%- endif -%}
+{%- endif -%}
+{%- if section==3 -%}
+Question:
+{%- if qs[1]==1 %} Which independent variables have a significant effect on the {{ycol}}, and which do not? {%- endif -%}
+{%- if qs[2]==1 and trend==1 %} How can the independent variables be varied to make the {{ycol}} as large as possible?
+{%- elif qs[2]==1 and trend==0 %} How can the independent variables be varied to make the {{ycol}} as small as possible? {%- endif -%}
+{%- if qs[3]==1 %} Which independent variable is the most important to the {{ycol}}? {%- endif -%}
+{%- if qs[1]==0 and qs[2]==0 and qs[3]==0 %} Data Stories Summary {%- endif -%}
+{%- endif -%}

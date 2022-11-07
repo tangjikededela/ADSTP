@@ -20,7 +20,7 @@ X3 distance to the nearest MRT station: distance to the nearest MRT station
 X4 number of convenience stores: number of convenience stores
 X5 latitude: latitude
 X6 longitude: longitude
-Y house price of unit area: house price of unit area
+Y house price of unit area: house price of one unit area
 Present_Price: present price
 Kms_Driven:  Kms driven
 Owner: number of reselling

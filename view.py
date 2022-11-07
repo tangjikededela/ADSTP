@@ -33,12 +33,14 @@ prediction_results = env.get_template('prediction.txt')
 linearSummary = env.get_template('linearSummary.txt')
 linearSummary2 = env.get_template('linearSummary2.txt')
 linearSummary3 = env.get_template('linearSummary3.txt')
+linearQuestion = env.get_template('linearQuestionset.txt')
 DecisionTree1 = env.get_template('decisiontree1.txt')
 DecisionTree2 = env.get_template('decisiontree2.txt')
 DecisionTree3 = env.get_template('decisiontree3.txt')
 logisticSummary = env.get_template('logisticSummary.txt')
 logisticSummary2 = env.get_template('logisticSummary2')
 logisticSummary3 = env.get_template('logisticSummary3.txt')
+logisticQuestion = env.get_template('logisticQuestionset.txt')
 gamStory = env.get_template('gamStory.txt')
 GAMslinear_stats = env.get_template('GAMsLinearL1')
 GAMslinear_R2 = env.get_template('GAMsLinearL2')
@@ -300,12 +302,13 @@ def LinearModelStats_view(data, Xcol, ycol, linearData, r2, questionset, trend):
     i = 0
     # Add to dashbord Linear Model Statistics
     fig = px.bar(linearData)
+    question = linearQuestion.render(xcol=Xcol, ycol=ycol, qs=questionset, section=1,indeNum=np.size(Xcol),trend=trend)
     intro = linearSummary2.render(r2=r2, indeNum=np.size(Xcol), modelName="Linear Model", Xcol=Xcol,
                                   ycol=ycol, qs=questionset, t=trend)
     # intro = MicroLexicalization(intro)
     aim = Xcol
     aim.insert(0, ycol)
-    listTabs.append(dcc.Tab(label='LinearModelStats', children=[html.P(intro),
+    listTabs.append(dcc.Tab(label='LinearModelStats', children=[html.P(question), html.Br(),html.P(intro),
                                                                 dash_table.DataTable(data[aim].to_dict('records'),
                                                                                      [{"name": i, "id": i} for i in
                                                                                       data[aim].columns],
@@ -321,6 +324,7 @@ def LinearModelStats_view(data, Xcol, ycol, linearData, r2, questionset, trend):
     # Add to dashbord Xcol plots and data story
 
     for ind in linearData.index:
+        question= linearQuestion.render(xcol=ind, ycol=ycol,qs=questionset,section=2,indeNum=1,trend=trend)
         conflict = linearSummary.render(xcol=ind, ycol=ycol, coeff=linearData['coeff'][ind],
                                         p=linearData['pvalue'][ind], qs=questionset, t=trend)
         # newstory = MicroLexicalization(story)
@@ -336,13 +340,13 @@ def LinearModelStats_view(data, Xcol, ycol, linearData, r2, questionset, trend):
             ss = ss + "the "+ind + ", "
         if questionset[1] == 1 or questionset[2] == 1:
             listTabs.append(dcc.Tab(label=ind, children=[
-                html.Img(src='data:image/png;base64,{}'.format(_base64[i])), html.P(conflict)
+                html.Img(src='data:image/png;base64,{}'.format(_base64[i])), html.P(question), html.Br(),html.P(conflict)
             ]))
         i = i + 1
-
+    question=linearQuestion.render(xcol="", ycol=ycol,qs=questionset,section=3,indeNum=1,trend=trend)
     summary = linearSummary3.render(imp=imp, ycol=ycol, nss=nss, ss=ss, pf=pf, nf=nf, t=trend, r2=r2,
                                     qs=questionset)
-    listTabs.append(dcc.Tab(label='Summary', children=[dcc.Graph(figure=fig), html.P(summary)]), )
+    listTabs.append(dcc.Tab(label='Summary', children=[dcc.Graph(figure=fig),  html.P(question),html.Br(),html.P(summary)]), )
     linear_app.layout = html.Div([dcc.Tabs(listTabs)])
     linear_app.run_server(mode='inline', debug=True)
 
@@ -362,13 +366,14 @@ def LogisticModelStats_view(data, Xcol, ycol, logisticData1, logisticData2, r2, 
     i = 0
 
     # Add to dashbord Model Statistics
+    question= logisticQuestion.render(indeNum=np.size(Xcol), xcol=Xcol, ycol=ycol, qs=questionset, section=1)
     intro = logisticSummary3.render(r2=r2, indeNum=np.size(Xcol), modelName="Logistic Model", Xcol=Xcol,
                                   ycol=ycol, qs=questionset, t=9)
     aim = Xcol
     aim.insert(0, ycol)
     # micro planning
     # intro = model.MicroLexicalization(intro)
-    listTabs.append(dcc.Tab(label='LogisticModelStats', children=[html.P(intro),
+    listTabs.append(dcc.Tab(label='LogisticModelStats', children=[html.P(question),html.Br(),html.P(intro),
                                                                   dash_table.DataTable(data[aim].to_dict('records'),
                                                                                        [{"name": i, "id": i} for i in
                                                                                         data[aim].columns],
@@ -383,6 +388,7 @@ def LogisticModelStats_view(data, Xcol, ycol, logisticData1, logisticData2, r2, 
     # Add to dashbord Xcol plots and data story
 
     for ind in logisticData1.index:
+        question=logisticQuestion.render(indeNum=1, xcol=ind, ycol=ycol, qs=questionset, section=2)
         # independent_variable_story
         independent_variable_story = logisticSummary.render(xcol=ind, ycol=ycol,
                                           odd=abs(100 * (math.exp(logisticData1['coeff'][ind]) - 1)),
@@ -401,16 +407,17 @@ def LogisticModelStats_view(data, Xcol, ycol, logisticData1, logisticData2, r2, 
             ss = ss + ind + ", "
         if questionset[1] == 1 or questionset[2] == 1:
             listTabs.append(dcc.Tab(label=ind, children=[
-                html.Img(src='data:image/png;base64,{}'.format(_base64[i])), html.P(independent_variable_story)
+                html.Img(src='data:image/png;base64,{}'.format(_base64[i])), html.P(question),html.Br(),html.P(independent_variable_story)
             ]))
         i = i + 1
     fig = px.bar(logisticData2)
     plt.savefig('pictures/{}.png'.format(imp))
     plt.clf()
+    question = logisticQuestion.render(indeNum=1, xcol=ind, ycol=ycol, qs=questionset, section=3)
     summary = logisticSummary2.render(pos=pos_eff, neg=neg_eff, ycol=ycol, nss=nss, ss=ss, imp=imp,
                                       r2=r2, qs=questionset)
     # summary = model.MicroLexicalization(summary)
-    listTabs.append(dcc.Tab(label='Summary', children=[dcc.Graph(figure=fig), html.P(summary)]), )
+    listTabs.append(dcc.Tab(label='Summary', children=[dcc.Graph(figure=fig), html.P(question),html.Br(),html.P(summary)]), )
 
     logistic_app.layout = html.Div([dcc.Tabs(listTabs)])
     logistic_app.run_server(mode='inline', debug=True)
@@ -617,7 +624,7 @@ def DecisionTreeModelStats_view(data, Xcol, ycol, DTData, DTmodel, r2, mse, ques
     DT_app.run_server(mode='inline', debug=True)
 
 
-def GAMs_view(gam, data, Xcol, ycol, r2, p, conflict, nss, ss, mincondition, condition):
+def GAMs_view(gam, data, Xcol, ycol, r2, p, conflict, nss, ss, mincondition, condition,questionset=[1,1,1,0],trend=1):
     # Analysis and Graphs Generate
     _base64 = []
     for i, term in enumerate(gam.terms):
@@ -639,11 +646,12 @@ def GAMs_view(gam, data, Xcol, ycol, r2, p, conflict, nss, ss, mincondition, con
     # print(GAMslinear_sum.render(ycol=ycol, condition=condition, mincondition=mincondition, demand=1))
     gamm_app = JupyterDash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
     listTabs = []
+    question = linearQuestion.render(xcol=Xcol, ycol=ycol, qs=questionset, section=1,indeNum=np.size(Xcol),trend=trend)
     # Add to dashbord GAMs Model Statistics
     intro = GAMslinear_stats.render(Xcol=Xcol, ycol=ycol, trend=0, indeNum=np.size(Xcol), r2=r2['McFadden_adj'])
     # Add table
     aim = Xcol
-    # aim.insert(0, ycol)
+    aim.insert(0, ycol)
     # newstory = MicroLexicalization(story)
     # listTabs.append(dcc.Tab(label='GAMs Model Stats', children=[html.P(intro),
     #                                                             dash_table.DataTable(data[aim].to_dict('records'),
@@ -651,21 +659,23 @@ def GAMs_view(gam, data, Xcol, ycol, r2, p, conflict, nss, ss, mincondition, con
     #                                                                                   data[aim].columns],
     #                                                                                  style_table={'height': '400px',
     #                                                                                               'overflowY': 'auto'})]), )
-    dash_with_table(gamm_app, listTabs, intro, data[aim], 'GAMs Model Stats')
+    dash_with_table_with_question(gamm_app, listTabs, question,intro, data[aim], 'GAMs Model Stats')
     # Fromat list with files names
-    # aim.remove(ycol)
+    aim.remove(ycol)
     # Add to dashbord values of Xcol and graphs
     for i in range(len(Xcol)):
+        question= linearQuestion.render(xcol=Xcol[i], ycol=ycol,qs=questionset,section=2,indeNum=1,trend=trend)
         # other story for one independent variable add in here
         story = gamStory.render(pvalue=p[i], xcol=Xcol[i], ycol=ycol, ) + conflict[i]
-        dash_with_figure(gamm_app, listTabs, story, Xcol[i], _base64[i])
+        dash_with_figure_and_question(gamm_app, listTabs, question,story, Xcol[i], _base64[i])
         # listTabs.append(dcc.Tab(label=Xcol[i], children=[
         #     html.Img(src='data:image/png;base64,{}'.format(_base64[i])), html.P(story)
         # ]))
+    question=linearQuestion.render(xcol="", ycol=ycol,qs=questionset,section=3,indeNum=1,trend=trend)
     summary = GAMslinear_P.render(pvalue=p, Nss=nss, Ss=ss, Xcol=Xcol, ycol=ycol,
                                   indeNum=np.size(Xcol)) + GAMslinear_sum.render(ycol=ycol, condition=condition,
                                                                                  mincondition=mincondition, demand=1)
-    dash_only_text(gamm_app, listTabs, summary, 'Summary')
+    dash_only_text_and_question(gamm_app, listTabs, question,summary, 'Summary')
     # listTabs.append(dcc.Tab(label='Summary', children=[html.P(summary), ]), )
 
     gamm_app.layout = html.Div([dcc.Tabs(listTabs)])
@@ -675,6 +685,11 @@ def GAMs_view(gam, data, Xcol, ycol, r2, p, conflict, nss, ss, mincondition, con
 def dash_with_figure(app_name, listTabs, text, label, format, path='data:image/png;base64,{}'):
     listTabs.append(dcc.Tab(label=label, children=[
         html.Img(src=path.format(format)), html.P(text)
+    ]))
+
+def dash_with_figure_and_question(app_name, listTabs, question,text, label, format, path='data:image/png;base64,{}'):
+    listTabs.append(dcc.Tab(label=label, children=[
+        html.Img(src=path.format(format)), html.P(question),html.Br(),html.P(text)
     ]))
 
 def dash_with_two_figure(app_name, listTabs, text, label, format1,format2, path='data:image/png;base64,{}'):
@@ -692,11 +707,22 @@ def dash_with_table(app_name, listTabs, text, dataset, label):
                                                            style_table={'height': '400px',
                                                                         'overflowY': 'auto'})]), )
 
+def dash_with_table_with_question(app_name, listTabs, question,text, dataset, label):
+    listTabs.append(dcc.Tab(label=label,
+                            children=[html.P(question),html.Br(),html.P(text),
+                                      dash_table.DataTable(dataset.to_dict('records'),
+                                                           [{"name": i, "id": i} for i in
+                                                            dataset.columns],
+                                                           style_table={'height': '400px',
+                                                                        'overflowY': 'auto'})]), )
+
 
 def dash_only_text(app_name, listTabs, text, label):
     listTabs.append(dcc.Tab(label=label,
-                            children=[html.P(text), ]), )
-
+                            children=[html.P(text), ]) )
+def dash_only_text_and_question(app_name, listTabs, question,text, label):
+    listTabs.append(dcc.Tab(label=label,
+                            children=[html.P(question),html.Br(),html.P(text), ]) )
 
 def register_question1_view(register_dataset, per1000inCity_col, diff, table_col, label, app, listTabs):
     registerstory = "The data from local comparators features in the Child Protection Register (CPR) report prepared quarterly. "

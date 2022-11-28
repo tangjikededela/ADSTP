@@ -83,6 +83,8 @@ automodelcompare1 = env.get_template('AMC1.txt')
 automodelcompare2 = env.get_template('AMC2.txt')
 pycaretimp=env.get_template('pycaret_imp.txt')
 pycaretmodelfit=env.get_template('pycaret_modelfit.txt')
+pycaretclassificationimp=env.get_template('pycaret_classificationimp.txt')
+pycaretclassificationmodelfit=env.get_template('pycaret_classificationmodelfit.txt')
 
 # creating the global variables
 models_names = ['Gradient Boosting Regressor', 'Random Forest Regressor', 'Linear Regression',
@@ -849,6 +851,13 @@ def pycaret_find_best_models(model, detail, n, sort, exclude, excludeNum,length)
 def pycaret_model_summary_view(imp_var, r2,mape,imp_pos_ave,imp_pos_value_ave,imp_neg_ave,imp_neg_value_ave,target):
     story1=pycaretmodelfit.render(r2=r2, mape=mape)
     story2=pycaretimp.render(imp=imp_var,target=target,imp_pos_ave=imp_pos_ave,imp_pos_value_ave=imp_pos_value_ave,imp_neg_ave=imp_neg_ave,imp_neg_value_ave=imp_neg_value_ave)
+    print(story1)
+    print(story2)
+    return (story1, story2)
+
+def pycaret_classification_model_summary_view(imp_var, r2,mape,imp_pos_ave,imp_pos_value_ave,imp_neg_ave,imp_neg_value_ave,target):
+    story1=pycaretclassificationmodelfit.render(r2=r2, mape=mape)
+    story2=pycaretclassificationimp.render(imp=imp_var,target=target,imp_pos_ave=imp_pos_ave,imp_pos_value_ave=imp_pos_value_ave,imp_neg_ave=imp_neg_ave,imp_neg_value_ave=imp_neg_value_ave)
     print(story1)
     print(story2)
     return (story1, story2)

@@ -1,0 +1,11 @@
+The accuracy for the {{modelName}} has a value of {{r2 | round(3)}}.
+{% if r2 < 0.9 -%}
+So, The accuracy of the classifier is not high enough.
+{% else -%}
+So, The accuracy of the classifier is high enough.
+{% endif %} And the AUC (Area Under the Curve) has a value of {{mape | round(3)}},
+{%if mape < 0.5 -%}
+which indicates the very poor performance of the classifier.
+{% else -%}
+which indicates the good performance of the classifier.
+{% endif %} The table below shows information about every model fitting results.

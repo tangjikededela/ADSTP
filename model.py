@@ -1033,55 +1033,58 @@ def readable_name_converted_input_name(modeldetail):
 
 def input_name_converted_readable_name(inputname,types):
     modeldetail = str(inputname)
+    readablepycaretname=""
     if "ridge" in modeldetail:
-        pycaretname = "Ridge model"
+        readablepycaretname = "Ridge model"
     elif "lda" in modeldetail:
-        pycaretname = "Linear Discriminant model"
+        readablepycaretname = "Linear Discriminant model"
     elif "gbr" in modeldetail:
-        pycaretname = "Gradient Boosting model"
+        readablepycaretname = "Gradient Boosting model"
+    elif "gbc" in modeldetail:
+        readablepycaretname = "Gradient Boosting Classifier"
     elif "lightgbm" in modeldetail:
-        pycaretname = "Light Gradient Boosting Machine model"
+        readablepycaretname = "Light Gradient Boosting Machine model"
     elif "svm" in modeldetail:
-        pycaretname = "SGD Classifier"
+        readablepycaretname = "SGD Classifier"
     elif "rf" in modeldetail:
-        pycaretname = "Random Forest model"
+        readablepycaretname = "Random Forest model"
     elif "xgboost" in modeldetail:
-        pycaretname = "Extreme Gradient Boosting model"
+        readablepycaretname = "Extreme Gradient Boosting model"
     elif "lr" in modeldetail and types==0:
-        pycaretname = "Logistic model"
+        readablepycaretname = "Logistic model"
     elif "qda" in modeldetail:
-        pycaretname = "Quadratic Discriminant model"
+        readablepycaretname = "Quadratic Discriminant model"
     elif "nb" in modeldetail:
-        pycaretname = "Gaussian NB model"
+        readablepycaretname = "Gaussian NB model"
     elif "et" in modeldetail:
-        pycaretname = "Extra Trees model"
+        readablepycaretname = "Extra Trees model"
     elif "dt" in modeldetail:
-        pycaretname = "Decision Tree model"
+        readablepycaretname = "Decision Tree model"
     elif "lasso" in modeldetail:
-        pycaretname = "Lasso model"
+        readablepycaretname = "Lasso model"
     elif "llar" in modeldetail:
-        pycaretname = "Lasso Lars model"
+        readablepycaretname = "Lasso Lars model"
     elif "br" in modeldetail:
-        pycaretname = "Bayesian Ridge model"
+        readablepycaretname = "Bayesian Ridge model"
     elif "lr" in modeldetail and types==1:
-        pycaretname = "Linear Regression model"
+        readablepycaretname = "Linear Regression model"
     elif "huber" in modeldetail:
-        pycaretname = "Huber Regressor model"
+        readablepycaretname = "Huber Regressor model"
     elif "par" in modeldetail:
-        pycaretname = "Passive Aggressive Regressor model"
+        readablepycaretname = "Passive Aggressive Regressor model"
     elif "omp" in modeldetail:
-        pycaretname = "Orthogonal Matching Pursuit model"
+        readablepycaretname = "Orthogonal Matching Pursuit model"
     elif "en" in modeldetail:
-        pycaretname = "Elastic Net model"
+        readablepycaretname = "Elastic Net model"
     elif "lar" in modeldetail and "llar" not in modeldetail:
-        pycaretname = "Lars model"
+        readablepycaretname = "Lars model"
     elif "dummy" in modeldetail:
-        pycaretname = "Dummy model"
+        readablepycaretname = "Dummy model"
     elif "knn" in modeldetail:
-        pycaretname = "K Neighbors model"
+        readablepycaretname = "K Neighbors model"
     elif "ada" in modeldetail:
-        pycaretname = "Ada Boost model"
-    return (pycaretname)
+        readablepycaretname = "Ada Boost model"
+    return (readablepycaretname)
 
 
 def inputname_to_readablename(inputname,types):
@@ -1094,27 +1097,53 @@ def inputname_to_readablename(inputname,types):
             readablename[i]=input_name_converted_readable_name(inputname[i],types)
     return (readablename)
 
+def SHAP_interpretion(imp_shap,imp_var):
+    m = 0
+    n = 0
+    imp_pos_sum = 0
+    imp_pos_value_sum = 0
+    imp_neg_sum = 0
+    imp_neg_value_sum = 0
+    for i in imp_shap['NUM']:
+        if float(imp_shap['SHAP Value'].loc[imp_shap['NUM'] == i]) >= 0:
+            imp_pos_sum = imp_pos_sum + float(imp_shap['SHAP Value'].loc[imp_shap['NUM'] == i])
+            imp_pos_value_sum = imp_pos_value_sum + float(imp_shap[imp_var].loc[imp_shap['NUM'] == i])
+            m = m + 1
+        else:
+            imp_neg_sum = imp_neg_sum + float(imp_shap['SHAP Value'].loc[imp_shap['NUM'] == i])
+            imp_neg_value_sum = imp_neg_value_sum + float(imp_shap[imp_var].loc[imp_shap['NUM'] == i])
+            n = n + 1
+    imp_pos_ave = imp_pos_sum / m
+    imp_pos_value_ave = imp_pos_value_sum / m
+    imp_neg_ave = imp_neg_sum / n
+    imp_neg_value_ave = imp_neg_value_sum / n
+    return (imp_pos_ave,imp_pos_value_ave,imp_neg_ave,imp_neg_value_ave)
 
 def pycaret_create_model(types, modelname):
     if types == 0:
         model = classification.create_model(modelname)
         tuned_model = classification.tune_model(model)
-        # classification.plot_model(tuned_model, plot='error', save=True)
-        # classification.plot_model(tuned_model, plot='feature', save=True)
-        # classification.interpret_model(tuned_model, save=True)
+        classification.plot_model(tuned_model, plot='error', save=True)
+        classification.plot_model(tuned_model, plot='feature', save=True)
+        classification.interpret_model(tuned_model, save=True)
         importance = pd.DataFrame({'Feature': classification.get_config('X_train').columns,
                                    'Value': abs(tuned_model.feature_importances_)}).sort_values(by='Value', ascending=False)
+        # importance = pd.DataFrame({'Feature': classification.get_config('X_train').columns,
+        #                            'Value': abs(tuned_model.coef_[0])}).sort_values(by='Value', ascending=False)
+        print(importance)
         for ind in importance.index:
             if importance['Value'][ind] == max(importance['Value']):
                 imp_var = importance['Feature'][ind]
         classification.predict_model(tuned_model)
         results = classification.pull(tuned_model)
-        # print(imp_var)
-        # print(results)
-        # imp_figure=cv2.imread('Feature Importance.png')
-        # Error_figure = cv2.imread('Prediction Error.png')
-        # SHAP_figure = cv2.imread('SHAP summary.png')
-        # return (importance['Feature'],imp_var, results['R2'][0], results['MAPE'][0],imp_figure,Error_figure)
+        shap_values = shap.TreeExplainer(tuned_model).shap_values(regression.get_config('X_train'))
+        imp_shap=pd.DataFrame({imp_var: regression.get_config('X_train')[imp_var],
+                                   'SHAP Value': shap_values[:,0],'NUM': range(len(shap_values[:,0]))})
+        imp_figure=cv2.imread('Feature Importance.png')
+        Error_figure = cv2.imread('Prediction Error.png')
+        SHAP_figure = cv2.imread('SHAP summary.png')
+        imp_pos_ave, imp_pos_value_ave, imp_neg_ave, imp_neg_value_ave = SHAP_interpretion(imp_shap, imp_var)
+        return (importance['Feature'],imp_var, results['Accuracy'][0], results['AUC'][0],imp_figure,Error_figure,SHAP_figure,imp_pos_ave,imp_pos_value_ave,imp_neg_ave,imp_neg_value_ave)
     elif types == 1:
         model = regression.create_model(modelname)
         tuned_model = regression.tune_model(model)
@@ -1136,25 +1165,26 @@ def pycaret_create_model(types, modelname):
         imp_shap=pd.DataFrame({imp_var: regression.get_config('X_train')[imp_var],
                                    'SHAP Value': shap_values[:,0],'NUM': range(len(shap_values[:,0]))})
         # print(imp_shap)
-        m=0
-        n=0
-        imp_pos_sum=0
-        imp_pos_value_sum=0
-        imp_neg_sum=0
-        imp_neg_value_sum=0
-        for i in imp_shap['NUM']:
-            if float(imp_shap['SHAP Value'].loc[imp_shap['NUM']==i])>=0:
-                imp_pos_sum=imp_pos_sum+float(imp_shap['SHAP Value'].loc[imp_shap['NUM']==i])
-                imp_pos_value_sum=imp_pos_value_sum+float(imp_shap[imp_var].loc[imp_shap['NUM']==i])
-                m=m+1
-            else:
-                imp_neg_sum=imp_neg_sum+float(imp_shap['SHAP Value'].loc[imp_shap['NUM']==i])
-                imp_neg_value_sum=imp_neg_value_sum+float(imp_shap[imp_var].loc[imp_shap['NUM']==i])
-                n=n+1
-        imp_pos_ave=imp_pos_sum/m
-        imp_pos_value_ave=imp_pos_value_sum/m
-        imp_neg_ave=imp_neg_sum/n
-        imp_neg_value_ave=imp_neg_value_sum/n
+        # m=0
+        # n=0
+        # imp_pos_sum=0
+        # imp_pos_value_sum=0
+        # imp_neg_sum=0
+        # imp_neg_value_sum=0
+        # for i in imp_shap['NUM']:
+        #     if float(imp_shap['SHAP Value'].loc[imp_shap['NUM']==i])>=0:
+        #         imp_pos_sum=imp_pos_sum+float(imp_shap['SHAP Value'].loc[imp_shap['NUM']==i])
+        #         imp_pos_value_sum=imp_pos_value_sum+float(imp_shap[imp_var].loc[imp_shap['NUM']==i])
+        #         m=m+1
+        #     else:
+        #         imp_neg_sum=imp_neg_sum+float(imp_shap['SHAP Value'].loc[imp_shap['NUM']==i])
+        #         imp_neg_value_sum=imp_neg_value_sum+float(imp_shap[imp_var].loc[imp_shap['NUM']==i])
+        #         n=n+1
+        # imp_pos_ave=imp_pos_sum/m
+        # imp_pos_value_ave=imp_pos_value_sum/m
+        # imp_neg_ave=imp_neg_sum/n
+        # imp_neg_value_ave=imp_neg_value_sum/n
+        imp_pos_ave,imp_pos_value_ave,imp_neg_ave,imp_neg_value_ave=SHAP_interpretion(imp_shap,imp_var)
         SHAP_figure = cv2.imread('SHAP summary.png')
         return (importance['Feature'],imp_var, results['R2'][0], results['MAPE'][0],imp_figure,Error_figure,SHAP_figure,imp_pos_ave,imp_pos_value_ave,imp_neg_ave,imp_neg_value_ave)
 

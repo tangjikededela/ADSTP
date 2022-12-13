@@ -85,6 +85,8 @@ pycaretimp=env.get_template('pycaret_imp.txt')
 pycaretmodelfit=env.get_template('pycaret_modelfit.txt')
 pycaretclassificationimp=env.get_template('pycaret_classificationimp.txt')
 pycaretclassificationmodelfit=env.get_template('pycaret_classificationmodelfit.txt')
+# for SKpipeline
+pipeline_interpretation=env.get_template('pipeline_interpretation.txt')
 
 # creating the global variables
 models_names = ['Gradient Boosting Regressor', 'Random Forest Regressor', 'Linear Regression',
@@ -861,3 +863,8 @@ def pycaret_classification_model_summary_view(imp_var, r2,mape,imp_pos_ave,imp_p
     print(story1)
     print(story2)
     return (story1, story2)
+
+def skpipeline_interpretation(pipelinename):
+    story=pipeline_interpretation.render(pipe=pipelinename)
+    # print(story)
+    return (story)

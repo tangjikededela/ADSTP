@@ -1164,27 +1164,16 @@ def pycaret_create_model(types, modelname):
         # print(regression.get_config('X_train')[imp_var])
         imp_shap=pd.DataFrame({imp_var: regression.get_config('X_train')[imp_var],
                                    'SHAP Value': shap_values[:,0],'NUM': range(len(shap_values[:,0]))})
-        # print(imp_shap)
-        # m=0
-        # n=0
-        # imp_pos_sum=0
-        # imp_pos_value_sum=0
-        # imp_neg_sum=0
-        # imp_neg_value_sum=0
-        # for i in imp_shap['NUM']:
-        #     if float(imp_shap['SHAP Value'].loc[imp_shap['NUM']==i])>=0:
-        #         imp_pos_sum=imp_pos_sum+float(imp_shap['SHAP Value'].loc[imp_shap['NUM']==i])
-        #         imp_pos_value_sum=imp_pos_value_sum+float(imp_shap[imp_var].loc[imp_shap['NUM']==i])
-        #         m=m+1
-        #     else:
-        #         imp_neg_sum=imp_neg_sum+float(imp_shap['SHAP Value'].loc[imp_shap['NUM']==i])
-        #         imp_neg_value_sum=imp_neg_value_sum+float(imp_shap[imp_var].loc[imp_shap['NUM']==i])
-        #         n=n+1
-        # imp_pos_ave=imp_pos_sum/m
-        # imp_pos_value_ave=imp_pos_value_sum/m
-        # imp_neg_ave=imp_neg_sum/n
-        # imp_neg_value_ave=imp_neg_value_sum/n
         imp_pos_ave,imp_pos_value_ave,imp_neg_ave,imp_neg_value_ave=SHAP_interpretion(imp_shap,imp_var)
         SHAP_figure = cv2.imread('SHAP summary.png')
         return (importance['Feature'],imp_var, results['R2'][0], results['MAPE'][0],imp_figure,Error_figure,SHAP_figure,imp_pos_ave,imp_pos_value_ave,imp_neg_ave,imp_neg_value_ave)
 
+
+def skpipelinedatatranform(pipe,dataset):
+    datatransform = pd.DataFrame(data=dataset)
+    for i in range(np.size(pipe) - 1):
+        datatransform = pipe[i].fit_transform(datatransform)
+    col_names = dataset.columns.values.tolist()
+    datatransform = pd.DataFrame(data=datatransform)
+    datatransform.columns = col_names
+    return (datatransform)

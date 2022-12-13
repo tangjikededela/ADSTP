@@ -3,7 +3,7 @@ import numpy as np
 from pandas import read_csv
 import controller as CT
 
-# # # A simple example. Just choose a model,
+# # # Example 1: A simple example. Just choose a model,
 # input data, independent and dependent variables,
 # the output will be a series of stories about fitting the data with this model.
 
@@ -13,7 +13,6 @@ diabetes_dataset = read_csv("./data/diabetes.csv", header=None, names=col_names)
 # Step 2: Choose the model (which is logistic regression here) and the independent and dependent variables, the stories will be generated.
 pipeline=CT.general_datastory_pipeline
 pipeline.LogisticFit(diabetes_dataset, [ 'glucose level', 'blood pressure', 'insulin level', 'BMI', 'age'],'diabetes')
-
 
 # # # Example 2: A more complex example.
 # # Users can create dummy variables for better fitting.

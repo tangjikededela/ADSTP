@@ -142,7 +142,7 @@ class general_datastory_pipeline:
             data, Xcol, ycol = variablenamechange(data, Xcol, ycol, Xnewname, ynewname)
         X = data[Xcol].values
         y = data[ycol]
-        GBmodel, mse, rmse = MD.GradientBoostingDefaultModel(X, y, Xcol, gbr_params)
+        GBmodel, mse, rmse,r2 = MD.GradientBoostingDefaultModel(X, y, Xcol, gbr_params)
         VW.GradientBoostingModelStats_view(data, Xcol, ycol, GBmodel, r2, questionset, gbr_params)
 
     def RandomForestFit(data, Xcol, ycol, Xnewname="", ynewname="", questionset=[1, 1, 1], n_estimators=10,
@@ -276,3 +276,22 @@ class special_datastory_pipelines_for_Scottish_government_report:
                                                                                                         ycolname, begin,
                                                                                                         end)
         VW.trendpercentage_view(Xcolname, begin, end, ycolname, X, y, std, samepoint)
+
+def skpipeline_interpretation_con(pipe):
+    story=""
+    for i in range(np.size(pipe)):
+        temp=VW.skpipeline_interpretation(str(pipe[i]))
+        if temp!="" and i<np.size(pipe)-1:
+            if i==0:
+                story=story+"First, "+temp+" "
+            elif i==1:
+                story=story+"After that, "+temp+" "
+            else:
+                story = story+"And then, " + temp+" "
+        if temp != "" and i == np.size(pipe) - 1:
+            story=story+"In the end, "+temp
+    print(story)
+
+def skpipeline_questions_answer(pipe,dataset,Xcol,ycol,readableXcol="",readableycol="",questionset=[1, 1, 1, 1], trend=1):
+    data=MD.skpipelinedatatranform(pipe,dataset)
+    general_datastory_pipeline.LinearFit(data,Xcol,ycol,readableXcol,readableycol,questionset, trend)

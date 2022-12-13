@@ -1,0 +1,15 @@
+{%-if "SelectKBest" in pipe-%}
+As a result of your input, some features will be selected by the pipeline based on the highest scores.
+{%-elif "PCA" in pipe-%}
+The pipeline will do principal component analysis which is a statistical technique for reducing the dimensionality of a dataset.
+{%-elif "StandardScaler" in pipe-%}
+The pipeline will standardize features by removing the mean and scaling to unit variance.
+{%-elif "VarianceThreshold" in pipe-%}
+The pipeline will do a feature selector that removes all low-variance features.
+{%-elif "KNeighborsClassifier" in pipe-%}
+The pipeline will use K Nearest Neighbor classifier to fit the dataset.
+{%-elif "LinearRegression" in pipe-%}
+The pipeline will use Linear Regression to fit the dataset.
+{%-elif "MinMaxScaler" in pipe-%}
+The pipeline will transform features by scaling each feature to a given range.
+{%-endif-%}

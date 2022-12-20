@@ -5,14 +5,14 @@ Finally, the story will summarize the analysis results{%- if qs[2]==1 %} and mea
 {%- endif -%}
 {%- if qs[0]==1%}
 The R-Squared for the {{modelName}} has a value of {{r2 | round(3)}}.
-{%- if r2 < 0.3 -%}
-So, the relationship between the chosen independent variable and the dependent variable is None or Very weak. You might not trust the analysis provided to make inferences.
-{%- elif r2 < 0.5 and r2 > 0.3 -%}
-So, the relationship between the chosen independent variable and the dependent variable is Weak or Low. You might use the analysis provided to make inferences.
-{%- elif r2 < 0.7 and r2 > 0.5 -%}
-So, the relationship between the chosen independent variable and the dependent variable is Moderate. You could trust the analysis provided to make inferences.
-{%- else -%}
-So, there is a strong relationship between the chosen independent variable and the dependent variable. You can trust the analysis provided to make inferences.
-{%- endif -%}
-{%- endif -%}
-The table below shows the metadata.
+{%- if r2 < 0.3 %}
+ So, the relationship between the chosen independent variable and the dependent variable is None or Very weak. You might not trust the analysis provided to make inferences.
+{%- elif r2 < 0.5 and r2 > 0.3 %}
+ So, the relationship between the chosen independent variable and the dependent variable is Weak or Low. You might use the analysis provided to make inferences.
+{%- elif r2 < 0.7 and r2 > 0.5 %}
+ So, the relationship between the chosen independent variable and the dependent variable is Moderate. You could trust the analysis provided to make inferences.
+{%- else %}
+ So, there is a strong relationship between the chosen independent variable and the dependent variable. You can trust the analysis provided to make inferences.
+{%- endif %}
+{%- endif %}
+ The table below shows the metadata.

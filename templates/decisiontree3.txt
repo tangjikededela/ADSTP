@@ -1,10 +1,10 @@
 Overall,
 {%- if qs[0]==1-%}
-{%- if r2 < 0.5 -%}
-the relationship between the chosen independent variable and the dependent variable is not so strong, the model is not so credible.
-{%- else -%}
-the relationship between the chosen independent variable and the dependent variable is strong enough, the model is credible.
+{%- if r2 < 0.5 %}
+ the relationship between the chosen independent variable and the dependent variable is not so strong, the model is not so credible.
+{%- else %}
+ the relationship between the chosen independent variable and the dependent variable is strong enough, the model is credible.
 {%- endif -%}
 {%- endif -%}
-{%- if qs[0]==1 and qs[1]==1 -%} In addition, {% endif -%} {%- if qs[1]==1-%} the mean squared error of the entire model is {{mse}}. {%- endif -%}
-{%- if qs[2]==1-%} The {{imp}} is the most important independent variable that affects {{ycol}}.{%- endif -%}
+{%- if qs[0]==1 and qs[1]==1 %} In addition, {% endif -%} {%- if qs[1]==1-%} the mean squared error of the entire model is {{mse}}. {%- endif -%}
+{%- if qs[2]==1%} The {{imp}} is the most important independent variable that affects {{ycol}}.{%- endif -%}

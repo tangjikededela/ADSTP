@@ -16,7 +16,7 @@ from sklearn import ensemble
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.tree import DecisionTreeRegressor,DecisionTreeClassifier
 from sklearn import metrics
 from sklearn.metrics import mean_squared_error, accuracy_score
 from pygam import LinearGAM, s, f, te
@@ -120,7 +120,15 @@ def GradientBoostingDefaultModel(X, y, Xcol, gbr_params):
     mse = mean_squared_error(y_test, model.predict(X_test))
     rmse = mse ** (1 / 2.0)
     r2 = model.score(X_test, y_test)
-    return (model, mse, rmse, r2)
+    importance = model.feature_importances_
+    columns = {'important': importance}
+    DTData = DataFrame(data=columns, index=Xcol)
+    # summary = GB3.render(Xcol=Xcol)
+    imp = ""
+    for ind in DTData.index:
+        if DTData['important'][ind] == max(DTData['important']):
+            imp = ind
+    return (model, mse, rmse, r2,imp)
 
 
 def RandomForestDefaultModel(X, y, Xcol, n_estimators, max_depth):
@@ -140,6 +148,7 @@ def RandomForestDefaultModel(X, y, Xcol, n_estimators, max_depth):
     mape = 100 * (abs(predictions - y_test) / y_test)
     # Calculate and display accuracy
     accuracy = 100 - np.mean(mape)
+    mae=metrics.mean_absolute_error(y_test, predictions)
     mse = metrics.mean_squared_error(y_test, predictions)
     rmse = mse ** (1 / 2.0)
     importance = rf_small.feature_importances_
@@ -159,6 +168,7 @@ def DecisionTreeDefaultModel(X, y, Xcol, max_depth):
     importance = model.feature_importances_
     columns = {'important': importance}
     DTData = DataFrame(data=columns, index=Xcol)
+
     return (model, r2, mse, rmse, DTData)
 
 

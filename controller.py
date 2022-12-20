@@ -142,8 +142,8 @@ class general_datastory_pipeline:
             data, Xcol, ycol = variablenamechange(data, Xcol, ycol, Xnewname, ynewname)
         X = data[Xcol].values
         y = data[ycol]
-        GBmodel, mse, rmse,r2 = MD.GradientBoostingDefaultModel(X, y, Xcol, gbr_params)
-        VW.GradientBoostingModelStats_view(data, Xcol, ycol, GBmodel, r2, questionset, gbr_params)
+        GBmodel, mse, rmse, r2,imp = MD.GradientBoostingDefaultModel(X, y, Xcol, gbr_params)
+        VW.GradientBoostingModelStats_view(data, Xcol, ycol, GBmodel, mse, rmse, r2,imp, questionset, gbr_params)
 
     def RandomForestFit(data, Xcol, ycol, Xnewname="", ynewname="", questionset=[1, 1, 1], n_estimators=10,
                                max_depth=3):

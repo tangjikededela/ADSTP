@@ -15,7 +15,7 @@ from dash import Dash, html, dcc, dash_table, callback
 import plotly.express as px
 import base64
 import language_tool_python
-
+import os
 # Loading the folder that contains the txt templates
 
 file_loader = FileSystemLoader('templates')
@@ -37,6 +37,7 @@ linearQuestion = env.get_template('linearQuestionset.txt')
 DecisionTree1 = env.get_template('decisiontree1.txt')
 DecisionTree2 = env.get_template('decisiontree2.txt')
 DecisionTree3 = env.get_template('decisiontree3.txt')
+DecisionTreeQuestion=env.get_template('decisiontreequestion.txt')
 logisticSummary = env.get_template('logisticSummary.txt')
 logisticSummary2 = env.get_template('logisticSummary2')
 logisticSummary3 = env.get_template('logisticSummary3.txt')
@@ -428,11 +429,11 @@ def LogisticModelStats_view(data, Xcol, ycol, logisticData1, logisticData2, r2, 
 
 
 def TreeExplain(model, Xcol):
-    n_nodes = model.estimators_[0].tree_.node_count
-    children_left = model.estimators_[0].tree_.children_left
-    children_right = model.estimators_[0].tree_.children_right
-    feature = model.estimators_[0].tree_.feature
-    threshold = model.estimators_[0].tree_.threshold
+    n_nodes = model.tree_.node_count
+    children_left = model.tree_.children_left
+    children_right = model.tree_.children_right
+    feature = model.tree_.feature
+    threshold = model.tree_.threshold
     node_depth = np.zeros(shape=n_nodes, dtype=np.int64)
     is_leaves = np.zeros(shape=n_nodes, dtype=bool)
     stack = [(0, 0)]  # start with the root node id (0) and its depth (0)
@@ -479,13 +480,20 @@ def TreeExplain(model, Xcol):
     return (explain)
 
 
-def GradientBoostingModelStats_view(data, Xcol, ycol, GBmodel, r2, questionset, gbr_params):
+def GradientBoostingModelStats_view(data, Xcol, ycol, GBmodel, mse, rmse, r2,imp, questionset, gbr_params):
     # Store importance figure
     plt.bar(Xcol, GBmodel.feature_importances_)
 
     plt.title("Importance Score")
     plt.savefig('pictures/{}.png'.format("GB1"))
     plt.clf()
+
+    os.environ["PATH"] += os.pathsep + 'C:/Program Files/Graphviz/bin/'
+    export_graphviz(GBmodel.estimators_[5][0], out_file='pictures/small_tree.dot', feature_names=Xcol, rounded=True, precision=1,node_ids=True)
+    (graph,) = pydot.graph_from_dot_file('pictures/small_tree.dot')
+    graph.write_png('pictures/small_tree.png', prog=['dot'])
+    encoded_image = base64.b64encode(open("pictures/small_tree.png", 'rb').read()).decode('ascii')
+
 
     _base64 = []
     _base64.append(base64.b64encode(open('pictures/{}.png'.format("GB1"), 'rb').read()).decode('ascii'))
@@ -509,25 +517,35 @@ def GradientBoostingModelStats_view(data, Xcol, ycol, GBmodel, r2, questionset, 
     listTabs = []
     i = 0
     # Add to dashbord Model Statistics
-    intro = GB1.render(Xcol=Xcol, ycol=ycol, indeNum=np.size(Xcol), r2=r2)
+    # intro = GB1.render(Xcol=Xcol, ycol=ycol, indeNum=np.size(Xcol), r2=r2)
+    question1 = DecisionTreeQuestion.render(q=1, m="gb")
+    intro = DecisionTree2.render(r2=r2, qs=questionset, indeNum=np.size(Xcol), modelName="Gradient Boosting", Xcol=Xcol,
+                                 ycol=ycol, )
     # newstory = MicroLexicalization(story)
     aim = Xcol
     aim.insert(0, ycol)
-    listTabs.append(dcc.Tab(label='GB Stats', children=[html.P(intro),
+    listTabs.append(dcc.Tab(label='Gradient Boosting Stats', children=[html.P(question1),html.Br(),html.P(intro),
                                                         dash_table.DataTable(data[aim].to_dict('records'),
                                                                              [{"name": i, "id": i} for i in
                                                                               data[aim].columns],
                                                                              style_table={'height': '400px',
                                                                                           'overflowY': 'auto'})]), )
     aim.remove(ycol)
+    # print(GBmodel.estimators_[0][0])
+    explain = TreeExplain(GBmodel.estimators_[0][0], Xcol)
+    # listTabs.append(dcc.Tab(label="Training & Test Deviance", children=[
+    #     html.Img(src='data:image/png;base64,{}'.format(_base64[1])), html.P(explain)
+    # ]))
+    question2 = DecisionTreeQuestion.render(q=2)
+    listTabs.append(
+        dcc.Tab(label='Tree Explanation', children=[html.Img(src='data:image/png;base64,{}'.format(encoded_image)),
+                                                    html.P(question2),html.Br(),html.Pre(explain)]), )
 
-    conflict = "conflict here"
-    listTabs.append(dcc.Tab(label="Training & Test Deviance", children=[
-        html.Img(src='data:image/png;base64,{}'.format(_base64[1])), html.P(conflict)
-    ]))
-    summary = GB3.render(Xcol=Xcol)
+
+    summary = DecisionTree3.render(imp=imp, ycol=ycol, r2=round(r2, 3), qs=questionset, mse=mse)
+    question3 = DecisionTreeQuestion.render(q=3)
     listTabs.append(dcc.Tab(label='Summary', children=[html.Img(src='data:image/png;base64,{}'.format(_base64[0])),
-                                                       html.P(summary), ]), )
+                                                       html.P(question3),html.Br(),html.P(summary), ]), )
 
     GB_app.layout = html.Div([dcc.Tabs(listTabs)])
     GB_app.run_server(mode='inline', debug=True)
@@ -535,14 +553,14 @@ def GradientBoostingModelStats_view(data, Xcol, ycol, GBmodel, r2, questionset, 
 
 def RandomForestModelStats_view(data, Xcol, ycol, tree_small, rf_small, DTData, r2, mse, questionset):
     # Save the tree as a png image
-    import os
+
     os.environ["PATH"] += os.pathsep + 'C:/Program Files/Graphviz/bin/'
-    export_graphviz(tree_small, out_file='pictures/small_tree.dot', feature_names=Xcol, rounded=True, precision=1)
+    export_graphviz(tree_small, out_file='pictures/small_tree.dot', feature_names=Xcol, rounded=True, precision=1,node_ids=True)
     (graph,) = pydot.graph_from_dot_file('pictures/small_tree.dot')
     graph.write_png('pictures/small_tree.png', prog=['dot'])
     encoded_image = base64.b64encode(open("pictures/small_tree.png", 'rb').read()).decode('ascii')
     # Explain of the tree
-    explain = TreeExplain(rf_small, Xcol)
+    explain = TreeExplain(rf_small.estimators_[0], Xcol)
     # Importance score Figure
     imp = ""
     fig = px.bar(DTData)
@@ -554,10 +572,11 @@ def RandomForestModelStats_view(data, Xcol, ycol, tree_small, rf_small, DTData, 
     # Add to dashbord Model Statistics
     intro = DecisionTree2.render(r2=r2, qs=questionset, indeNum=np.size(Xcol), modelName="Random Forest", Xcol=Xcol,
                                  ycol=ycol, )
+    question1=DecisionTreeQuestion.render(q=1,m="rf")
     # intro = MicroLexicalization(intro)
     aim = Xcol
     aim.insert(0, ycol)
-    listTabs.append(dcc.Tab(label='RandomForestModelStats', children=[html.P(intro),
+    listTabs.append(dcc.Tab(label='RandomForestModelStats', children=[html.P(question1),html.Br(),html.P(intro),
                                                                       dash_table.DataTable(data[aim].to_dict('records'),
                                                                                            [{"name": i, "id": i} for i
                                                                                             in
@@ -566,12 +585,14 @@ def RandomForestModelStats_view(data, Xcol, ycol, tree_small, rf_small, DTData, 
                                                                                                'height': '400px',
                                                                                                'overflowY': 'auto'})]), )
     aim.remove(ycol)
+    question2 = DecisionTreeQuestion.render(q=2)
     tree_explain_story = explain
     listTabs.append(
         dcc.Tab(label='Tree Explanation', children=[html.Img(src='data:image/png;base64,{}'.format(encoded_image)),
-                                                    html.Pre(tree_explain_story)]), )
+                                                    html.P(question2),html.Br(),html.Pre(tree_explain_story)]), )
     summary = DecisionTree3.render(imp=imp, ycol=ycol, r2=round(r2, 3), qs=questionset, mse=mse)
-    listTabs.append(dcc.Tab(label='Summary', children=[dcc.Graph(figure=fig), html.P(summary)]), )
+    question3 = DecisionTreeQuestion.render(q=3)
+    listTabs.append(dcc.Tab(label='Summary', children=[dcc.Graph(figure=fig),html.P(question3),html.Br(), html.P(summary)]), )
     RF_app.layout = html.Div([dcc.Tabs(listTabs)])
     RF_app.run_server(mode='inline', debug=True)
 
@@ -586,12 +607,13 @@ def DecisionTreeModelStats_view(data, Xcol, ycol, DTData, DTmodel, r2, mse, ques
     DT_app = JupyterDash(__name__)
     listTabs = []
     # Add to dashbord Model Statistics
+    question1 = DecisionTreeQuestion.render(q=1, m="dt")
     intro = DecisionTree2.render(r2=r2, qs=questionset, indeNum=np.size(Xcol), modelName="Decision Tree", Xcol=Xcol,
                                  ycol=ycol, )
     # intro = MicroLexicalization(intro)
     aim = Xcol
     aim.insert(0, ycol)
-    listTabs.append(dcc.Tab(label='DecisionTreeModelStats', children=[html.P(intro),
+    listTabs.append(dcc.Tab(label='DecisionTreeModelStats', children=[html.P(question1),html.Br(),html.P(intro),
                                                                       dash_table.DataTable(data[aim].to_dict('records'),
                                                                                            [{"name": i, "id": i} for i
                                                                                             in
@@ -605,25 +627,28 @@ def DecisionTreeModelStats_view(data, Xcol, ycol, DTData, DTmodel, r2, mse, ques
     tree.plot_tree(DTmodel,
                    feature_names=Xcol,
                    class_names=ycol,
-                   filled=True);
+                   filled=True,
+                   node_ids=True);
     fig2.savefig('pictures/{}.png'.format("DT"))
     encoded_image = base64.b64encode(open("pictures/DT.png", 'rb').read()).decode('ascii')
 
-    # Text version of the tree node
+    # # Text version of the tree node
     # feature_names_for_text = [0] * np.size(Xcol)
     # for i in range(np.size(Xcol)):
     #     feature_names_for_text[i] = Xcol[i]
-    # text_representation = export_text(model, feature_names=feature_names_for_text)
-    # # print(text_representation)
-    # Explain of the tree
+    # explain = tree.export_text(DTmodel, feature_names=feature_names_for_text)
+    # print(text_representation)
+    # # Explain of the tree
     explain = TreeExplain(DTmodel, Xcol)
     # Text need to fix here
     tree_explain_story = explain
+    question2 = DecisionTreeQuestion.render(q=2)
     listTabs.append(
         dcc.Tab(label='Tree Explanation', children=[html.Img(src='data:image/png;base64,{}'.format(encoded_image)),
-                                                    html.Pre(tree_explain_story)]), )
+                                                    html.P(question2),html.Br(),html.Pre(tree_explain_story)]), )
     summary = DecisionTree3.render(imp=imp, ycol=ycol, r2=round(r2, 3), qs=questionset, mse=mse)
-    listTabs.append(dcc.Tab(label='Summary', children=[dcc.Graph(figure=fig), html.P(summary)]), )
+    question3 = DecisionTreeQuestion.render(q=3)
+    listTabs.append(dcc.Tab(label='Summary', children=[dcc.Graph(figure=fig), html.P(question3),html.Br(),html.P(summary)]), )
     DT_app.layout = html.Div([dcc.Tabs(listTabs)])
     DT_app.run_server(mode='inline', debug=True)
 

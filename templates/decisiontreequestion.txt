@@ -1,0 +1,7 @@
+{%- if q==1 -%}
+Question: Does the{% if m=="rf" %} random forest{% elif m=="dt" %} decision tree{% elif m=="gb" %} gradient boosting{% endif %} model fit the dataset well?
+{%- elif q==2 -%}
+Question: How does the model populate the nodes of the tree?
+{%- elif q==3 -%}
+Question: Which independent variable is the most important one?
+{%- endif -%}

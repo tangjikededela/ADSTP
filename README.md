@@ -1,15 +1,25 @@
 # ADSTP:computer:
 ###### *Developed by - Ruilin Wang *
-### About the application:
-Automated data storytelling program (ADSTP) is a Python-based prototype that integrates many pipelines which transform data analysis results into data stories for automatic interpretation. For general regression model interpretation, the system supports linear, logistic, gradient boosting, random forest, decision trees, GAMs, and segmented regression, it mainly aims to help users understand the dataset and model faster. It is also possible for the user to create a new pipeline for generating some special data stories, since pipelines are reusable, once they are built, they are ideal for assisting in the production of monthly or annual reports.
-
+## About the application:
+An automated data storytelling program (ADSTP) is a Python-based prototype that integrates many pipelines which transform data analysis results into data stories for automatic data interpretation. The prototype mainly aims to answer users' questions about the dataset and help users understand the dataset and model faster. It is also possible for the user to create some new pipelines. Since pipelines are reusable, once they are built, they are ideal for assisting in the production of monthly or annual reports.
+### Main Features
+| Features | Available Question  | Available at which model  |
+| :---:   | :---: | :---: |
+| Data Inference | Is the model credible?   | Linear set, Logistic set, Decision Tree set, GAMs set  |
+| Data Inference | Which independent variables are statistical significance?  | Linear set, Logistic set, GAMs set   |
+| Data Prediction | What will be the effect on the dependent variable if an independent variable is continuously increased or decreased?   | Linear set, Logistic set, GAMs set   |
+| Data Causality | Which independent variable is the most important variable that affect the dependent variable?   | Linear set, Logistic set, Decision Tree set, GAMs set  |
+| Data Causality | What are the conditions (the limit lines) for the classification?   | Logistic set, Decision Tree set   |
+| Data Description | What is the size of the dataset, and what are the independent and dependent variables?   | Non-fitting set   |
+| Data Exploration | At what value of an independent variable does the dependent variable reach its maximum and minimum values?  | Non-fitting set   |
+____
 ## System Requirements 
 * Python version  - '3.6'
 ____
 
 ## Requirement
 
-### The following packages are required to run the system:
+### The following packages are required to run the prototype:
 ```
 pandas                          1.1.5
 matplotlib                      3.3.2

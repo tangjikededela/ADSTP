@@ -2,7 +2,7 @@
 #
 import openai
 
-openai.api_key='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'
+# openai.api_key='sk-something'
 #1
 messages = [
     {"role": "system", "content": "You are a kind helpful assistant."},

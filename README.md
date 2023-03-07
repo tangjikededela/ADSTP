@@ -1,6 +1,7 @@
 # ADSTP:computer:
 ###### *Developed by - Ruilin Wang *
 ## About the application:
+<<<<<<< HEAD
 The automated data storytelling program (ADSTP) is a Python-based prototype that integrates many pipelines which transform data analysis results into data stories for automatic data interpretation. The prototype mainly aims to answer users' questions about the dataset and help users understand the dataset and model faster. It is also possible for the user to create some new pipelines. Since pipelines are reusable, once they are built, they are ideal for assisting in the production of monthly or annual reports.
 ### Main Features
 | Features | Available Question  | Available at which model  |
@@ -14,6 +15,19 @@ The automated data storytelling program (ADSTP) is a Python-based prototype that
 | Data Exploration | At what value of an independent variable does the dependent variable reach its maximum and minimum values?  | Non-fitting set   |
 | Data Exploration | Which regression model fits the dataset best?  | PyCaret set   |
 | Data Exploration | Which classification model fits the dataset best?  | PyCaret set   |
+=======
+An automated data storytelling program (ADSTP) is a Python-based prototype that integrates many pipelines which transform data analysis results into data stories for automatic data interpretation. The prototype mainly aims to answer users' questions about the dataset and help users understand the dataset and model faster. It is also possible for the user to create some new pipelines. Since pipelines are reusable, once they are built, they are ideal for assisting in the production of monthly or annual reports.
+### Main Features
+| Features | Available Question  | Available at which model  |
+| :---:   | :---: | :---: |
+| Data Inference | Is the model credible?   | Linear set, Logistic set, Decision Tree set, GAMs set  |
+| Data Inference | Which independent variables are statistical significance?  | Linear set, Logistic set, GAMs set   |
+| Data Prediction | What will be the effect on the dependent variable if an independent variable is continuously increased or decreased?   | Linear set, Logistic set, GAMs set   |
+| Data Causality | Which independent variable is the most important variable that affect the dependent variable?   | Linear set, Logistic set, Decision Tree set, GAMs set  |
+| Data Causality | What are the conditions (the limit lines) for the classification?   | Logistic set, Decision Tree set   |
+| Data Description | What is the size of the dataset, and what are the independent and dependent variables?   | Non-fitting set   |
+| Data Exploration | At what value of an independent variable does the dependent variable reach its maximum and minimum values?  | Non-fitting set   |
+>>>>>>> 8837d5fcd8c96dfdbd0741839a5a40e15c9afbeb
 ____
 ## System Requirements 
 * Python version  - '3.6'

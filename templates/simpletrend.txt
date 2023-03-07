@@ -1,0 +1,4 @@
+The average value of the {{ycol}} is {{ave}}.
+The {{ycol}} reaches its lowest value which is {{miny}} when the {{Xcol}} is{% if lenXmin !=1%}{% for i in range(0,lenXmin) %}{% if i !=(lenXmin-1) %} {{Xforminy[i]}}, {%- else  %} and {{Xforminy[i]}}{%endif-%}{%endfor-%} {%- else %} {{Xforminy}}{%endif-%}.
+And the {{ycol}} reaches its highest value which is {{maxy}} when the {{Xcol}} is{% if lenXmax !=1%}{% for i in range(0,lenXmax) %}{% if i !=(lenXmax-1) %} {{Xformaxy[i]}}, {%- else  %} and {{Xformaxy[i]}}{%endif-%}{%endfor-%} {%- else %} {{Xformaxy}}{%endif-%}.
+

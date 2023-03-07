@@ -1,6 +1,6 @@
 {%- if section==1 -%}
 {%- if qs[0]==1 -%}
-Question: Is the relationship between{% for i in range(0,indeNum) %} {% if i !=(indeNum-1)  -%}the {{xcol[i]}}, {%- else  -%} and the {{xcol[i]}} {%endif-%}{%endfor-%} with the probability of {{ycol}} strong?
+Question: Does the logistic regression model fit the dataset well?
 {%- else -%}
 Data Stories Overview
 {%- endif -%}
@@ -17,8 +17,8 @@ Question: How does the {{xcol}} affect the probability of {{ycol}}? And does the
 {%- if section==3 -%}
 Question:
 {%- if qs[1]==1 %} Which independent variables have a significant effect on the {{ycol}}, and which do not? {%- endif -%}
-{%- if qs[2]==1 %} Which independent variables have positive effect on the {{ycol}}?
-{%- elif qs[2]==1 and trend==0 %} Which independent variables have negative effect on the {{ycol}}? {%- endif -%}
+{%- if qs[2]==1 %} Which independent variables have a positive effect on the {{ycol}}?
+{%- elif qs[2]==1 and trend==0 %} Which independent variables have a negative effect on the {{ycol}}? {%- endif -%}
 {%- if qs[3]==1 %} Which independent variable is the most important to the {{ycol}}? {%- endif -%}
 {%- if qs[1]==0 and qs[2]==0 and qs[3]==0 %} Data Stories Summary {%- endif -%}
 {%- endif -%}

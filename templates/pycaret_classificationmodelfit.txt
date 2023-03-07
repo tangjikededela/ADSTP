@@ -4,8 +4,14 @@ So, The accuracy of the classifier is not high enough.
 {% else -%}
 So, The accuracy of the classifier is high enough.
 {% endif %} And the AUC (Area Under the Curve) has a value of {{mape | round(3)}},
-{%if mape < 0.5 -%}
-which indicates the very poor performance of the classifier.
-{% else -%}
+{%if mape <= 0.5 -%}
+which indicates the classifier is no better than random guessing.
+{%elif mape > 0.5 and mape<0.7 -%}
+which indicates the classifier is better than random guessing, but is not accurate enough.
+{%elif mape >= 0.7 and mape<0.8 -%}
+which indicates the classifier is considered acceptable.
+{%elif mape >= 0.8 and mape<0.9 -%}
 which indicates the good performance of the classifier.
+{% else -%}
+which indicates the very good performance of the classifier.
 {% endif %} The table below shows information about every model fitting results.

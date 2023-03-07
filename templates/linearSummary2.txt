@@ -11,6 +11,15 @@ describe under what circumstances each independent variable can make the depende
 {%- endif -%} {%- endif -%}
 {%- if qs[2]==1 or qs[1]==1 %} Finally, the story will {% endif -%} summarize the analysis results{%- if qs[3]==1 %} and measure the importance of each independent variable{%- endif -%}.
 {% if qs[0]==1%}
+{% if r2 > 0.5 and expect==1 -%}
+As you might expect, the model is credible for the following reasons.
+{% elif r2 < 0.5 and expect==0 -%}
+As you might expect, the model is not credible for the following reasons.
+{% elif r2 > 0.5 and expect==0 -%}
+Unlike what you might expect, the model is credible for the following reasons.
+{% elif r2 < 0.5 and expect==1 -%}
+Unlike what you might expect, the model is not credible for the following reasons.
+{% endif -%}
 The R-Squared for the {{modelName}} has a value of {{r2 | round(3)}}.
 {% if r2 < 0.3 -%}
 So, the relationship between the chosen independent variable and the dependent variable is None or Very weak. You should not trust the analysis provided to make inferences.

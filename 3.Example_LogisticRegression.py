@@ -1,5 +1,5 @@
 from pandas import read_csv
-import ADSTP.IntegratedPipeline as IP
+import IntegratedPipeline as IP
 
 # # # Example 1: A simple example. Just choose a model,
 # input data, independent and dependent variables,

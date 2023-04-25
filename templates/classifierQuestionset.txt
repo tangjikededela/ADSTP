@@ -1,0 +1,9 @@
+{%- if section==1 -%}
+What is the accuracy of this classifier?
+{%- elif section==2 -%}
+What about the metrics of the model evaluation?
+{%- elif section==3 -%}
+How to explain the confusion matrix of the model, and how about the average cross verification score of the model?
+{%- elif section==4 -%}
+Which independent variable is most important?
+{%- endif -%}

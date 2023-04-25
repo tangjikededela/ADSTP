@@ -1,0 +1,9 @@
+{%- if section==1 -%}
+Is the structure of the clustering strong?
+{%- elif section==2 -%}
+Which groups formed by clustering are worthy of attention?
+{%- elif section==3 -%}
+How about the Davies-Bouldin and Calinski Harabasz score of the model?
+{%- elif section==4 -%}
+What does the within-cluster sum of squares suggest to the number of clusters?
+{%- endif -%}

@@ -26,3 +26,5 @@ Kms_Driven:  Kms driven
 Owner: number of reselling
 Year: year of car production
 Selling_Price: selling price
+Fuel_Type: fuel type
+Car Name: car name

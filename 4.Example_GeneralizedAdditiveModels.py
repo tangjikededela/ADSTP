@@ -1,5 +1,5 @@
 from pandas import read_csv
-import ADSTP.IntegratedPipeline as IP
+import IntegratedPipeline as IP
 
 # # # Example 1: A simple example.
 # # Just choose a model, input data, independent and dependent variables,
@@ -13,5 +13,6 @@ redwine_dataset = read_csv("./data/winequalityred.csv", header=None, names=col_n
 # the stories will be generated.
 pipeline = IP.general_datastory_pipeline
 pipeline.GAMsFit(redwine_dataset,
-                   ["citric acid", "chlorides", "free sulfur dioxide", "total sulfur dioxide", "sulphates", "alcohol"],
+                   ["citric acid","total sulfur dioxide", "alcohol"],
                    "quality")
+

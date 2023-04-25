@@ -5,21 +5,31 @@ from pycaret import classification
 from pycaret import regression
 import matplotlib.pyplot as plt
 from pandas import DataFrame
+from itertools import islice
 import heapq
 import pwlf
 from GPyOpt.methods import BayesianOptimization
+from sklearn.neighbors import LocalOutlierFactor
+from sklearn.preprocessing import StandardScaler
 from sklearn import preprocessing
-from iteration_utilities import duplicates
-from iteration_utilities import unique_everseen
+from iteration_utilities import duplicates, unique_everseen
 from scipy.signal import argrelextrema
 from sklearn import ensemble
+from sklearn.cluster import KMeans
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import LinearRegression,LogisticRegression
-from sklearn.tree import DecisionTreeRegressor,DecisionTreeClassifier
+from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
+from sklearn.svm import SVC
 from sklearn import metrics
-from sklearn.metrics import mean_squared_error, accuracy_score
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import RidgeClassifier
+from sklearn.decomposition import PCA
+from sklearn.metrics import r2_score,mean_squared_error, silhouette_score, calinski_harabasz_score, davies_bouldin_score,accuracy_score,accuracy_score, confusion_matrix,precision_score, recall_score, f1_score, roc_auc_score, roc_curve
+from sklearn.model_selection import cross_val_score
 from pygam import LinearGAM, s, f, te
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.feature_selection import mutual_info_classif
 import statsmodels.api as sm
 import scipy.signal as signal
 import math
@@ -39,6 +49,47 @@ def NormalizeData(data):
     data = pd.DataFrame(scaled_x, columns=data.columns)
     return data
 
+def cleanData(data, threshold):
+    """This function takes in as input a dataset, and returns a clean dataset.
+
+    :param data: This is the dataset that will be cleaned.
+    :param treshold: This is the treshold that decides whether columns are deleted or their missing values filled.
+    :return: A dataset that does not have any missing values.
+    """
+    data = data.replace('?', np.nan)
+    data = data.loc[:, data.isnull().mean() < threshold]  # filter data
+    imputer = SimpleImputer(missing_values=np.nan, strategy='mean')
+    for i in data.columns:
+        imputer = imputer.fit(data[[i]])
+        data[[i]] = imputer.transform(data[[i]])
+    return data
+
+def create_dummy_variables(dataset, variables):
+    for var in variables:
+        cat_list = 'var' + '_' + var
+        cat_list = pd.get_dummies(dataset[var], prefix=var)
+        datatemp = dataset.join(cat_list)
+        dataset = datatemp
+    data_vars = dataset.columns.values.tolist()
+    to_keep = [i for i in data_vars if i not in variables]
+    data_final = dataset[to_keep]
+    return (data_final)
+
+def remove_outliers(dataset,Xcol,ycol,testsize=0.33):
+    X = dataset[Xcol].values
+    y = dataset[ycol].values
+    # split into train and test sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=testsize, random_state=1)
+    # identify outliers in the training dataset
+    lof = LocalOutlierFactor()
+    yhat = lof.fit_predict(X_train)
+    # select all rows that are not outliers
+    mask = yhat != -1
+    X_train, y_train = X_train[mask, :], y_train[mask]
+    # Set data back
+    cleandataset = pd.DataFrame(X_train, columns=Xcol)
+    cleandataset[ycol] = y_train
+    return (cleandataset)
 
 def RenderModel(model_type, X_train, y_train):  # Renders a model based on model name and X_train and Y_train values
 
@@ -82,6 +133,24 @@ def RMSE(renderdModel, X_test, y_test):
     rmse = metrics.mean_squared_error(y_test, y_predict, squared=False)
     return rmse
 
+def LinearSKDefaultModel(X, y, Xcol):
+    # use sm for P-values
+    X = sm.add_constant(X)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
+    smmodel = sm.OLS(y_train, X_train).fit()
+
+    y = y.values.reshape(-1, 1)
+    # perform linear regression
+    model = LinearRegression().fit(X, y)
+
+    # get the coefficient
+    coef = model.coef_
+    columns = {'coeff': coef[0][1:], 'pvalue': smmodel.pvalues.round(4).values[1:]}
+    linearData = DataFrame(data=columns, index=Xcol)
+    # calculate the r-squared value
+    y_pred = model.predict(X)
+    r2 = r2_score(y, y_pred)
+    return (columns, linearData, r2)
 
 def LinearDefaultModel(X, y, Xcol):
     X = sm.add_constant(X)
@@ -97,10 +166,8 @@ def LinearDefaultModel(X, y, Xcol):
 
     return (columns, linearData, predicted, mse, rmse, r2)
 
-
 def LogisticrDefaultModel(X, y, Xcol):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=0)
-    # from statsmodels.formula.api import logit
     model = sm.Logit(y_train, X_train).fit()
     # predictions = model.predict(X_test)
     # accuracy = accuracy_score(y_test, predictions)
@@ -113,7 +180,7 @@ def LogisticrDefaultModel(X, y, Xcol):
 
     deviance = 2 * logisticRegr.score(X, y) * len(y)  # 2*(-log-likelihood of fitted model)
     df = len(y) - logisticRegr.coef_.shape[1] - 1
-    devDdf=deviance/df
+    devDdf = deviance / df
 
     columns2 = {'importance score': abs(model.params.values)}
     logisticData2 = DataFrame(data=columns2, index=Xcol)
@@ -129,14 +196,23 @@ def GradientBoostingDefaultModel(X, y, Xcol, gbr_params):
     rmse = mse ** (1 / 2.0)
     r2 = model.score(X_test, y_test)
     importance = model.feature_importances_
+    train_errors = []
+    test_errors = []
+
+    for i, y_pred in enumerate(model.staged_predict(X_train)):
+        if i % 10 == 0:
+            mse_train = mean_squared_error(y_train, y_pred)
+            train_errors.append(np.round(mse_train,3))
+            y_pred_test = model.staged_predict(X_test)
+            mse_test = mean_squared_error(y_test, next(islice(y_pred_test, i + 1)))
+            test_errors.append(np.round(mse_test,3))
     columns = {'important': importance}
     DTData = DataFrame(data=columns, index=Xcol)
-    # summary = GB3.render(Xcol=Xcol)
     imp = ""
     for ind in DTData.index:
         if DTData['important'][ind] == max(DTData['important']):
             imp = ind
-    return (model, mse, rmse, r2,imp)
+    return (model, mse, rmse, r2, imp,train_errors,test_errors,DTData)
 
 
 def RandomForestDefaultModel(X, y, Xcol, n_estimators, max_depth):
@@ -156,7 +232,7 @@ def RandomForestDefaultModel(X, y, Xcol, n_estimators, max_depth):
     mape = 100 * (abs(predictions - y_test) / y_test)
     # Calculate and display accuracy
     accuracy = 100 - np.mean(mape)
-    mae=metrics.mean_absolute_error(y_test, predictions)
+    mae = metrics.mean_absolute_error(y_test, predictions)
     mse = metrics.mean_squared_error(y_test, predictions)
     rmse = mse ** (1 / 2.0)
     importance = rf_small.feature_importances_
@@ -180,7 +256,7 @@ def DecisionTreeDefaultModel(X, y, Xcol, max_depth):
     return (model, r2, mse, rmse, DTData)
 
 
-def GAMModel(data, Xcol, ycol, X, y, expect=1, epochs=100, splines=''):
+def GAMModel(data, Xcol, ycol, X, y, expect=1, epochs=100, splines='', chatGPT=0):
     titles = Xcol
     n = np.size(titles)
     # Fitting the model
@@ -193,12 +269,20 @@ def GAMModel(data, Xcol, ycol, X, y, expect=1, epochs=100, splines=''):
     r2 = gam.statistics_.get('pseudo_r2')
     p = gam.statistics_.get('p_values')
     # Plotting
-    # fig, axs = plt.subplots(1, np.size(Xcol), figsize=(40, 10))
     factor = ""
     mincondition = ""
     condition = ""
     choose = expect
     conflict = [0] * np.size(Xcol)
+    message = []
+    # print(gam.summary())
+    coefficients = gam.coef_
+    equation = "y = "
+    for i in range(len(coefficients)):
+        term = " + " if i > 0 else ""
+        term += f"{coefficients[i]:.4f} * f{i}(x{i})"
+        equation += term
+    # print (equation)
     # Analysis and Story Generate
     for i in range(len(Xcol)):
         maxfirst = 0
@@ -206,6 +290,9 @@ def GAMModel(data, Xcol, ycol, X, y, expect=1, epochs=100, splines=''):
         XX = gam.generate_X_grid(term=i)
         Xpre = XX[:, i]
         ypre = gam.partial_dependence(term=i, X=XX)
+        Xpre = np.round(Xpre, 3)
+        ypre = np.around(ypre, 3)
+        message.append("when " + Xcol[i] + " is " + str(Xpre) + ", the " + ycol + " is " + str(ypre) + ".")
         # Find min & max
         maxpoint = signal.argrelextrema(gam.partial_dependence(term=i, X=XX), np.greater)
         minpoint = signal.argrelextrema(gam.partial_dependence(term=i, X=XX), np.less)
@@ -305,17 +392,17 @@ def GAMModel(data, Xcol, ycol, X, y, expect=1, epochs=100, splines=''):
         elif np.size(maxpoint) != 0 and np.size(minpoint) == 0:
             factor = "With the growth of  " + Xcol[
                 i] + " , the " + ycol + " first increases to the maximum when " + Xcol[i] + " is " + str(round(
-                Xpre[maxpoint][0],3)) + " then continues to decline."
-            condition = condition + Xcol[i] + " is around " + str(round(Xpre[maxpoint][0],3)) + ", "
+                Xpre[maxpoint][0], 3)) + " then continues to decline."
+            condition = condition + Xcol[i] + " is around " + str(round(Xpre[maxpoint][0], 3)) + ", "
             if ypre[0] > ypre[len(ypre) - 1]:
                 mincondition = mincondition + Xcol[i] + " the higher the better, "
             else:
                 mincondition = mincondition + Xcol[i] + " the less the better, "
         elif np.size(maxpoint) == 0 and np.size(minpoint) != 0:
-            mincondition = mincondition + Xcol[i] + " is around " + str(round(Xpre[minpoint][0],3)) + ", "
+            mincondition = mincondition + Xcol[i] + " is around " + str(round(Xpre[minpoint][0], 3)) + ", "
             factor = "With the growth of  " + Xcol[
                 i] + " , the " + ycol + " first decreases to the minimum when " + Xcol[i] + " is " + str(round(
-                Xpre[minpoint][0],3)) + " then continues to increase."
+                Xpre[minpoint][0], 3)) + " then continues to increase."
         elif np.size(maxpoint) == 0 and np.size(minpoint) == 0:
             if ypre[0] < ypre[np.size(ypre) - 1]:
                 factor = ycol + " keep increase as " + Xcol[i] + " increase."
@@ -334,14 +421,141 @@ def GAMModel(data, Xcol, ycol, X, y, expect=1, epochs=100, splines=''):
         conflict[i] = factor
     nss = ""
     ss = ""
+    #message = message + " By comparing the above data, If "+str(Xcol)+ " are independent variables, "+ycol+" is dependent variable, under what circumstances the "+ycol+" could be as high as possible?"
     for i in range(np.size(p) - 1):
         p[i] = round(p[i], 3)
         if p[i] > 0.05:
-            nss = nss + "the "+ Xcol[i] + ", "
+            nss = nss + "the " + Xcol[i] + ", "
         else:
-            ss = ss + "the "+Xcol[i] + ", "
-    return (gam, data, Xcol, ycol, r2, p, conflict, nss, ss, mincondition, condition)
+            ss = ss + "the " + Xcol[i] + ", "
+    # print(message)
+    return (gam, data, Xcol, ycol, r2, p, conflict, nss, ss, mincondition, condition,message)
 
+def RidgeClassifierModel(dataset, Xcol, ycol,class1,class2):
+    X = dataset[Xcol]
+    y = dataset[ycol]
+    y = y.map({class1: 0, class2: 1})
+    # Split the data into train and test sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Instantiate the RidgeClassifier model
+    rclf = RidgeClassifier()
+
+    # Fit the model to the training data
+    rclf.fit(X_train, y_train)
+
+    # Make predictions on the test data
+    y_pred = rclf.predict(X_test)
+
+    # Compute accuracy, precision, recall, F1-score
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred)
+    recall = recall_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred)
+    # Compute area under the ROC curve
+    y_prob = rclf.decision_function(X_test)
+    roc_auc = roc_auc_score(y_test, y_prob)
+
+    # Perform PCA for dimensionality reduction
+    pca = PCA(n_components=2)
+    X_pca = pca.fit_transform(X_test)
+
+    # Compute feature importances
+    importances = rclf.coef_[0]
+
+    return (rclf,pca,y_test, y_prob,roc_auc,X_pca,accuracy,importances)
+
+
+def KNeighborsClassifierModel(dataset, Xcol, ycol,Knum=3,cvnum=5):
+    # Extract the feature matrix X and target vector y
+    X = dataset[Xcol]
+    y = dataset[ycol]
+    # Split the data into train and test sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    # Instantiate the K Neighbors Classifier model
+    k = Knum  # Number of neighbors to consider
+    clf = KNeighborsClassifier(n_neighbors=k)
+    # Fit the model to the training data
+    clf.fit(X_train, y_train)
+    # Make predictions on the test data
+    y_pred = clf.predict(X_test)
+    # Compute accuracy, precision, recall, F1-score
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, average='weighted')
+    recall = recall_score(y_test, y_pred, average='weighted')
+    f1 = f1_score(y_test, y_pred, average='weighted')
+    # Calculate mutual information between each feature and the target variable
+    feature_importances = mutual_info_classif(X, y)
+    # Calculate confusion matrix
+    confusionmatrix = confusion_matrix(y_test, y_pred)
+    # Calculate cross-validation scores
+    cv_scores = cross_val_score(clf, X, y, cv=cvnum)
+    return (accuracy,precision,feature_importances,recall,f1,confusionmatrix,cv_scores)
+
+def SVCClassifierModel(dataset, Xcol, ycol,kernel='linear', C=1.0,cvnum=5):
+    # Extract the feature matrix X and target vector y
+    X = dataset[Xcol]
+    y = dataset[ycol]
+    # Split the data into train and test sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    # Instantiate the Support Vector Machine (SVM) model
+    clf = SVC(kernel=kernel, C=C)  # Linear kernel with regularization parameter C=1.0
+    # Fit the model to the training data
+    clf.fit(X_train, y_train)
+    # Make predictions on the test data
+    y_pred = clf.predict(X_test)
+    # Compute accuracy, precision, recall, F1-score
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, average='weighted')
+    recall = recall_score(y_test, y_pred, average='weighted')
+    f1 = f1_score(y_test, y_pred, average='weighted')
+    # Calculate confusion matrix
+    confusionmatrix = confusion_matrix(y_test, y_pred)
+    cv_scores = cross_val_score(clf, X, y, cv=cvnum)  # 5-fold cross-validation
+    return (accuracy,precision,recall,f1,confusionmatrix,cv_scores)
+
+def kmeanclustermodel(Xcol, df_agg,minnum_clusters=1,maxnum_clusters=11,n_clusters=5):
+    # Select features for segmentation
+    X = df_agg[Xcol].values
+
+    # Standardize features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    # Determine optimal number of clusters
+    wcss = []
+    for i in range(minnum_clusters, maxnum_clusters):
+        kmeans = KMeans(n_clusters=i, init='k-means++', random_state=42)
+        kmeans.fit(X_scaled)
+        wcss.append(kmeans.inertia_)
+
+    # find the elbow point
+    diffs = np.diff(wcss)
+    diffs_ratio = diffs[1:] / diffs[:-1]
+    elbow_point = np.argmin(diffs_ratio) + 1
+
+    # store the optimal number of clusters
+    best_n_clusters = elbow_point + 1
+
+    # Apply k-means clustering
+    n_clusters = n_clusters
+    kmeans = KMeans(n_clusters=n_clusters, init='k-means++', random_state=42)
+    y_pred = kmeans.fit_predict(X_scaled)
+
+    # Print summary statistics by cluster
+    summary = df_agg.groupby('Cluster').agg({col: 'sum' for col in Xcol})
+    print(summary)
+
+    # Calculate and print clustering performance metrics
+    silhouette_score_value = silhouette_score(X_scaled, y_pred)
+    calinski_harabasz_score_value = calinski_harabasz_score(X_scaled, y_pred)
+    davies_bouldin_score_value = davies_bouldin_score(X_scaled, y_pred)
+
+    print('Silhouette Score: {:.3f}'.format(silhouette_score_value))
+    print('Calinski Harabasz Score: {:.3f}'.format(calinski_harabasz_score_value))
+    print('davies bouldin score: {:.3f}'.format(davies_bouldin_score_value))
+
+    return (wcss,summary,best_n_clusters,silhouette_score_value,calinski_harabasz_score_value,davies_bouldin_score_value)
 
 def loop_mean_compare(dataset, Xcol, ycol):
     diff = [0] * np.size(Xcol)
@@ -392,7 +606,8 @@ def find_column_mean(dataset):
     meancol = statistics.mean(dataset)
     return (meancol)
 
-def simple_trendy(ydata,Xdata):
+
+def simple_trendy(ydata, Xdata):
     maxloc = []
     minloc = []
     for i in range(len(ydata)):
@@ -413,7 +628,8 @@ def simple_trendy(ydata,Xdata):
     else:
         XforMiny = Xdata[minloc[0]]
 
-    return XforMaxy,XforMiny
+    return XforMaxy, XforMiny
+
 
 class NonFittingReport:
     # Include several simple data comparison methods
@@ -456,8 +672,6 @@ class NonFittingReport:
             return (Xcolname, point, ycolname1, ycolname2, X, y1, y2, mode, mag)
             # print(idtpc.render(Xcol=Xcolname, point=point, y1name=ycolname1, y2name=ycolname2, X=X, y1=y1, y2=y2,
             #                    mode=mode, mag=mag))
-
-
 
     def samedependentcompare(m, X, y, Xcolname, ycolname, begin, end):
         if "samedependentmagnificationcompare" in str(m):
@@ -935,7 +1149,8 @@ def pycaret_find_best_model(dataset, types, target, sort, exclude, n, session_id
         pycaretname = readable_name_converted_input_name(best_model)
     else:
         pycaretname = readable_name_converted_input_name(best_model[0])
-    return (best_model, pycaretname,comapre_results)
+    return (best_model, pycaretname, comapre_results)
+
 
 def more_readable_model_name(modeldetail):
     if "Ridge" in modeldetail and "BayesianRidge" not in modeldetail:
@@ -998,18 +1213,20 @@ def more_readable_model_name(modeldetail):
         translatedmodel = "Least Angle Regression"
     return (translatedmodel)
 
+
 def model_translate(modeldetail, n=1):
     if n == 1:
         modeldetail = str(modeldetail)
-        translatedmodel=more_readable_model_name(modeldetail)
+        translatedmodel = more_readable_model_name(modeldetail)
         return (translatedmodel)
     else:
         for i in range(len(modeldetail)):
             modeldetail[i] = str(modeldetail[i])
         translatedmodel = [0] * len(modeldetail)
         for i in range(len(modeldetail)):
-            translatedmodel[i]=more_readable_model_name(modeldetail[i])
+            translatedmodel[i] = more_readable_model_name(modeldetail[i])
         return (translatedmodel)
+
 
 def readable_name_converted_input_name(modeldetail):
     modeldetail = str(modeldetail)
@@ -1073,9 +1290,10 @@ def readable_name_converted_input_name(modeldetail):
         pycaretname = "lar"
     return (pycaretname)
 
-def input_name_converted_readable_name(inputname,types):
+
+def input_name_converted_readable_name(inputname, types):
     modeldetail = str(inputname)
-    readablepycaretname=""
+    readablepycaretname = ""
     if "ridge" in modeldetail:
         readablepycaretname = "Ridge model"
     elif "lda" in modeldetail:
@@ -1092,7 +1310,7 @@ def input_name_converted_readable_name(inputname,types):
         readablepycaretname = "Random Forest model"
     elif "xgboost" in modeldetail:
         readablepycaretname = "Extreme Gradient Boosting model"
-    elif "lr" in modeldetail and types==0:
+    elif "lr" in modeldetail and types == 0:
         readablepycaretname = "Logistic model"
     elif "qda" in modeldetail:
         readablepycaretname = "Quadratic Discriminant model"
@@ -1108,7 +1326,7 @@ def input_name_converted_readable_name(inputname,types):
         readablepycaretname = "Lasso Lars model"
     elif "br" in modeldetail:
         readablepycaretname = "Bayesian Ridge model"
-    elif "lr" in modeldetail and types==1:
+    elif "lr" in modeldetail and types == 1:
         readablepycaretname = "Linear Regression model"
     elif "huber" in modeldetail:
         readablepycaretname = "Huber Regressor model"
@@ -1129,17 +1347,18 @@ def input_name_converted_readable_name(inputname,types):
     return (readablepycaretname)
 
 
-def inputname_to_readablename(inputname,types):
-    if (len(inputname)==1):
-        readablename=[]
-        readablename=input_name_converted_readable_name(inputname,types)
+def inputname_to_readablename(inputname, types):
+    if (len(inputname) == 1):
+        readablename = []
+        readablename = input_name_converted_readable_name(inputname, types)
     else:
         readablename = [0] * len(inputname)
         for i in range(len(inputname)):
-            readablename[i]=input_name_converted_readable_name(inputname[i],types)
+            readablename[i] = input_name_converted_readable_name(inputname[i], types)
     return (readablename)
 
-def SHAP_interpretion(imp_shap,imp_var):
+
+def SHAP_interpretion(imp_shap, imp_var):
     m = 0
     n = 0
     imp_pos_sum = 0
@@ -1159,7 +1378,8 @@ def SHAP_interpretion(imp_shap,imp_var):
     imp_pos_value_ave = imp_pos_value_sum / m
     imp_neg_ave = imp_neg_sum / n
     imp_neg_value_ave = imp_neg_value_sum / n
-    return (imp_pos_ave,imp_pos_value_ave,imp_neg_ave,imp_neg_value_ave)
+    return (imp_pos_ave, imp_pos_value_ave, imp_neg_ave, imp_neg_value_ave)
+
 
 def pycaret_create_model(types, modelname):
     if types == 0:
@@ -1169,7 +1389,8 @@ def pycaret_create_model(types, modelname):
         classification.plot_model(tuned_model, plot='feature', save=True)
         classification.interpret_model(tuned_model, save=True)
         importance = pd.DataFrame({'Feature': classification.get_config('X_train').columns,
-                                   'Value': abs(tuned_model.feature_importances_)}).sort_values(by='Value', ascending=False)
+                                   'Value': abs(tuned_model.feature_importances_)}).sort_values(by='Value',
+                                                                                                ascending=False)
         # importance = pd.DataFrame({'Feature': classification.get_config('X_train').columns,
         #                            'Value': abs(tuned_model.coef_[0])}).sort_values(by='Value', ascending=False)
         print(importance)
@@ -1179,13 +1400,14 @@ def pycaret_create_model(types, modelname):
         classification.predict_model(tuned_model)
         results = classification.pull(tuned_model)
         shap_values = shap.TreeExplainer(tuned_model).shap_values(regression.get_config('X_train'))
-        imp_shap=pd.DataFrame({imp_var: regression.get_config('X_train')[imp_var],
-                                   'SHAP Value': shap_values[:,0],'NUM': range(len(shap_values[:,0]))})
-        imp_figure=cv2.imread('Feature Importance.png')
+        imp_shap = pd.DataFrame({imp_var: regression.get_config('X_train')[imp_var],
+                                 'SHAP Value': shap_values[:, 0], 'NUM': range(len(shap_values[:, 0]))})
+        imp_figure = cv2.imread('Feature Importance.png')
         Error_figure = cv2.imread('Prediction Error.png')
         SHAP_figure = cv2.imread('SHAP summary.png')
         imp_pos_ave, imp_pos_value_ave, imp_neg_ave, imp_neg_value_ave = SHAP_interpretion(imp_shap, imp_var)
-        return (importance['Feature'],imp_var, results['Accuracy'][0], results['AUC'][0],imp_figure,Error_figure,SHAP_figure,imp_pos_ave,imp_pos_value_ave,imp_neg_ave,imp_neg_value_ave)
+        return (importance['Feature'], imp_var, results['Accuracy'][0], results['AUC'][0], imp_figure, Error_figure,
+                SHAP_figure, imp_pos_ave, imp_pos_value_ave, imp_neg_ave, imp_neg_value_ave)
     elif types == 1:
         model = regression.create_model(modelname)
         tuned_model = regression.tune_model(model)
@@ -1193,25 +1415,28 @@ def pycaret_create_model(types, modelname):
         regression.plot_model(tuned_model, plot='feature', save=True)
         regression.interpret_model(tuned_model, save=True)
         importance = pd.DataFrame({'Feature': regression.get_config('X_train').columns,
-                                   'Value': abs(tuned_model.feature_importances_)}).sort_values(by='Value', ascending=False)
+                                   'Value': abs(tuned_model.feature_importances_)}).sort_values(by='Value',
+                                                                                                ascending=False)
         for ind in importance.index:
             if importance['Value'][ind] == max(importance['Value']):
                 imp_var = importance['Feature'][ind]
         regression.predict_model(tuned_model)
         results = regression.pull(tuned_model)
-        imp_figure=cv2.imread('Feature Importance.png')
+        imp_figure = cv2.imread('Feature Importance.png')
         Error_figure = cv2.imread('Prediction Error.png')
         shap_values = shap.TreeExplainer(tuned_model).shap_values(regression.get_config('X_train'))
         # print(shap_values[:,0])
         # print(regression.get_config('X_train')[imp_var])
-        imp_shap=pd.DataFrame({imp_var: regression.get_config('X_train')[imp_var],
-                                   'SHAP Value': shap_values[:,0],'NUM': range(len(shap_values[:,0]))})
-        imp_pos_ave,imp_pos_value_ave,imp_neg_ave,imp_neg_value_ave=SHAP_interpretion(imp_shap,imp_var)
+        imp_shap = pd.DataFrame({imp_var: regression.get_config('X_train')[imp_var],
+                                 'SHAP Value': shap_values[:, 0], 'NUM': range(len(shap_values[:, 0]))})
+        imp_pos_ave, imp_pos_value_ave, imp_neg_ave, imp_neg_value_ave = SHAP_interpretion(imp_shap, imp_var)
         SHAP_figure = cv2.imread('SHAP summary.png')
-        return (importance['Feature'],imp_var, results['R2'][0], results['MAPE'][0],imp_figure,Error_figure,SHAP_figure,imp_pos_ave,imp_pos_value_ave,imp_neg_ave,imp_neg_value_ave)
+        return (
+        importance['Feature'], imp_var, results['R2'][0], results['MAPE'][0], imp_figure, Error_figure, SHAP_figure,
+        imp_pos_ave, imp_pos_value_ave, imp_neg_ave, imp_neg_value_ave)
 
 
-def skpipelinedatatranform(pipe,dataset):
+def skpipelinedatatranform(pipe, dataset):
     datatransform = pd.DataFrame(data=dataset)
     for i in range(np.size(pipe) - 1):
         datatransform = pipe[i].fit_transform(datatransform)

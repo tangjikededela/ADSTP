@@ -2,7 +2,7 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.linear_model import LinearRegression
 from sklearn.pipeline import Pipeline
 import pandas
-import ADSTP.IntegratedPipeline as IP
+import IntegratedPipeline as IP
 
 dataset=pandas.read_csv("./data/californiahousing.csv", header=0)
 dataset.dropna(inplace=True)

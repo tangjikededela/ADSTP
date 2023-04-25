@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import filedialog
 from pandas import read_csv
 import numpy as np
-import ADSTP.IntegratedPipeline as IP
+import IntegratedPipeline as IP
 from jupyter_dash import JupyterDash
 from dash import Dash, html, dcc
 

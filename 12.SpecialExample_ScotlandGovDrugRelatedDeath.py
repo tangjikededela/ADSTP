@@ -1,9 +1,9 @@
 from pandas import read_csv
 import numpy
-import ADSTP.IntegratedPipeline as CT
+import IntegratedPipeline as CT
 
 # # Set the pipelines
-pipelines = CT.special_datastory_pipelines_for_Scottish_government_report
+# pipelines = CT.special_datastory_pipelines_for_Scottish_government_report
 
 # # # Dataset of Drug-related death. Sort by gender, age, drug type.
 col_names = ['years', 'drug related deaths', 'males', 'females', 'Deaths under age 14',
@@ -14,13 +14,15 @@ col_names = ['years', 'drug related deaths', 'males', 'females', 'Deaths under a
              'dead by Codeine or a codeine-containing compound',
              'dead by Dihydro-codeine or a d.h.c-containing compound', 'dead by any opiate or opioid', ]
 data = read_csv("./data/drugdeathsexagetype.csv", header=None, names=col_names)
-X = data.years  # Features
-Xcolname = "years"
-# Q1. What is the trend in the number of drug-related deaths from 1996 to 2020?
-ycolname = "drug related deaths"
-y = data[ycolname]
-pipelines.segmentedregression_fit(X, y, Xcolname, ycolname, level=1, graph=False, base=False, r2=False, p=False,
-                                         breakpointnum=5, governmentdrug=True, governmentchild=False)
+
+# Q1. What are the trends in drug-related deaths from 1996 to 2020?
+# # Set the pipelines
+pipelines = CT.special_datastory_pipelines_for_Scottish_government_report
+Xcolname = "years"; ycolname = "drug related deaths"
+X = data.years; y = data[ycolname] # Features and Target variable
+pipelines.segmentedregression_fit(X, y, Xcolname, ycolname, level=1,
+             graph=False, base=False, r2=False, p=False,
+             breakpointnum=5, governmentdrug=True, governmentchild=False)
 # Q2. How has the number of drug-related deaths of men and women changed from 1996 to 2020?
 y1name = "males"
 y2name = "females"

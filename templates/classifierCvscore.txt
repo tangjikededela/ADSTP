@@ -1,0 +1,8 @@
+Above is the figure of the confusion matrix,
+there are {{cm[1, 1]}} actual positive cases that were correctly predicted as positive,
+ {{cm[0, 0]}} actual negative cases that were correctly predicted as negative,
+ {{cm[0, 1]}} actual negative cases that were incorrectly predicted as positive,
+ and {{cm[1, 0]}} actual positive cases that were incorrectly predicted as negative.
+And the cross-validation mean score of the model is {{cv}},
+ as a rough guideline, that indicates {%-if cv > 0.8%} the model performance is good. {%-else%} the model performance may not be good enough. {%endif%}
+However, the specific threshold for what is considered good can vary depending on the problem, dataset, and evaluation criteria.

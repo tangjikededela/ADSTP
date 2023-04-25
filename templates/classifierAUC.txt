@@ -1,0 +1,12 @@
+Above is the Receiver Operating Characteristic curve. In general, a higher area under the ROC curve is considered better. The ROC curve is a graphical representation of the trade-off between the true positive rate (sensitivity or recall) and the false positive rate (1-specificity) of a classifier.
+{%if AUC < 0.5-%}
+The classifier is performing worse than random chance and is considered poor.
+{%elif AUC < 0.7-%}
+The classifier's performance is considered mediocre.
+{%elif AUC < 0.8-%}
+The classifier's performance is considered good.
+{%elif AUC < 0.9-%}
+The classifier's performance is considered very good.
+{%elif AUC >= 0.9-%}
+The classifier's performance is considered excellent.
+{%-endif-%}

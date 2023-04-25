@@ -4,4 +4,6 @@ Question: Does the{% if m=="rf" %} random forest{% elif m=="dt" %} decision tree
 Question: How does the model populate the nodes of the tree?
 {%- elif q==3 -%}
 Question: Which independent variable is the most important one?
+{%- elif q==4 -%}
+Question: Does the model overfit, underfit or fit well?
 {%- endif -%}

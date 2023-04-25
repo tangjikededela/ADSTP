@@ -1,0 +1,5 @@
+The above figure is a decision boundary diagram,
+and the equation of the decision boundary is:
+decision boundary value={{equation}}
+When the decision boundary value is larger than 0, the sample is {{class2}},
+and when the decision boundary value is less than 0, the sample is {{class1}}.

@@ -1,0 +1,10 @@
+Please refer to the figure above which displays accuracy, precision, recall, and F1 score. Unlike accuracy, the F1 score is another commonly used metric for evaluating the performance of classification machine learning models. It is calculated as the harmonic mean of precision and recall.
+{%if f1 < 0.5-%}
+The F1 score indicates the poor performance of the classifier.
+{%elif f1 < 0.8-%}
+The F1 score indicates that the classifier's performance is moderate.
+{%elif f1 < 0.9-%}
+The F1 score indicates that the classifier's performance is good.
+{%elif f1 >= 0.9-%}
+The F1 score indicates that the classifier's performance is excellent.
+{%-endif-%}

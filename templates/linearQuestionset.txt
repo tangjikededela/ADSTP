@@ -11,7 +11,7 @@ Question: What does the {{ycol}} change by increasing the {{xcol}}?
 {%- elif qs[1]==1 and qs[2]==0 -%}
 Question: Does the {{xcol}} have a significant effect on the {{ycol}}?
 {%- elif qs[1]==1 and qs[2]==1 -%}
-Question: What does the {{ycol}} change by increasing the {{xcol}}? And does the {{xcol}} have a significant effect on the {{ycol}}?
+Question: How does the {{ycol}} change with an increase in the {{xcol}}? And does the {{xcol}} have a significant effect on the {{ycol}}?
 {%- endif -%}
 {%- endif -%}
 {%- if section==3 -%}

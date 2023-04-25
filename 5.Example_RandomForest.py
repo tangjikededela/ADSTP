@@ -1,5 +1,5 @@
 import pandas
-import ADSTP.IntegratedPipeline as IP
+import IntegratedPipeline as IP
 
 dataset=pandas.read_csv("./data/Maternal Health Risk Data Set.csv", header=0)
 dataset['RiskLevel'].unique()

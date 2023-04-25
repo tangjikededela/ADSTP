@@ -1,0 +1,14 @@
+This is a report that aims to help quickly understand the analysis results of the {{classifiername}}.
+The accuracy is {{accuracy}}, so
+{%- if accuracy <0.5%}
+ the model is performing no better than random guessing.
+{%- elif accuracy <0.7%}
+ the model performed better than random guessing, but only acceptable.
+{%- elif accuracy <0.8%}
+ the model is moderately good.
+{%- elif accuracy <0.9%}
+ the model is good.
+{%- else%}
+ the model is excellent.
+{%- endif%}
+ The below table shows the metadata.

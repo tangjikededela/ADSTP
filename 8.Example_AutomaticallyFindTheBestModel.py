@@ -1,5 +1,5 @@
 from pycaret.datasets import get_data
-import ADSTP.IntegratedPipeline as IP
+import IntegratedPipeline as IP
 
 # A regression example for Automatic model comparison by PyCaret
 dataset = get_data('diamond', profile=True)

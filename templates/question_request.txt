@@ -1,0 +1,26 @@
+{%-if model == "linear"-%}
+{%-if question == 1-%}
+The R-squared of the {{model}} model is {{r2information}}, please answer this question:
+{%-elif question == 2-%}
+The slope of {{ind}} is {{slopeinformation}} and the P-value of {{ind}} is {{pinformation}}, please answer this question:
+{%-endif-%}
+
+{%-elif model == "logistic"-%}
+{%-if question == 1-%}
+The value of deviance divided by the degree of freedom of this {{model}} model is {{ddofinformation}}, please answer this question:
+{%-elif question == 2-%}
+The coefficient of {{ind}} is {{coefinformation}} and the P-value of {{ind}} is {{pinformation}}, please answer this question:
+{%-endif-%}
+
+{%-elif model == "gradient boosting"-%}
+{%-if question == 1-%}
+The R-squared of the {{model}} model is {{r2information}}, please answer this question:
+{%-elif question == 2-%}
+The tree explanation of this gradient boosting regression model is {{treeinformation}}, please answer the question textual, short and clear:
+{%-elif question == 3-%}
+The important score of each X is {{impinformation}}, please answer this question:
+{%-elif question == 4-%}
+The train errors and test errors of the model are {{trainerrorinformation}} and test errors of the model are {{testerrorinformation}}, please answer this question:
+{%-endif-%}
+
+{%-endif-%}

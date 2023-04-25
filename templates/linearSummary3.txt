@@ -3,12 +3,12 @@ Overall,
 {% if r2 < 0.5 -%}
 the relationship between the chosen independent variable and the dependent variable is not so strong, the model is not so credible.
 {% else -%}
-the relationship between the chosen independent variable and the dependent variable is strong enough, the model is credible.
+the chosen independent variables show a strong relationship with the dependent variable, making the model credible.
 {% endif -%}
 {% endif -%}
 {% if qs[1]==1%}
- In all independent variables, {% if ss!="" -%}{{ss}} have a significant impact on the {{ycol}}{%- endif -%}{% if ss!="" and nss!="" -%}, however,{% endif %}{% if nss!="" %} {{nss}} do not have a significant impact on the {{ycol}}{%- endif -%}. {%- endif -%}
+ Specifically, among all the independent variables, {% if ss!="" -%}{{ss}} have a significant impact on the {{ycol}}{%- endif -%}{% if ss!="" and nss!="" -%}, however,{% endif %}{% if nss!="" %} {{nss}} do not have a significant impact on the {{ycol}}{%- endif -%}. {%- endif -%}
 {% if qs[1]==1 and qs[2]==1 %}
- In addition, {% endif -%} {%- if qs[2]==1%} {% if pf!="" -%}an increase in {{pf}} will increase the {{ycol}}{%- endif -%}{% if pf!="" and nf!="" -%}, but{% endif %}{% if nf!="" %} an increase in {{nf}} will decrease the {{ycol}}{%- endif -%}. {%- endif -%}
+ In addition, {% endif -%} {%- if qs[2]==1%} {% if pf!="" -%}an increase in {{pf}} will lead to an increase in the {{ycol}}{%- endif -%}{% if pf!="" and nf!="" -%}, but{% endif %}{% if nf!="" %} an increase in {{nf}} will result in a decrease in the {{ycol}}{%- endif -%}. {%- endif -%}
 {% if qs[3]==1%}
- The {{imp}} is the most important independent variable that affects the {{ycol}}.{%- endif -%}
+ Notably, the {{imp}} is the most important independent variable affecting the {{ycol}}.{%- endif -%}

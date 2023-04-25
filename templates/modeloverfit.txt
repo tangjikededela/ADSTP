@@ -1,0 +1,5 @@
+When the training MSE is relatively low and the testing MSE is also low and close to the training MSE, it suggests that the model is performing well on both the training and testing data, and there is no significant overfitting or underfitting.
+
+If the training MSE is much lower than the testing MSE, it indicates that the model is overfitting to the training data and may not generalize well to new data. In such cases, it may be necessary to try simpler models, regularization, or feature selection techniques to reduce overfitting.
+
+On the other hand, if both the training and testing MSEs are relatively high, it suggests that the model may be underfitting the data, i.e., it is not capturing the underlying patterns in the data. In such cases, more complex models or feature engineering techniques may be necessary to improve the performance of the model.

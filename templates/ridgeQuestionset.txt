@@ -1,0 +1,9 @@
+{%- if section==1 -%}
+What is the accuracy of this classifier?
+{%- elif section==2 -%}
+What is the decision boundary?
+{%- elif section==3 -%}
+What is the area under the ROC curve?
+{%- elif section==4 -%}
+Which independent variable is most important?
+{%- endif -%}

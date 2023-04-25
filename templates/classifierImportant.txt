@@ -1,0 +1,1 @@
+The above figure shows the importance score of each independent variable, the most important of which is the {{imp}}.

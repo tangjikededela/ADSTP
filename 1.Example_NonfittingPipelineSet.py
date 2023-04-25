@@ -1,5 +1,5 @@
 from pandas import read_csv
-import ADSTP.IntegratedPipeline as IP
+import IntegratedPipeline as IP
 
 # # NonfittingPipeline is mainly used for simple data presentation or exploration that is not for the purpose of model fitting.
 

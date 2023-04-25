@@ -1,5 +1,5 @@
 from pandas import read_csv
-import ADSTP.IntegratedPipeline as IP
+import IntegratedPipeline as IP
 
 # Set pipelines
 pipeline = IP.general_datastory_pipeline
@@ -24,18 +24,22 @@ readable_names = dict((kv.split(': ') for kv in (l.strip(' \n') for l in open('.
 # ycol = 'TARGET_deathRate'
 # pipeline.LinearFit(cancer_dataset, Xcol, ycol, [readable_names.get(key) for key in Xcol], readable_names.get(ycol))
 
-# # 7. Estate
-# estate_dataset = read_csv('./data/Real estate.csv')
-# Xcol = ['X1 transaction date', 'X2 house age', 'X3 distance to the nearest MRT station',
-#         'X4 number of convenience stores']
-# ycol = 'Y house price of unit area'
-# pipeline.LinearFit(estate_dataset, Xcol, ycol, [readable_names.get(key) for key in Xcol], readable_names.get(ycol))
+# 7. Estate
+estate_dataset = read_csv('./data/Real estate.csv')
+Xcol = ['X1 transaction date', 'X2 house age', 'X3 distance to the nearest MRT station',
+        'X4 number of convenience stores']
+ycol = 'Y house price of unit area'
+pipeline.LinearFit(estate_dataset, Xcol, ycol, [readable_names.get(key) for key in Xcol], readable_names.get(ycol))
 
 # 8. Red wine
 # There is already an example in Example 2_1
 
-# 9. Car
-Car_dataset = read_csv('./data/car data.csv')
-Xcol = ['Present_Price', 'Kms_Driven', 'Owner', 'Year']
-ycol = 'Selling_Price'
-pipeline.LinearFit(Car_dataset, Xcol, ycol, [readable_names.get(key) for key in Xcol], readable_names.get(ycol))
+# # 9. Car
+#
+# Car_dataset = read_csv('./data/car data.csv')
+#
+# Xcol = ['Present_Price', 'Kms_Driven', 'Year']
+# ycol = 'Selling_Price'
+#
+# # fit the model
+# pipeline.LinearFit(Car_dataset, Xcol, ycol, [readable_names.get(key) for key in Xcol], readable_names.get(ycol))

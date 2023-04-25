@@ -1,11 +1,11 @@
 This is a data story to help you understand how {% for i in range(0,indeNum) %} {% if i !=(indeNum-1)  -%}the {{Xcol[i]}}, {%- else  -%} and the {{Xcol[i]}} {%endif-%}{%endfor-%} affect the {{ycol}} by fitting the dataset to the {{modelName}}.
-First of all, the story will {% if qs[0]==1-%} describe the credibility of the model as a whole. Then it will {% endif %}
-{%- if qs[1]==1%} analyze whether each independent variable has a significant effect on the dependent variable, and {% endif %}
+First of all, the story will {% if qs[0]==1-%} describe the credibility of the model as a whole. {% endif %}
+{%- if qs[1]==1%} Then it will analyze whether each independent variable has a significant effect on the dependent variable {% endif %}
 {%- if qs[2]==1 -%}
-{%- if t ==1  -%}
-describe under what circumstances each independent variable can make the dependent variable as small as possible.
-{%- elif t ==0 -%}
-describe under what circumstances each independent variable can make the dependent variable as large as possible.
+{%- if t ==0  -%}
+, and describe under what circumstances each independent variable can make the dependent variable as small as possible.
+{%- elif t ==1 -%}
+, and describe under what circumstances each independent variable can make the dependent variable as large as possible.
 {%- else -%}
 
 {%- endif -%} {%- endif -%}
@@ -19,14 +19,16 @@ As you might expect, the model is not credible for the following reasons.
 Unlike what you might expect, the model is credible for the following reasons.
 {% elif r2 < 0.5 and expect==1 -%}
 Unlike what you might expect, the model is not credible for the following reasons.
+{% elif expect=="" -%}
+
 {% endif -%}
 The R-Squared for the {{modelName}} has a value of {{r2 | round(3)}}.
 {% if r2 < 0.3 -%}
-So, the relationship between the chosen independent variable and the dependent variable is None or Very weak. You should not trust the analysis provided to make inferences.
+So, the relationship between the chosen independent variable and the dependent variable is none or very weak. You should not trust the analysis provided to make inferences.
 {% elif r2 < 0.5 and r2 > 0.3 -%}
-So, the relationship between the chosen independent variable and the dependent variable is Weak or Low. You might not use the analysis provided to make inferences.
+So, the relationship between the chosen independent variable and the dependent variable is weak or low. You might not use the analysis provided to make inferences.
 {% elif r2 < 0.7 and r2 > 0.5 -%}
-So, the relationship between the chosen independent variable and the dependent variable is Moderate. You could trust the analysis provided to make inferences.
+So, the relationship between the chosen independent variable and the dependent variable is moderate. You could trust the analysis provided to make inferences.
 {% else -%}
 So, there is a strong relationship between the chosen independent variable and the dependent variable. You can trust the analysis provided to make inferences.
 {% endif -%}

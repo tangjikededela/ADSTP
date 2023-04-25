@@ -1,8 +1,6 @@
 import numpy as np
 import seaborn as sns
 from pandas import DataFrame
-from sklearn.tree import export_graphviz
-import pydot
 import matplotlib.pyplot as plt
 from sklearn import tree
 from yellowbrick.regressor import ResidualsPlot
@@ -10,12 +8,14 @@ from jinja2 import Environment, FileSystemLoader
 from scipy import stats
 import math
 from jupyter_dash import JupyterDash
-import dash_bootstrap_components as dbc
+from sklearn.metrics import roc_curve
 from dash import Dash, html, dcc, dash_table, callback
 import plotly.express as px
 import base64
 import language_tool_python
-import os
+import openai
+import requests
+import json
 
 # Loading the folder that contains the txt templates
 
@@ -26,6 +26,7 @@ file_loader = FileSystemLoader('templates')
 env = Environment(loader=file_loader)
 
 # Loading the Jinja templates from the folder
+# For the regression
 get_correlation = env.get_template('getcorrelation.txt')
 model_comparison = env.get_template('modelcomparison.txt')
 correlation_state = env.get_template('correlation.txt')
@@ -38,10 +39,6 @@ DecisionTree1 = env.get_template('decisiontree1.txt')
 DecisionTree2 = env.get_template('decisiontree2.txt')
 DecisionTree3 = env.get_template('decisiontree3.txt')
 DecisionTreeQuestion = env.get_template('decisiontreequestion.txt')
-logisticSummary = env.get_template('logisticSummary.txt')
-logisticSummary2 = env.get_template('logisticSummary2')
-logisticSummary3 = env.get_template('logisticSummary3.txt')
-logisticQuestion = env.get_template('logisticQuestionset.txt')
 gamStory = env.get_template('gamStory.txt')
 GAMslinear_stats = env.get_template('GAMsLinearL1')
 GAMslinear_R2 = env.get_template('GAMsLinearL2')
@@ -51,9 +48,23 @@ GB1 = env.get_template('GB1')
 GB2 = env.get_template('GB2')
 GB3 = env.get_template('GB3')
 
+# For the classifier
+logisticSummary = env.get_template('logisticSummary.txt')
+logisticSummary2 = env.get_template('logisticSummary2')
+logisticSummary3 = env.get_template('logisticSummary3.txt')
+logisticQuestion = env.get_template('logisticQuestionset.txt')
+classifieraccuracy=env.get_template('classifierAccuracy.txt')
+classifierauc=env.get_template('classifierAUC.txt')
+classifiercv=env.get_template('classifierCvscore.txt')
+classifierf1=env.get_template('classifierF1score.txt')
+classifierimp=env.get_template('classifierImportant.txt')
+ridgequestionset=env.get_template('ridgeQuestionset.txt')
+ridgedecision=env.get_template('ridgeDecision.txt')
+classifierquestionset=env.get_template('classifierQuestionset.txt')
 # For some basic function
 basicdescription = env.get_template('basicdescription.txt')
 simpletrend=env.get_template('simpletrend.txt')
+modeloverfit=env.get_template('modeloverfit.txt')
 
 # variables which each load a different segmented regression template
 segmented_R2P = env.get_template('testPiecewisePwlfR2P')
@@ -85,6 +96,10 @@ idtpc = env.get_template('independenttwopointcomparison')
 # for batch processing
 bp1 = env.get_template('batchprocessing1')
 bp2 = env.get_template('batchprocessing2')
+
+# for ChatGPT
+databackground = env.get_template('databackground')
+questionrequest=env.get_template('question_request.txt')
 
 # for pycaret
 automodelcompare1 = env.get_template('AMC1.txt')
@@ -290,10 +305,45 @@ def start_app():
     listTabs = []
     return (app_name, listTabs)
 
+def data_background(Xcol,ycol,modelname=""):
+    background=databackground.render(xcol=Xcol, ycol=ycol, modelname=modelname)
+    return (background)
 
-def run_app(app_name, listTabs):
+def set_chatGPT(Xcol,ycol,modelname,key,url="https://api.openai.com/v1/chat/completions"):
+    openai.api_key = key
+    url = url
+    chatmodel="gpt-3.5-turbo"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {openai.api_key}"
+    }
+    background = data_background(Xcol, ycol, modelname=modelname)
+    messages = [{"role": "system", "content": background}, ]
+    return (url,chatmodel,headers,messages)
+
+def set_payload(message,messages=[]):
+    messages.append( {"role": "user", "content": message}, )
+    payload = {
+        "model": "gpt-3.5-turbo",
+        "messages": messages,
+        "temperature": 1.0,
+        "top_p": 1.0,
+        "n": 1,
+        "stream": False,
+        "presence_penalty": 0,
+        "frequency_penalty": 0,
+    }
+    return (payload,messages)
+
+def send_response_receive_output(URL,headers,payload,messages):
+    response = requests.post(URL, headers=headers, json=payload, stream=False)
+    output=json.loads(response.content)["choices"][0]['message']['content']
+    messages.append({"role": "assistant", "content": output})
+    return (output,messages)
+
+def run_app(app_name, listTabs,portnum=8050):
     app_name.layout = html.Div([dcc.Tabs(listTabs)])
-    app_name.run_server(mode='inline', debug=True)
+    app_name.run_server(mode='inline', debug=True,port=portnum)
 
 def read_figure(_base64, name):
     _base64.append(base64.b64encode(open('./{}.png'.format(name), 'rb').read()).decode('ascii'))
@@ -318,7 +368,14 @@ def simple_trend(Xcol,ycol,Xforminy,Xformaxy,ave,miny,maxy):
     print(story)
 
 
-def LinearModelStats_view(data, Xcol, ycol, linearData, r2, questionset, trend):
+def LinearModelStats_view(data, Xcol, ycol, linearData, r2, questionset, expect,chatGPT=0,key="",portnum=8050):
+    if expect=="":
+        expect=["","",""]
+    # Set for ChatGPT
+    if chatGPT==1:
+        URL, chatmodel, headers,messages=set_chatGPT(Xcol,ycol,modelname="linear",key=key)
+        subsection="The following is the answer provided by ChatGPT:"
+
     # Store results for xcol
     for ind in linearData.index:
         ax = sns.regplot(x=ind, y=ycol, data=data)
@@ -334,13 +391,24 @@ def LinearModelStats_view(data, Xcol, ycol, linearData, r2, questionset, trend):
     # Add to dashbord Linear Model Statistics
     fig = px.bar(linearData)
     question = linearQuestion.render(xcol=Xcol, ycol=ycol, qs=questionset, section=1, indeNum=np.size(Xcol),
-                                     trend=trend[0])
+                                     trend=expect[0])
     intro = linearSummary2.render(r2=r2, indeNum=np.size(Xcol), modelName="Linear Model", Xcol=Xcol,
-                                  ycol=ycol, qs=questionset, t=trend[0],expect=trend[1])
+                                  ycol=ycol, qs=questionset, t=expect[0],expect=expect[1])
     # intro = MicroLexicalization(intro)
+    #set chatGPT
     aim = Xcol
     aim.insert(0, ycol)
-    children = [html.P(question), html.Br(), html.P(intro),
+    if chatGPT == 1:
+        request=questionrequest.render(model="linear",question=1,r2information=str(round(r2,3)))
+        payload, messages = set_payload(request + question, messages)
+        output,messages=send_response_receive_output(URL,headers,payload,messages)
+        print(output)
+        children = [html.P(question), html.Br(), html.P(intro), html.Br(), html.P(subsection),html.Br(),html.P(output),
+                dash_table.DataTable(data[aim].to_dict('records'),
+                                     [{"name": i, "id": i} for i in data[aim].columns],
+                                     style_table={'height': '400px', 'overflowY': 'auto'})]
+    else:
+        children = [html.P(question), html.Br(), html.P(intro),
                 dash_table.DataTable(data[aim].to_dict('records'),
                                      [{"name": i, "id": i} for i in data[aim].columns],
                                      style_table={'height': '400px', 'overflowY': 'auto'})]
@@ -351,9 +419,10 @@ def LinearModelStats_view(data, Xcol, ycol, linearData, r2, questionset, trend):
     # Add to dashbord Xcol plots and data story
 
     for ind in linearData.index:
-        question = linearQuestion.render(xcol=ind, ycol=ycol, qs=questionset, section=2, indeNum=1, trend=trend[0])
+        question = linearQuestion.render(xcol=ind, ycol=ycol, qs=questionset, section=2, indeNum=1, trend=expect[0])
         conflict = linearSummary.render(xcol=ind, ycol=ycol, coeff=linearData['coeff'][ind],
-                                        p=linearData['pvalue'][ind], qs=questionset, expect=trend[2])
+                                        p=linearData['pvalue'][ind], qs=questionset, expect=expect[2])
+
         # newstory = MicroLexicalization(story)
         if abs(linearData['coeff'][ind]) == max(abs(linearData['coeff'])):
             imp = ind
@@ -365,29 +434,50 @@ def LinearModelStats_view(data, Xcol, ycol, linearData, r2, questionset, trend):
             nss = nss + "the " + ind + ", "
         else:
             ss = ss + "the " + ind + ", "
+
         if questionset[1] == 1 or questionset[2] == 1:
-            children = [
-                html.Img(src='data:image/png;base64,{}'.format(_base64[i])), html.P(question), html.Br(),
-                html.P(conflict)
-            ]
+            # set chatGPT
+            if chatGPT == 1:
+                request = questionrequest.render(model="linear", question=2, slopeinformation=str(round(linearData['coeff'][ind], 3)), pinformation=str(round(linearData['pvalue'][ind], 3)),ind=ind)
+                payload, messages = set_payload(request + question,messages)
+                output, messages = send_response_receive_output(URL, headers, payload, messages)
+                print(output)
+                children = [
+                    html.Img(src='data:image/png;base64,{}'.format(_base64[i])), html.P(question), html.Br(),
+                    html.P(conflict),html.Br(),html.P(subsection),html.Br(),html.P(output)
+                ]
+            else:
+                children = [
+                    html.Img(src='data:image/png;base64,{}'.format(_base64[i])), html.P(question), html.Br(),
+                    html.P(conflict)
+                ]
             dash_tab_add(listTabs, ind, children)
 
         i = i + 1
-    question = linearQuestion.render(xcol="", ycol=ycol, qs=questionset, section=3, indeNum=1, trend=trend[0])
-    summary = linearSummary3.render(imp=imp, ycol=ycol, nss=nss, ss=ss, pf=pf, nf=nf, t=trend[0], r2=r2,
+    question = linearQuestion.render(xcol="", ycol=ycol, qs=questionset, section=3, indeNum=1, trend=expect[0])
+    summary = linearSummary3.render(imp=imp, ycol=ycol, nss=nss, ss=ss, pf=pf, nf=nf, t=expect[0], r2=r2,
                                     qs=questionset)
-    children = [dcc.Graph(figure=fig), html.P(question), html.Br(), html.P(summary)]
+    if chatGPT == 1:
+        payload, messages= set_payload(question,messages)
+        output, messages = send_response_receive_output(URL, headers, payload, messages)
+        print(output)
+        children = [dcc.Graph(figure=fig), html.P(question), html.Br(), html.P(summary),html.Br(),html.P(subsection),html.Br(),html.P(output)]
+    else:
+        children = [dcc.Graph(figure=fig), html.P(question), html.Br(), html.P(summary)]
     dash_tab_add(listTabs, 'Summary', children)
 
-    run_app(linear_app, listTabs)
+    run_app(linear_app, listTabs,portnum)
 
 
-def LogisticModelStats_view(data, Xcol, ycol, logisticData1, logisticData2, r2, questionset):
+def LogisticModelStats_view(data, Xcol, ycol, logisticData1, logisticData2, r2, questionset,chatGPT=0,key="",portnum=8050):
     # Store results for xcol
     for ind in logisticData1.index:
         ax = sns.regplot(x=ind, y=ycol, data=data, logistic=True)
         plt.savefig('pictures/{}.png'.format(ind))
         plt.clf()
+    if chatGPT==1:
+        URL, chatmodel, headers,messages=set_chatGPT(Xcol,ycol,modelname="Logistic",key=key)
+        subsection="The following is the answer provided by ChatGPT:"
     # Create Format index with file names
     _base64 = []
     for ind in logisticData1.index:
@@ -401,14 +491,22 @@ def LogisticModelStats_view(data, Xcol, ycol, logisticData1, logisticData2, r2, 
                                     ycol=ycol, qs=questionset, t=9)
     aim = Xcol
     aim.insert(0, ycol)
+    if chatGPT == 1:
+        request=questionrequest.render(model="logistic",question=1,ddofinformation=str(round(r2,3)))
+        payload, messages = set_payload(request + question, messages)
+        output,messages=send_response_receive_output(URL,headers,payload,messages)
+        print(output)
+        children = [html.P(question), html.Br(), html.P(intro), html.Br(), html.P(subsection),html.Br(),html.P(output),dash_table.DataTable(data[aim].to_dict('records'),
+                                     [{"name": i, "id": i} for i in data[aim].columns],
+                                     style_table={'height': '400px', 'overflowY': 'auto'})]
     # micro planning
     # intro = model.MicroLexicalization(intro)
-    children = [html.P(question), html.Br(), html.P(intro),
-                dash_table.DataTable(data[aim].to_dict('records'),
+    else:
+        children = [html.P(question), html.Br(), html.P(intro),dash_table.DataTable(data[aim].to_dict('records'),
                                      [{"name": i, "id": i} for i in
                                       data[aim].columns], style_table={'height': '400px', 'overflowY': 'auto'})]
-    dash_tab_add(listTabs, 'LogisticModelStats', children)
 
+    dash_tab_add(listTabs, 'LogisticModelStats', children)
     aim.remove(ycol)
 
     pos_eff, neg_eff, nss, ss, imp = "", "", "", "", ""
@@ -434,7 +532,18 @@ def LogisticModelStats_view(data, Xcol, ycol, logisticData1, logisticData2, r2, 
         else:
             ss = ss + ind + ", "
         if questionset[1] == 1 or questionset[2] == 1:
-            children = [html.Img(src='data:image/png;base64,{}'.format(_base64[i])), html.P(question), html.Br(),
+            if chatGPT == 1:
+                request = questionrequest.render(model="logistic", question=2, coefinformation=str(
+                    round(logisticData1['coeff'][ind], 3)), pinformation=str(round(logisticData1['pvalue'][ind], 3)),ind=ind)
+                payload, messages = set_payload(request + question,messages)
+                output, messages = send_response_receive_output(URL, headers, payload, messages)
+                print(output)
+                children = [
+                    html.Img(src='data:image/png;base64,{}'.format(_base64[i])), html.P(question), html.Br(),
+                    html.P(independent_variable_story),html.Br(),html.P(subsection),html.Br(),html.P(output)
+                ]
+            else:
+                children = [html.Img(src='data:image/png;base64,{}'.format(_base64[i])), html.P(question), html.Br(),
                         html.P(independent_variable_story)]
             dash_tab_add(listTabs, ind, children)
         i = i + 1
@@ -445,11 +554,242 @@ def LogisticModelStats_view(data, Xcol, ycol, logisticData1, logisticData2, r2, 
     summary = logisticSummary2.render(pos=pos_eff, neg=neg_eff, ycol=ycol, nss=nss, ss=ss, imp=imp,
                                       r2=r2, qs=questionset)
     # summary = model.MicroLexicalization(summary)
-    children = [dcc.Graph(figure=fig), html.P(question), html.Br(), html.P(summary)]
+    if chatGPT == 1:
+        payload, messages= set_payload(question,messages)
+        output, messages = send_response_receive_output(URL, headers, payload, messages)
+        print(output)
+        children = [dcc.Graph(figure=fig), html.P(question), html.Br(), html.P(summary),html.Br(),html.P(subsection),html.Br(),html.P(output)]
+    else:
+        children = [dcc.Graph(figure=fig), html.P(question), html.Br(), html.P(summary)]
     dash_tab_add(listTabs, 'Summary', children)
 
-    run_app(logistic_app, listTabs)
+    run_app(logistic_app, listTabs,portnum)
 
+def RidgeClassifier_view(data,Xcol,ycol,rclf,pca,y_test, y_prob,roc_auc,X_pca,accuracy,importances,class1,class2):
+    _base64 = []
+    ridge_app, listTabs = start_app()
+    # Plot ROC curve
+    fpr, tpr, thresholds = roc_curve(y_test, y_prob)
+    plt.figure(figsize=(8, 6))
+    plt.plot(fpr, tpr, label='ROC Curve (area = {:.2f})'.format(roc_auc))
+    plt.plot([0, 1], [0, 1], 'k--', label='Random')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic')
+    plt.legend(loc='lower right')
+    plt.savefig('pictures/{}.png'.format("ROC"))
+    _base64.append(base64.b64encode(open('pictures/{}.png'.format("ROC"), 'rb').read()).decode('ascii'))
+    plt.clf()
+
+    # Plot decision boundaries
+    sns.scatterplot(x=X_pca[:, 0], y=X_pca[:, 1], hue=y_test, palette='husl')
+    ax = plt.gca()
+    xlim = ax.get_xlim()
+    ylim = ax.get_ylim()
+
+    xx, yy = np.meshgrid(np.linspace(xlim[0], xlim[1], 500),
+                         np.linspace(ylim[0], ylim[1], 500))
+    Z = rclf.predict(pca.inverse_transform(np.c_[xx.ravel(), yy.ravel()])).reshape(xx.shape)
+    ax.contourf(xx, yy, Z, alpha=0.8, cmap='coolwarm')
+    plt.xlabel('Principal Component 1')
+    plt.ylabel('Principal Component 2')
+    # plt.title('Decision Boundaries (Malignant vs. Benign)')
+    plt.title('Decision Boundaries')
+    plt.savefig('pictures/{}.png'.format("DecisionBoundaries"))
+    _base64.append(base64.b64encode(open('pictures/{}.png'.format("DecisionBoundaries"), 'rb').read()).decode('ascii'))
+
+    # Create a dataframe to store feature importances along with their corresponding feature names
+    X=data[Xcol]
+    importances_df = DataFrame({'Feature': X.columns, 'Importance': importances})
+    # Sort the dataframe by importance in descending order
+    importances_df = importances_df.sort_values(by='Importance', ascending=False)
+    # Plot feature importances using a bar plot
+    plt.figure(figsize=(10, 6))
+    plt.bar(importances_df['Feature'], importances_df['Importance'])
+    plt.xlabel('Feature')
+    plt.ylabel('Importance')
+    plt.title('Feature Importances')
+    plt.xticks(rotation=90)
+    plt.savefig('pictures/{}.png'.format("FeatureImportances"))
+    _base64.append(base64.b64encode(open('pictures/{}.png'.format("FeatureImportances"), 'rb').read()).decode('ascii'))
+    for i, importance in enumerate(importances):
+        if abs(importance) == max(abs(importances)):
+            #print("Feature {}: {}".format(X.columns[i], importance))
+            imp=X.columns[i]
+
+    # Extract coefficients from the trained model
+    coefs = rclf.coef_[0]
+    intercept = rclf.intercept_[0]
+
+    # Construct the linear equation for the decision boundaries
+    equation = 'Decision Boundary Equation: '
+    for i in range(len(Xcol)):
+        equation += '({:.4f} * {}) + '.format(coefs[i], Xcol[i])
+    equation += '{:.4f}'.format(intercept)
+
+    intro=classifieraccuracy.render(accuracy=round(accuracy,3),classifiername="ridge classifier")
+    question=ridgequestionset.render(section=1)
+    aim = Xcol
+    aim.insert(0, ycol)
+    children = [html.P(question), html.Br(), html.P(intro),dash_table.DataTable(data[aim].to_dict('records'),
+                                     [{"name": i, "id": i} for i in
+                                      data[aim].columns], style_table={'height': '400px', 'overflowY': 'auto'})]
+
+    dash_tab_add(listTabs, 'RidgeClassifierStats', children)
+    aim.remove(ycol)
+
+    question = ridgequestionset.render(section=2)
+    DecisionBoundaryStory=ridgedecision.render(equation=equation,class1=class1,class2=class2)
+    children = [html.Img(src='data:image/png;base64,{}'.format(_base64[1])), html.P(question), html.Br(),
+                html.P(DecisionBoundaryStory)]
+    dash_tab_add(listTabs, "Decision Boundary Equation", children)
+
+    question = ridgequestionset.render(section=3)
+    aucStory=classifierauc.render(AUC=roc_auc)
+    children = [html.Img(src='data:image/png;base64,{}'.format(_base64[0])), html.P(question), html.Br(),
+                html.P(aucStory)]
+    dash_tab_add(listTabs, "Area under the Receiver Operating Characteristic curve", children)
+
+    question = ridgequestionset.render(section=4)
+    ImpStory=classifierimp.render(imp=imp)
+    children = [html.Img(src='data:image/png;base64,{}'.format(_base64[2])), html.P(question), html.Br(),
+                html.P(ImpStory)]
+    dash_tab_add(listTabs, "Feature Importances", children)
+
+    run_app(ridge_app, listTabs)
+
+def KNeighborsClassifier_view(data,Xcol,ycol,accuracy,precision,feature_importances,recall,f1,confusionmatrix,cv_scores):
+    _base64 = []
+    KNei_app, listTabs = start_app()
+    # Print feature importances with column names
+    for i in range(len(feature_importances)):
+        if abs(feature_importances[i]) == max(abs(feature_importances)):
+            print("Feature {}: {} - {:.2f}".format(i + 1, Xcol[i], feature_importances[i]))
+            imp=Xcol[i]
+
+    # Create a dictionary to store the evaluation metrics
+    metrics = {"Accuracy": accuracy, "Precision": precision, "Recall": recall, "F1-score": f1}
+    # Plot the evaluation metrics
+    plt.bar(metrics.keys(), metrics.values())
+    plt.xlabel("Metrics")
+    plt.ylabel("Score")
+    plt.title("Model Evaluation Metrics")
+    plt.savefig('pictures/{}.png'.format("Metrics"))
+    _base64.append(base64.b64encode(open('pictures/{}.png'.format("Metrics"), 'rb').read()).decode('ascii'))
+    plt.clf()
+
+    # Plot confusion matrix
+    sns.heatmap(confusionmatrix, annot=True, fmt="d", cmap="Blues", cbar=False)
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    plt.savefig('pictures/{}.png'.format("confusionmatrix"))
+    _base64.append(base64.b64encode(open('pictures/{}.png'.format("confusionmatrix"), 'rb').read()).decode('ascii'))
+    plt.clf()
+
+    # Plot feature importances
+    plt.barh(Xcol, feature_importances)
+    plt.xlabel("Mutual Information")
+    plt.title("Feature Importances")
+    plt.savefig('pictures/{}.png'.format("imp"))
+    _base64.append(base64.b64encode(open('pictures/{}.png'.format("imp"), 'rb').read()).decode('ascii'))
+    plt.clf()
+
+    question=classifierquestionset.render(section=1)
+    intro=classifieraccuracy.render(accuracy=round(accuracy,3),classifiername="K neighbors classifier")
+    aim = Xcol
+    aim.insert(0, ycol)
+    children = [html.P(question), html.Br(), html.P(intro),dash_table.DataTable(data[aim].to_dict('records'),
+                                     [{"name": i, "id": i} for i in
+                                      data[aim].columns], style_table={'height': '400px', 'overflowY': 'auto'})]
+
+    dash_tab_add(listTabs, 'KNeighborsClassifierStats', children)
+    aim.remove(ycol)
+
+    question = classifierquestionset.render(section=2)
+    modelStory=classifierf1.render(f1=round(f1,3))
+    children = [html.Img(src='data:image/png;base64,{}'.format(_base64[0])), html.P(question), html.Br(),
+                html.P(modelStory)]
+    dash_tab_add(listTabs, "Model Evaluation Metrics", children)
+
+    question = classifierquestionset.render(section=3)
+    crossvalidStory=classifiercv.render(cv=round(cv_scores.mean(),3),cm=confusionmatrix)
+    children = [html.Img(src='data:image/png;base64,{}'.format(_base64[1])), html.P(question), html.Br(),
+                html.P(crossvalidStory)]
+    dash_tab_add(listTabs, "Confusion Matrix and Cross-validation", children)
+
+    question = classifierquestionset.render(section=4)
+    ImpStory=classifierimp.render(imp=imp)
+    children = [html.Img(src='data:image/png;base64,{}'.format(_base64[2])), html.P(question), html.Br(),
+                html.P(ImpStory)]
+    dash_tab_add(listTabs, "Feature Importances", children)
+
+    run_app(KNei_app, listTabs)
+
+def SVCClassifier_view(data,Xcol,ycol,accuracy,precision,recall,f1,confusionmatrix,cv_scores):
+    _base64 = []
+    svm_app, listTabs = start_app()
+
+    # Create a dictionary to store the evaluation metrics
+    metrics = {"Accuracy": accuracy, "Precision": precision, "Recall": recall, "F1-score": f1}
+    # Plot the evaluation metrics
+    plt.bar(metrics.keys(), metrics.values())
+    plt.xlabel("Metrics")
+    plt.ylabel("Score")
+    plt.title("Model Evaluation Metrics")
+    plt.savefig('pictures/{}.png'.format("Metrics"))
+    _base64.append(base64.b64encode(open('pictures/{}.png'.format("Metrics"), 'rb').read()).decode('ascii'))
+    plt.clf()
+
+    # Plot confusion matrix
+    sns.heatmap(confusionmatrix, annot=True, fmt="d", cmap="Blues", cbar=False)
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    plt.savefig('pictures/{}.png'.format("confusionmatrix"))
+    _base64.append(base64.b64encode(open('pictures/{}.png'.format("confusionmatrix"), 'rb').read()).decode('ascii'))
+    plt.clf()
+
+    question=classifierquestionset.render(section=1)
+    intro=classifieraccuracy.render(accuracy=round(accuracy,3),classifiername="Support Vector Machine model")
+    aim = Xcol
+    aim.insert(0, ycol)
+    children = [html.P(question), html.Br(), html.P(intro),dash_table.DataTable(data[aim].to_dict('records'),
+                                     [{"name": i, "id": i} for i in
+                                      data[aim].columns], style_table={'height': '400px', 'overflowY': 'auto'})]
+
+    dash_tab_add(listTabs, 'SupportVectorMachineModelStats', children)
+    aim.remove(ycol)
+
+    question = classifierquestionset.render(section=2)
+    modelStory=classifierf1.render(f1=round(f1,3))
+    children = [html.Img(src='data:image/png;base64,{}'.format(_base64[0])), html.P(question), html.Br(),
+                html.P(modelStory)]
+    dash_tab_add(listTabs, "Model Evaluation Metrics", children)
+
+    question = classifierquestionset.render(section=3)
+    crossvalidStory=classifiercv.render(cv=round(cv_scores.mean(),3),cm=confusionmatrix)
+    children = [html.Img(src='data:image/png;base64,{}'.format(_base64[1])), html.P(question), html.Br(),
+                html.P(crossvalidStory)]
+    dash_tab_add(listTabs, "Confusion Matrix and Cross-validation", children)
+
+    run_app(svm_app, listTabs)
+
+def kmeancluster_view(wcss,minnum_clusters,maxnum_clusters,summary,best_n_clusters,silhouette_score_value,calinski_harabasz_score_value,davies_bouldin_score_value):
+    _base64 = []
+    kmeancluster_app, listTabs = start_app()
+
+    plt.plot(range(minnum_clusters, maxnum_clusters), wcss)
+    plt.title('Elbow Method')
+    plt.xlabel('Number of clusters')
+    plt.ylabel('WCSS')
+    plt.savefig('pictures/{}.png'.format("ElbowMethod"))
+    _base64.append(base64.b64encode(open('pictures/{}.png'.format("ElbowMethod"), 'rb').read()).decode('ascii'))
+    plt.clf()
+
+    print(summary)
+    print(best_n_clusters)
+    print('Silhouette Score: {:.3f}'.format(silhouette_score_value))
+    print('Calinski Harabasz Score: {:.3f}'.format(calinski_harabasz_score_value))
+    print('davies bouldin score: {:.3f}'.format(davies_bouldin_score_value))
 
 def TreeExplain(model, Xcol):
     n_nodes = model.tree_.node_count
@@ -503,7 +843,11 @@ def TreeExplain(model, Xcol):
     return (explain)
 
 
-def GradientBoostingModelStats_view(data, Xcol, ycol, GBmodel, mse, rmse, r2, imp, questionset, gbr_params):
+def GradientBoostingModelStats_view(data, Xcol, ycol, GBmodel, mse, rmse, r2, imp, questionset, gbr_params,train_errors,test_errors,DTData,chatGPT=0,key="",portnum=8050):
+    if chatGPT==1:
+        URL, chatmodel, headers,messages=set_chatGPT(Xcol,ycol,modelname="Gradient Boosting",key=key)
+        subsection="The following is the answer provided by ChatGPT:"
+
     # Store importance figure
     plt.bar(Xcol, GBmodel.feature_importances_)
 
@@ -511,12 +855,17 @@ def GradientBoostingModelStats_view(data, Xcol, ycol, GBmodel, mse, rmse, r2, im
     plt.savefig('pictures/{}.png'.format("GB1"))
     plt.clf()
 
-    os.environ["PATH"] += os.pathsep + 'C:/Program Files/Graphviz/bin/'
-    export_graphviz(GBmodel.estimators_[5][0], out_file='pictures/small_tree.dot', feature_names=Xcol, rounded=True,
-                    precision=1, node_ids=True)
-    (graph,) = pydot.graph_from_dot_file('pictures/small_tree.dot')
-    graph.write_png('pictures/small_tree.png', prog=['dot'])
-    encoded_image = base64.b64encode(open("pictures/small_tree.png", 'rb').read()).decode('ascii')
+    # os.environ["PATH"] += os.pathsep + 'C:/Program Files/Graphviz/bin/'
+    # export_graphviz(GBmodel.estimators_[5][0], out_file='pictures/small_tree.dot', feature_names=Xcol, rounded=True,
+    #                 precision=1, node_ids=True)
+    # (graph,) = pydot.graph_from_dot_file('pictures/small_tree.dot')
+    # graph.write_png('pictures/small_tree.png', prog=['dot'])
+    # encoded_image = base64.b64encode(open("pictures/small_tree.png", 'rb').read()).decode('ascii')
+
+    fig, ax = plt.subplots(nrows=1, ncols=1,figsize=(20, 10))  # Set the figure size as desired
+    tree.plot_tree(GBmodel.estimators_[0][0], ax=ax,feature_names=Xcol,rounded=True,precision=1, node_ids=True)
+    plt.savefig('pictures/tree_figure.png')
+    encoded_image= base64.b64encode(open("pictures/tree_figure.png", 'rb').read()).decode('ascii')
 
     _base64 = []
     _base64.append(base64.b64encode(open('pictures/{}.png'.format("GB1"), 'rb').read()).decode('ascii'))
@@ -536,15 +885,34 @@ def GradientBoostingModelStats_view(data, Xcol, ycol, GBmodel, mse, rmse, r2, im
     plt.clf()
     _base64.append(base64.b64encode(open('pictures/{}.png'.format("GB2"), 'rb').read()).decode('ascii'))
 
+    plt.plot(train_errors, label='Training MSE')
+    plt.plot(test_errors, label='Testing MSE')
+    plt.legend()
+    plt.savefig('pictures/{}.png'.format("GB3"))
+    plt.clf()
+    _base64.append(base64.b64encode(open('pictures/{}.png'.format("GB3"), 'rb').read()).decode('ascii'))
+
     GB_app, listTabs = start_app()
     # Add to dashbord Model Statistics
     question1 = DecisionTreeQuestion.render(q=1, m="gb")
     intro = DecisionTree2.render(r2=r2, qs=questionset, indeNum=np.size(Xcol), modelName="Gradient Boosting", Xcol=Xcol,
                                  ycol=ycol, )
-    # newstory = MicroLexicalization(story)
+    # micro planning
+    # intro = model.MicroLexicalization(intro)
     aim = Xcol
     aim.insert(0, ycol)
-    children = [html.P(question1), html.Br(), html.P(intro),
+
+    if chatGPT == 1:
+        request=questionrequest.render(model="gradient boosting",question=1,r2information=str(round(r2,3)))
+        payload, messages = set_payload(request + question1, messages)
+        output,messages=send_response_receive_output(URL,headers,payload,messages)
+        print(output)
+        children = [html.P(question1), html.Br(), html.P(intro), html.Br(), html.P(subsection),html.Br(),html.P(output),dash_table.DataTable(data[aim].to_dict('records'),
+                                     [{"name": i, "id": i} for i in data[aim].columns],
+                                     style_table={'height': '400px', 'overflowY': 'auto'})]
+
+    else:
+        children = [html.P(question1), html.Br(), html.P(intro),
                 dash_table.DataTable(data[aim].to_dict('records'), [{"name": i, "id": i} for i in data[aim].columns],
                                      style_table={'height': '400px', 'overflowY': 'auto'})]
     dash_tab_add(listTabs, 'Gradient Boosting Stats', children)
@@ -555,28 +923,68 @@ def GradientBoostingModelStats_view(data, Xcol, ycol, GBmodel, mse, rmse, r2, im
     #     html.Img(src='data:image/png;base64,{}'.format(_base64[1])), html.P(explain)
     # ]))
     question2 = DecisionTreeQuestion.render(q=2)
-    children = [html.Img(src='data:image/png;base64,{}'.format(encoded_image)), html.P(question2), html.Br(),
-                html.Pre(explain)]
+    if chatGPT == 1:
+        request=questionrequest.render(model="gradient boosting",question=2,treeinformation=explain)
+        payload, messages = set_payload(request + question2, messages)
+        output,messages=send_response_receive_output(URL,headers,payload,messages)
+        print(output)
+        children = [html.Img(src='data:image/png;base64,{}'.format(encoded_image)), html.P(question2), html.Br(),html.Pre(explain), html.Br(),html.P(subsection),html.Br(),html.P(output)]
+    else:
+        children = [html.Img(src='data:image/png;base64,{}'.format(encoded_image)), html.P(question2), html.Br(),html.Pre(explain)]
     dash_tab_add(listTabs, 'Tree Explanation', children)
 
-    summary = DecisionTree3.render(imp=imp, ycol=ycol, r2=round(r2, 3), qs=questionset, mse=mse)
+    summary = DecisionTree3.render(imp=imp, ycol=ycol, r2=round(r2, 3), qs=questionset, mse=round(mse,3))
     question3 = DecisionTreeQuestion.render(q=3)
-    children = [html.Img(src='data:image/png;base64,{}'.format(_base64[0])), html.P(question3), html.Br(),
-                html.P(summary), ]
+
+    if chatGPT == 1:
+        request=questionrequest.render(model="gradient boosting",question=3,impinformation=str(DTData))
+        payload, messages = set_payload(request + question3, messages)
+        output,messages=send_response_receive_output(URL,headers,payload,messages)
+        print(output)
+        children = [html.Img(src='data:image/png;base64,{}'.format(_base64[0])), html.P(question3), html.Br(),html.P(summary), html.Br(),html.P(subsection),html.Br(),html.P(output)]
+    else:
+        children = [html.Img(src='data:image/png;base64,{}'.format(_base64[0])), html.P(question3), html.Br(),html.P(summary), ]
     dash_tab_add(listTabs, 'Summary', children)
 
-    run_app(GB_app, listTabs)
+    overfit=modeloverfit.render()
+    question4=DecisionTreeQuestion.render(q=4)
+
+    if chatGPT == 1:
+        request=questionrequest.render(model="gradient boosting",question=4,trainerrorinformation=str(train_errors),testerrorinformation=str(test_errors))
+        payload, messages = set_payload(request+ question4, messages)
+        output,messages=send_response_receive_output(URL,headers,payload,messages)
+        print(output)
+        children = [html.Img(src='data:image/png;base64,{}'.format(_base64[2])), html.P(question4), html.Br(),html.P(overfit), html.Br(),html.P(subsection),html.Br(),html.P(output)]
+    else:
+        children = [html.Img(src='data:image/png;base64,{}'.format(_base64[2])), html.P(question4), html.Br(),html.P(overfit), ]
+    dash_tab_add(listTabs, 'Model Fitting', children)
+
+    run_app(GB_app, listTabs,portnum)
 
 
-def RandomForestModelStats_view(data, Xcol, ycol, tree_small, rf_small, DTData, r2, mse, questionset):
+def RandomForestModelStats_view(data, Xcol, ycol, tree_small, rf_small, DTData, r2, mse, questionset,portnum=8050):
     # Save the tree as a png image
 
-    os.environ["PATH"] += os.pathsep + 'C:/Program Files/Graphviz/bin/'
-    export_graphviz(tree_small, out_file='pictures/small_tree.dot', feature_names=Xcol, rounded=True, precision=1,
-                    node_ids=True)
-    (graph,) = pydot.graph_from_dot_file('pictures/small_tree.dot')
-    graph.write_png('pictures/small_tree.png', prog=['dot'])
-    encoded_image = base64.b64encode(open("pictures/small_tree.png", 'rb').read()).decode('ascii')
+    # os.environ["PATH"] += os.pathsep + 'C:/Program Files/Graphviz/bin/'
+    # export_graphviz(tree_small, out_file='pictures/small_tree.dot', feature_names=Xcol, rounded=True, precision=1,
+    #                 node_ids=True)
+    # (graph,) = pydot.graph_from_dot_file('pictures/small_tree.dot')
+    # graph.write_png('pictures/small_tree.png', prog=['dot'])
+    # encoded_image = base64.b64encode(open("pictures/small_tree.png", 'rb').read()).decode('ascii')
+
+    # Extract one of the decision trees from the Random Forest model
+    tree_idx = 0  # Index of the tree to visualize
+    estimator = rf_small.estimators_[tree_idx]
+    # Create a tree figure
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(20, 10))
+    tree.plot_tree(estimator, ax=ax, feature_names=Xcol, rounded=True, precision=1, node_ids=True)
+
+    # Save the tree figure as a PNG image
+    plt.savefig('pictures/tree_figure.png')
+    # Encode the image as base64
+    encoded_image = base64.b64encode(open("pictures/tree_figure.png", 'rb').read()).decode('ascii')
+
+
     # Explain of the tree
     explain = TreeExplain(rf_small.estimators_[0], Xcol)
     # Importance score Figure
@@ -613,10 +1021,10 @@ def RandomForestModelStats_view(data, Xcol, ycol, tree_small, rf_small, DTData, 
     children = [dcc.Graph(figure=fig), html.P(question3), html.Br(), html.P(summary)]
     dash_tab_add(listTabs, 'Summary', children)
 
-    run_app(RF_app, listTabs)
+    run_app(RF_app, listTabs,portnum)
 
 
-def DecisionTreeModelStats_view(data, Xcol, ycol, DTData, DTmodel, r2, mse, questionset):
+def DecisionTreeModelStats_view(data, Xcol, ycol, DTData, DTmodel, r2, mse, questionset,portnum=8050):
     # Importance score Figure
     imp = ""
     fig = px.bar(DTData)
@@ -669,11 +1077,14 @@ def DecisionTreeModelStats_view(data, Xcol, ycol, DTData, DTmodel, r2, mse, ques
     children = [dcc.Graph(figure=fig), html.P(question3), html.Br(), html.P(summary)]
     dash_tab_add(listTabs,'Summary',children)
 
-    run_app(DT_app,listTabs)
+    run_app(DT_app,listTabs,portnum)
 
 
 def GAMs_view(gam, data, Xcol, ycol, r2, p, conflict, nss, ss, mincondition, condition, questionset=[1, 1, 1, 0],
-              trend=1):
+              trend=1,chatGPT=0,key="",predict="",portnum=8050):
+    if chatGPT==1:
+        URL, chatmodel, headers,messages=set_chatGPT(Xcol,ycol,modelname="generalized additive",key=key)
+        subsection="The following is the answer provided by ChatGPT:"
     # Analysis and Graphs Generate
     _base64 = []
     for i, term in enumerate(gam.terms):
@@ -693,8 +1104,9 @@ def GAMs_view(gam, data, Xcol, ycol, r2, p, conflict, nss, ss, mincondition, con
     # print(GAMslinear_P.render(pvalue=p, Nss=nss, Ss=ss, Xcol=Xcol, ycol=ycol,
     #                           indeNum=np.size(Xcol)))
     # print(GAMslinear_sum.render(ycol=ycol, condition=condition, mincondition=mincondition, demand=1))
-    gamm_app = JupyterDash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-    listTabs = []
+
+    gamm_app, listTabs = start_app()
+
     question = linearQuestion.render(xcol=Xcol, ycol=ycol, qs=questionset, section=1, indeNum=np.size(Xcol),
                                      trend=trend)
     # Add to dashbord GAMs Model Statistics
@@ -703,13 +1115,22 @@ def GAMs_view(gam, data, Xcol, ycol, r2, p, conflict, nss, ss, mincondition, con
     aim = Xcol
     aim.insert(0, ycol)
     # newstory = MicroLexicalization(story)
-    # listTabs.append(dcc.Tab(label='GAMs Model Stats', children=[html.P(intro),
-    #                                                             dash_table.DataTable(data[aim].to_dict('records'),
-    #                                                                                  [{"name": i, "id": i} for i in
-    #                                                                                   data[aim].columns],
-    #                                                                                  style_table={'height': '400px',
-    #                                                                                               'overflowY': 'auto'})]), )
-    dash_with_table_with_question(gamm_app, listTabs, question, intro, data[aim], 'GAMs Model Stats')
+
+    if chatGPT == 1:
+        payload, messages = set_payload("The R-aquared is "+ str(round(r2['McFadden_adj'],3)) +" and " + question, messages)
+        output,messages=send_response_receive_output(URL,headers,payload,messages)
+        print(output)
+        children = [html.P(question), html.Br(), html.P(intro), html.Br(), html.P(subsection),html.Br(),html.P(output),
+                dash_table.DataTable(data[aim].to_dict('records'),
+                                     [{"name": i, "id": i} for i in data[aim].columns],
+                                     style_table={'height': '400px', 'overflowY': 'auto'})]
+    else:
+        children = [html.P(question), html.Br(), html.P(intro), html.Br(),
+                dash_table.DataTable(data[aim].to_dict('records'),
+                                     [{"name": i, "id": i} for i in data[aim].columns],
+                                     style_table={'height': '400px', 'overflowY': 'auto'})]
+    dash_tab_add(listTabs, 'GAMs Model Stats', children)
+    # dash_with_table_with_question(gamm_app, listTabs, question, intro, data[aim], 'GAMs Model Stats')
     # Fromat list with files names
     aim.remove(ycol)
     # Add to dashbord values of Xcol and graphs
@@ -717,18 +1138,39 @@ def GAMs_view(gam, data, Xcol, ycol, r2, p, conflict, nss, ss, mincondition, con
         question = linearQuestion.render(xcol=Xcol[i], ycol=ycol, qs=questionset, section=2, indeNum=1, trend=trend)
         # other story for one independent variable add in here
         story = gamStory.render(pvalue=p[i], xcol=Xcol[i], ycol=ycol, ) + conflict[i]
-        dash_with_figure_and_question(gamm_app, listTabs, question, story, Xcol[i], _base64[i])
-        # listTabs.append(dcc.Tab(label=Xcol[i], children=[
-        #     html.Img(src='data:image/png;base64,{}'.format(_base64[i])), html.P(story)
-        # ]))
+        if questionset[1] == 1 or questionset[2] == 1:
+            # set chatGPT
+            if chatGPT == 1:
+                payload, messages = set_payload("The P-value of " + Xcol[i] + " is " + str(
+                    round(p[i], 3)) +", and "+predict[i]+" Please briefly describe how the dependent variable changes as the independent variable changes, when does it reach the maximum and minimum values, and what is the trend? And whether the independent variable has a significant impact on the dependent variable?",messages)
+                output, messages = send_response_receive_output(URL, headers, payload, messages)
+                print(output)
+                children = [
+                    html.Img(src='data:image/png;base64,{}'.format(_base64[i])), html.P(question), html.Br(),
+                    html.P(story),html.Br(),html.P(subsection),html.Br(),html.P(output)
+                ]
+            else:
+                children = [
+                    html.Img(src='data:image/png;base64,{}'.format(_base64[i])), html.P(question), html.Br(),
+                    html.P(story)
+                ]
+            dash_tab_add(listTabs, Xcol[i], children)
+
+        #dash_with_figure_and_question(gamm_app, listTabs, question, story, Xcol[i], _base64[i])
+
     question = linearQuestion.render(xcol="", ycol=ycol, qs=questionset, section=3, indeNum=1, trend=trend)
     summary = GAMslinear_P.render(pvalue=p, Nss=nss, Ss=ss, Xcol=Xcol, ycol=ycol,
                                   indeNum=np.size(Xcol)) + GAMslinear_sum.render(ycol=ycol, condition=condition,
                                                                                  mincondition=mincondition, demand=1)
-    dash_only_text_and_question(gamm_app, listTabs, question, summary, 'Summary')
-    # listTabs.append(dcc.Tab(label='Summary', children=[html.P(summary), ]), )
-
-    run_app(gamm_app,listTabs)
+    if chatGPT == 1:
+        payload, messages= set_payload("Based on your previous answers only, without considering other elements. "+question,messages)
+        output, messages = send_response_receive_output(URL, headers, payload, messages)
+        print(output)
+        children = [ html.P(question), html.Br(), html.P(summary),html.Br(),html.P(subsection),html.Br(),html.P(output)]
+    else:
+        children = [ html.P(question), html.Br(), html.P(summary)]
+    dash_tab_add(listTabs, 'Summary', children)
+    run_app(gamm_app,listTabs,portnum)
 
 def dash_tab_add(listTabs, label, child):
     listTabs.append(dcc.Tab(label=label, children=child))

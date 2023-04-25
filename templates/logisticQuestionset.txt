@@ -1,6 +1,6 @@
 {%- if section==1 -%}
 {%- if qs[0]==1 -%}
-Question: Does the logistic regression model fit the dataset well?
+Question: Does the logistic model fit the dataset well?
 {%- else -%}
 Data Stories Overview
 {%- endif -%}

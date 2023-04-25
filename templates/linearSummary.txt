@@ -1,8 +1,8 @@
-{%- if qs[2]==1-%}{%- if coeff>0-%} As the above figure shows, under the premise that other variables are fixed. A one-unit increase in the {{xcol}} will produce an increase of {{coeff | round(3)}} in the mean value of the {{ycol}}.
-{%- elif coeff<0 -%} As the above figure shows, under the premise that other variables are fixed. A one-unit increase in the {{xcol}} will produce a decrease of {{(-coeff) | round(3)}} in the mean value of the {{ycol}}.
-{%- elif coeff==0 -%} As the above figure shows, under the premise that other variables are fixed. A one-unit increase in the {{xcol}} will have no effect on the {{ycol}}. {%- endif-%}{%- endif-%}
+As depicted in the figure above, when keeping other variables fixed,{%- if qs[2]==1-%}{%- if (coeff) | round(3)>0%} a one-unit increase in the {{xcol}} results in an increase of {{coeff | round(3)}} in the mean value of the {{ycol}}.
+{%- elif (coeff) | round(3)<0 %} a one-unit increase in the {{xcol}} results in a decrease of {{(-coeff) | round(3)}} in the mean value of the {{ycol}}.
+{%- elif (coeff) | round(3)==0 %} a one-unit increase in the {{xcol}} will almost not affect the {{ycol}}. {%- endif-%}{%- endif-%}
 {%- if qs[1]==1-%}{%-if expect==1 and p <0.05%} As you might expect, the effect of the {{xcol}} on the {{ycol}} is significant for the following reason.
 {%-elif expect==0 and p >0.05%} As you might expect, the effect of the {{xcol}} on the {{ycol}} is not significant for the following reason.
 {%-elif expect==1 and p >0.05%} Unlike what you might expect, the effect of the {{xcol}} on the {{ycol}} is not significant for the following reason.
-{%-elif expect==0 and p <0.05%} Unlike what you might expect, the effect of the {{xcol}} on the {{ycol}} is significant for the following reason. {%- endif-%}{%- if p <0.05 %} The P-value is {{ p | round(3)}} that below the normal significance level of 0.05, which means that the results above are statistically significant.
-{%- else %} The P-value is {{ p | round(3)}} that above the normal significance level of 0.05, which means that the results above are not statistically significant. {%- endif-%}{%- endif-%}
+{%-elif expect==0 and p <0.05%} Unlike what you might expect, the effect of the {{xcol}} on the {{ycol}} is significant for the following reason. {%- endif-%}{%- if p <0.05 %} The P-value is {{ p | round(3)}} which is below the normal significance level of 0.05, indicating that the observed results are statistically significant.
+{%- else %} The P-value is {{ p | round(3)}} which is above the normal significance level of 0.05, indicating that the observed results are not statistically significant. {%- endif-%}{%- endif-%}

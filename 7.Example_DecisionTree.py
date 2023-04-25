@@ -1,5 +1,5 @@
 import pandas
-import ADSTP.IntegratedPipeline as IP
+import IntegratedPipeline as IP
 
 dataset=pandas.read_csv("./data/petrol_consumption.csv", header=0)
 Xcol=["Petrol_tax","Average_income","Paved_Highways","Population_Driver_licence(%)"]

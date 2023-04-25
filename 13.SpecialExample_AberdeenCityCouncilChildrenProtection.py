@@ -1,4 +1,4 @@
-import ADSTP.UI_ForSpecialExample as UI
+import UI_ForSpecialExample as UI
 # # # This is a UI use case for special pipelines.
 # # # The main purpose of this example is to show that when a system is fully established,
 # # # monthly reports can be automatically generated with very high efficiency.
